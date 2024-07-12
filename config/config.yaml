@@ -1,0 +1,26 @@
+artefacts_root: artefacts
+
+
+data_ingestion:
+  root_dir: artefacts/data_ingestion
+  source_URL: https://github.com/donadviser/datasets/raw/master/data-don/insurance_fraud_claims.csv
+  local_data_file: artefacts/data_ingestion/insurance_fraud_claims.csv
+  unzip_dir: artefacts/data_ingestion
+
+
+prepare_base_model:
+  root_dir: artefacts/prepare_base_model
+  base_model_path: artefacts/prepare_base_model/base_model.h5
+  updated_base_model_path: artefacts/prepare_base_model/base_model_updated.h5
+
+
+training:
+  root_dir: artefacts/training
+  trained_model_path: artefacts/training/model.h5
+  trained_model_for_prediction_dir: model
+  trained_model_for_prediction_path: model/model.h5
+
+
+evaluation:
+  mlflow_uri: "https://dagshub.com/donadviser/end-to-end-cancer-prediction-mlops-mlfow-dvc-aws-cicd.mlflow"
+

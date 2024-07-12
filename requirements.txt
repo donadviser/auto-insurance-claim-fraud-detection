@@ -1,0 +1,23 @@
+pandas
+numpy
+notebook
+matplotlib
+seaborn
+scikit-learn
+python-box
+pyYAML
+tqdm
+ensure==1.0.2
+joblib
+types-PyYAML
+scipy
+imblearn
+from-root
+evidently
+catboost
+category-encoders==2.5.1.post0
+Jinja2
+uvicorn
+dill
+xgboost
+-e .
