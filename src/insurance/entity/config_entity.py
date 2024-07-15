@@ -85,3 +85,24 @@ class DataTransformationConfig:
         self.PREPROCESSOR_FILE_PATH: str = os.path.join(
             from_root(), ARTEFACTS_DIR, DATA_TRANSFORMATION_ARTEFACTS_DIR, PREPROCESSOR_OBJECT_FILE_NAME
             )
+
+
+# Model Evaluation Configurations
+@dataclass
+class ModelTrainerConfig:
+    def __init__(self):
+        self.UTILS = MainUtils()
+        
+        self.DATA_TRANSFORMATION_ARTEFACTS_DIR: str = os.path.join(
+            from_root(), ARTEFACTS_DIR, DATA_TRANSFORMATION_ARTEFACTS_DIR
+        )
+        self.MODEL_TRAINER_ARTEFACTS_DIR: str = os.path.join(
+            from_root(), ARTEFACTS_DIR, MODEL_TRAINER_ARTEFACTS_DIR
+            )
+        self.PREPROCESSOR_OBJECT_FILE_PATH: str = os.path.join(
+            self.DATA_TRANSFORMATION_ARTEFACTS_DIR, PREPROCESSOR_OBJECT_FILE_NAME
+    
+        )
+        self.TRAINED_MODEL_FILE_PATH: str = os.path.join(
+            from_root(), ARTEFACTS_DIR, MODEL_TRAINER_ARTEFACTS_DIR, MODEL_FILE_NAME
+            )

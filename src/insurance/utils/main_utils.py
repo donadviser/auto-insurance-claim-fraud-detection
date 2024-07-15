@@ -8,8 +8,9 @@ import yaml
 from yaml import safe_dump
 
 
-#import xgboost
-from sklearn.metrics import r2_score
+import xgboost
+import lightgbm
+from sklearn.metrics import accuracy_score
 from sklearn.model_selection import GridSearchCV
 from sklearn.utils import all_estimators
 
@@ -57,6 +58,80 @@ class MainUtils:
         except Exception as e:
             raise CustomException(e, sys)
         
+    def get_tuned_model(
+            self,
+            model_name: str,
+            train_x: pd.DataFrame,
+            train_y: pd.DataFrame,
+            test_x: pd.DataFrame,
+            test_y: pd.DataFrame,
+    ) -> Tuple[float, object, str]:
+        logging.info("Entered the get_tuned_model method of MainUtils class")
+        try:
+            model = self.get_base_model(model_name)
+            model_best_params = self.get_model_params(model, train_x, train_y)
+            model.set_params(**model_best_params)
+            model.fit(train_x, train_y)
+            preds = model.predict(test_x)
+            model_score = self.get_model_score(test_y, preds)
+            logging.info(f"Successfully tuned the {model_name} model.")
+            return model_score, model, model.__class__.__name__
+        except Exception as e:
+            raise CustomException(e, sys)
+    
+    @staticmethod
+    def get_model_score(test_y: pd.DataFrame, preds: pd.DataFrame) -> float:
+        logging.info("Entered the get_model_score method of MainUtils class")
+        try:
+            model_score = accuracy_score(test_y, preds)
+            logging.info(f"Model score: accuracy_score is {model_score}")
+            logging.info("Exited the get_model_score method of MainUntils class")
+            return model_score
+        except Exception as e:
+            raise CustomException(e, sys)
+        
+    @staticmethod
+    def get_base_model(model_name: str) -> object:
+        logging.info("Entered the get_base_model method of MainUtils class")
+        try:
+            if model_name.lower().startswith("xgb") is True:
+                model = xgboost.__dict__[model_name]()
+            elif model_name.lower().startswith("lgb") is True:
+                model = lightgbm.__dict__[model_name]()
+            else:
+                model_idx = [model[0] for model in all_estimators()].index(model_name)
+                model = all_estimators().__getitem__(model_idx)[1]()
+            logging.info(f"Successfully loaded the {model_name} model.")
+            logging.info("Exited the get_base_model method of MainUtils class")
+            return model
+        except Exception as e:
+            raise CustomException(e, sys)
+        
+    
+    def get_model_params(self, model: object, X_train: pd.DataFrame, y_train: pd.DataFrame) -> Dict:
+        logging.info("Entered the get_model_params method of MainUtils class")
+        try:
+            VERBOSE = 3
+            CV = 5
+            N_JOBD = -1
+
+            model_name = model.__class__.__name__
+            model_config = self.read_yaml_file(filename=MODEL_CONFIG_FILE)
+            model_param_grid = model_config["train_model"][model_name]
+            model_grid = GridSearchCV(
+                model,
+                model_param_grid,
+                verbose=VERBOSE,
+                cv=CV,                
+                n_jobs=N_JOBD,
+            )
+            model_grid.fit(X_train, y_train)
+            logging.info(f"Successfully tuned the {model.__class__.__name__} model.")
+            logging.info("Exited the get_model_params method of MainUtils class")
+            return model_grid.best_params_
+        except Exception as e:
+            raise CustomException(e, sys)
+        
     
     @staticmethod
     def save_object(file_path: str, obj: object) -> None:
@@ -67,5 +142,58 @@ class MainUtils:
             logging.info(f"Successfully saved the object to {file_path}")
             logging.info("Exited the save_object method of MainUtils class")
             return file_path
+        except Exception as e:
+            raise CustomException(e, sys)
+        
+
+    @staticmethod
+    def load_object(file_path: str) -> object:
+        logging.info("Entered the load_object method of MainUtils class")
+        try:
+            with open(file_path, "rb") as file_obj:
+                obj = dill.load(file_obj)
+            logging.info(f"Successfully loaded the object from {file_path}")
+            logging.info("Exited the load_object method of MainUtils class")
+            return obj
+        except Exception as e:
+            raise CustomException(e, sys)
+        
+    @staticmethod
+    def get_best_model_with_name_and_score(model_list: list) -> Tuple[object, float]:
+        logging.info("Entered the get_best_model_with_name_and_score method of MainUtils class")
+        try:
+            best_score = max(model_list)[0]
+            best_model = max(model_list)[1]
+            logging.info("Exited the get_best_model_with_name_and_score method of MainUtils class")
+            return best_model, best_score
+        except Exception as e:
+            raise CustomException(e, sys)
+        
+    @staticmethod
+    def create_artefacts_zip(file_name: str, folder_name: str) -> None:
+        logging.info("Entered the create_artefacts_zip method of MainUtils class")
+        try:
+            shutil.make_archive(file_name, "zip", folder_name)
+            logging.info("Exited the create_artefacts_zip method of MainUtils class")
+        except Exception as e:
+            raise CustomException(e, sys)
+        
+    @staticmethod
+    def unzip_file(file_name: str, folder_name: str) -> None:
+        logging.info("Entered the unzip_file method of MainUtils class")
+        try:
+            shutil.unpack_archive(file_name, folder_name)
+            logging.info("Exited the unzip_file method of MainUtils class")
+        except Exception as e:
+            raise CustomException(e, sys)
+        
+    def update_model_score(self, best_model_score: float) -> None:
+        logging.info("Entered the update_model_score method of MainUtils class")
+        try:
+            model_config = self.read_yaml_file(filename=MODEL_CONFIG_FILE)
+            model_config["base_model_score"] = str(best_model_score)
+            with open(MODEL_CONFIG_FILE, "w+") as file_obj:
+                safe_dump(model_config, file_obj, sort_keys=False)
+            logging.info("Exited the update_model_score method of MainUtils class")
         except Exception as e:
             raise CustomException(e, sys)

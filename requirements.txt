@@ -4,6 +4,7 @@ notebook
 matplotlib
 seaborn
 scikit-learn
+xgboost
 python-box
 pyYAML
 tqdm
@@ -19,5 +20,5 @@ category-encoders==2.5.1.post0
 Jinja2
 uvicorn
 dill
-xgboost
+lightgbm
 -e .
