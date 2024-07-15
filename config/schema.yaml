@@ -98,7 +98,7 @@ drop_columns:
   - auto_year
 
 binary_columns:
-  - International
+  - insured_sex
 
 
 target_column: fraud_reported

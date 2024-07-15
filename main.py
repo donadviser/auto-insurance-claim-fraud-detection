@@ -1,14 +1,9 @@
-from insurance.pipeline.stage_01_data_ingestion import DataIngestionTrainingPipeline
 from insurance import logging
+from insurance import CustomException
+from insurance.pipeline.training_pipeling import TrainPipeline
 
 
 
-STAGE_NAME = "Data Ingestion stage"
-try:
-   logging.info(f">>>>>> stage {STAGE_NAME} started <<<<<<") 
-   data_ingestion = DataIngestionTrainingPipeline()
-   data_ingestion.main()
-   logging.info(f">>>>>> stage {STAGE_NAME} completed <<<<<<\n\nx==========x")
-except Exception as e:
-        logging.exception(e)
-        raise e
+if __name__ == "__main__":
+    train_pipeline = TrainPipeline()
+    train_pipeline.run_pipeline()
