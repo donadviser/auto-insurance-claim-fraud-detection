@@ -1,0 +1,183 @@
+months_as_customer,age,policy_deductable,umbrella_limit,insured_sex,insured_education_level,insured_occupation,incident_type,collision_type,incident_severity,authorities_contacted,incident_hour_of_the_day,number_of_vehicles_involved,property_damage,bodily_injuries,witnesses,police_report_available,total_claim_amount,fraud_reported
+203,38,500,0,FEMALE,Masters,other-service,Single Vehicle Collision,Front Collision,Major Damage,Ambulance,7,1,?,0,1,YES,55440,Y
+37,25,1000,0,FEMALE,Masters,protective-serv,Multi-vehicle Collision,Rear Collision,Minor Damage,Ambulance,4,3,YES,0,0,YES,51030,N
+169,37,1000,0,MALE,JD,armed-forces,Multi-vehicle Collision,Side Collision,Total Loss,Police,4,3,?,2,1,YES,57900,N
+338,47,500,4000000,MALE,MD,priv-house-serv,Single Vehicle Collision,Front Collision,Total Loss,Other,4,1,YES,2,1,?,58560,N
+257,44,1000,0,MALE,MD,other-service,Single Vehicle Collision,Rear Collision,Total Loss,Other,21,1,NO,0,1,NO,46980,N
+197,41,1000,0,FEMALE,PhD,prof-specialty,Single Vehicle Collision,Front Collision,Major Damage,Police,6,1,NO,2,2,YES,76400,Y
+150,37,1000,0,FEMALE,PhD,transport-moving,Single Vehicle Collision,Rear Collision,Total Loss,Police,9,1,NO,0,2,?,80080,N
+260,43,500,0,FEMALE,JD,exec-managerial,Single Vehicle Collision,Front Collision,Total Loss,Fire,18,1,?,1,0,?,75400,N
+414,52,500,0,FEMALE,High School,farming-fishing,Single Vehicle Collision,Rear Collision,Total Loss,Police,13,1,YES,1,1,?,54810,Y
+154,34,1000,0,FEMALE,JD,priv-house-serv,Multi-vehicle Collision,Side Collision,Total Loss,Other,18,4,?,2,3,YES,74360,Y
+257,40,500,0,MALE,MD,armed-forces,Multi-vehicle Collision,Side Collision,Major Damage,Other,6,3,?,0,2,YES,51810,Y
+290,45,1000,0,FEMALE,Associate,machine-op-inspct,Multi-vehicle Collision,Side Collision,Major Damage,Ambulance,23,3,YES,0,0,YES,52650,Y
+293,45,1000,0,FEMALE,MD,exec-managerial,Multi-vehicle Collision,Front Collision,Total Loss,Fire,13,3,NO,1,1,NO,51210,N
+118,28,2000,0,FEMALE,High School,handlers-cleaners,Multi-vehicle Collision,Front Collision,Major Damage,Ambulance,22,2,NO,1,0,?,74200,N
+7,21,1000,0,MALE,Associate,machine-op-inspct,Single Vehicle Collision,Front Collision,Total Loss,Other,21,1,?,1,2,?,62460,N
+143,33,1000,0,FEMALE,Associate,craft-repair,Multi-vehicle Collision,Side Collision,Major Damage,Fire,17,3,?,2,2,?,70400,N
+177,34,2000,0,FEMALE,JD,tech-support,Multi-vehicle Collision,Front Collision,Total Loss,Ambulance,22,3,?,1,1,NO,18000,N
+362,55,1000,0,FEMALE,JD,other-service,Multi-vehicle Collision,Rear Collision,Total Loss,Police,0,3,NO,0,3,NO,39690,N
+179,32,2000,0,FEMALE,PhD,priv-house-serv,Single Vehicle Collision,Front Collision,Minor Damage,Fire,10,1,?,0,1,?,53100,N
+247,39,500,0,FEMALE,Masters,protective-serv,Vehicle Theft,?,Trivial Damage,Police,5,1,YES,1,2,?,7700,N
+270,44,2000,0,FEMALE,Associate,machine-op-inspct,Multi-vehicle Collision,Rear Collision,Major Damage,Ambulance,20,3,?,1,0,NO,35900,Y
+163,38,2000,0,FEMALE,PhD,other-service,Single Vehicle Collision,Side Collision,Minor Damage,Ambulance,13,1,YES,2,3,?,79500,N
+438,57,500,0,FEMALE,MD,machine-op-inspct,Single Vehicle Collision,Side Collision,Minor Damage,Police,14,1,?,0,0,NO,40700,Y
+0,32,1000,0,MALE,College,tech-support,Multi-vehicle Collision,Rear Collision,Minor Damage,Ambulance,6,4,?,1,1,NO,39720,N
+256,42,1000,0,FEMALE,MD,transport-moving,Single Vehicle Collision,Rear Collision,Minor Damage,Police,14,1,NO,2,1,?,75500,N
+20,21,1000,0,FEMALE,Masters,priv-house-serv,Single Vehicle Collision,Rear Collision,Minor Damage,Fire,14,1,NO,0,0,?,62900,N
+228,42,2000,5000000,MALE,MD,machine-op-inspct,Vehicle Theft,?,Minor Damage,Police,8,1,?,0,0,?,5070,Y
+244,40,2000,7000000,MALE,Masters,armed-forces,Multi-vehicle Collision,Side Collision,Minor Damage,Police,5,3,?,1,1,?,61490,N
+182,40,1000,0,MALE,PhD,other-service,Single Vehicle Collision,Front Collision,Total Loss,Other,13,1,YES,0,2,?,71100,N
+127,29,2000,5000000,FEMALE,High School,sales,Multi-vehicle Collision,Front Collision,Total Loss,Fire,12,2,YES,1,1,?,66950,N
+92,32,500,0,MALE,Masters,prof-specialty,Single Vehicle Collision,Rear Collision,Total Loss,Ambulance,22,1,?,2,3,YES,53400,N
+162,33,500,0,FEMALE,Associate,exec-managerial,Multi-vehicle Collision,Rear Collision,Major Damage,Fire,17,4,NO,2,1,NO,35300,Y
+272,41,2000,5000000,MALE,MD,protective-serv,Single Vehicle Collision,Front Collision,Minor Damage,Fire,23,1,NO,0,0,NO,84100,Y
+16,35,1000,0,MALE,JD,sales,Single Vehicle Collision,Rear Collision,Total Loss,Other,0,1,NO,2,1,?,55000,Y
+65,30,500,4000000,FEMALE,College,transport-moving,Multi-vehicle Collision,Side Collision,Total Loss,Fire,6,3,?,2,3,NO,79800,N
+254,40,500,5000000,MALE,College,armed-forces,Single Vehicle Collision,Front Collision,Minor Damage,Other,23,1,?,2,2,?,53460,N
+3,29,500,5000000,FEMALE,JD,priv-house-serv,Parked Car,?,Trivial Damage,Police,3,1,?,2,1,?,5000,Y
+84,32,500,7000000,FEMALE,Associate,prof-specialty,Single Vehicle Collision,Rear Collision,Total Loss,Other,0,1,YES,0,2,?,57240,Y
+260,46,2000,0,MALE,MD,priv-house-serv,Single Vehicle Collision,Front Collision,Minor Damage,Fire,7,1,NO,0,1,NO,64080,N
+109,29,2000,6000000,FEMALE,High School,adm-clerical,Multi-vehicle Collision,Side Collision,Minor Damage,Police,17,3,NO,1,3,YES,91080,N
+256,39,1000,0,FEMALE,PhD,tech-support,Multi-vehicle Collision,Rear Collision,Major Damage,Fire,19,3,NO,0,2,NO,64100,Y
+185,35,2000,0,MALE,College,other-service,Vehicle Theft,?,Trivial Damage,Police,8,1,?,2,3,YES,4950,N
+229,41,2000,3000000,MALE,PhD,tech-support,Single Vehicle Collision,Side Collision,Major Damage,Other,23,1,NO,1,3,NO,62640,N
+150,30,1000,0,MALE,College,sales,Vehicle Theft,?,Trivial Damage,Police,7,1,YES,1,3,YES,4590,N
+244,40,500,0,FEMALE,MD,sales,Vehicle Theft,?,Trivial Damage,Police,2,1,YES,1,3,YES,5940,N
+50,44,2000,0,MALE,College,handlers-cleaners,Multi-vehicle Collision,Front Collision,Total Loss,Police,15,3,?,1,2,NO,61100,N
+51,34,500,0,MALE,PhD,machine-op-inspct,Single Vehicle Collision,Side Collision,Major Damage,Fire,23,1,?,2,3,NO,64200,Y
+160,37,500,0,FEMALE,MD,craft-repair,Single Vehicle Collision,Side Collision,Total Loss,Other,19,1,YES,1,0,NO,72930,N
+119,28,2000,0,MALE,High School,machine-op-inspct,Single Vehicle Collision,Rear Collision,Total Loss,Ambulance,1,1,?,0,1,YES,53600,Y
+72,29,500,0,FEMALE,Associate,craft-repair,Single Vehicle Collision,Rear Collision,Major Damage,Ambulance,9,1,?,1,0,NO,66200,N
+41,25,1000,0,MALE,Masters,priv-house-serv,Multi-vehicle Collision,Front Collision,Major Damage,Fire,13,3,NO,1,3,NO,48000,N
+224,39,1000,0,FEMALE,JD,prof-specialty,Multi-vehicle Collision,Rear Collision,Total Loss,Fire,21,3,YES,2,1,?,61800,N
+227,38,500,0,FEMALE,PhD,handlers-cleaners,Single Vehicle Collision,Rear Collision,Major Damage,Fire,16,1,?,1,2,?,72200,Y
+240,40,500,9000000,FEMALE,JD,protective-serv,Multi-vehicle Collision,Rear Collision,Total Loss,Fire,18,2,YES,0,2,?,66550,N
+285,42,500,0,MALE,Associate,priv-house-serv,Single Vehicle Collision,Side Collision,Total Loss,Fire,13,1,NO,0,3,?,52700,N
+5,26,2000,0,FEMALE,PhD,farming-fishing,Single Vehicle Collision,Rear Collision,Total Loss,Ambulance,22,1,YES,1,3,?,88110,N
+24,33,1000,0,FEMALE,High School,machine-op-inspct,Single Vehicle Collision,Side Collision,Total Loss,Police,0,1,?,2,1,NO,46800,N
+215,37,500,0,FEMALE,College,transport-moving,Multi-vehicle Collision,Rear Collision,Minor Damage,Fire,7,3,NO,2,0,YES,57120,N
+108,31,2000,0,MALE,Masters,protective-serv,Single Vehicle Collision,Rear Collision,Total Loss,Fire,14,1,NO,0,2,NO,57330,N
+228,40,500,0,MALE,Associate,exec-managerial,Parked Car,?,Trivial Damage,Police,20,1,?,0,2,NO,6050,N
+256,41,2000,6000000,FEMALE,PhD,armed-forces,Single Vehicle Collision,Front Collision,Major Damage,Police,5,1,?,1,2,NO,63400,Y
+155,35,1000,0,FEMALE,Associate,protective-serv,Single Vehicle Collision,Front Collision,Minor Damage,Ambulance,0,1,?,0,3,?,48360,N
+200,34,1000,3000000,FEMALE,College,prof-specialty,Single Vehicle Collision,Front Collision,Total Loss,Police,10,1,?,2,2,NO,56000,N
+398,58,500,0,FEMALE,Associate,exec-managerial,Single Vehicle Collision,Front Collision,Major Damage,Police,18,1,YES,2,1,?,99320,Y
+147,31,500,6000000,FEMALE,PhD,prof-specialty,Single Vehicle Collision,Front Collision,Major Damage,Other,4,1,?,0,0,?,68240,Y
+252,39,1000,0,MALE,JD,farming-fishing,Single Vehicle Collision,Side Collision,Minor Damage,Police,18,1,?,1,2,?,50490,N
+255,43,500,0,FEMALE,JD,transport-moving,Multi-vehicle Collision,Side Collision,Major Damage,Fire,14,2,?,2,2,?,74700,Y
+177,33,1000,0,MALE,College,adm-clerical,Single Vehicle Collision,Side Collision,Major Damage,Ambulance,22,1,?,1,3,?,82800,Y
+290,48,500,5000000,MALE,Associate,adm-clerical,Multi-vehicle Collision,Side Collision,Minor Damage,Fire,20,2,?,1,1,?,41520,N
+231,43,2000,0,MALE,College,protective-serv,Multi-vehicle Collision,Front Collision,Minor Damage,Police,15,3,YES,2,2,YES,77100,N
+241,45,2000,0,FEMALE,PhD,machine-op-inspct,Single Vehicle Collision,Rear Collision,Minor Damage,Police,5,1,NO,2,2,NO,91650,N
+279,41,500,0,FEMALE,JD,prof-specialty,Multi-vehicle Collision,Front Collision,Minor Damage,Fire,16,3,?,2,3,NO,28800,N
+78,24,500,0,MALE,Masters,craft-repair,Vehicle Theft,?,Minor Damage,Police,20,1,?,0,1,YES,7480,N
+95,30,2000,0,MALE,College,transport-moving,Single Vehicle Collision,Rear Collision,Minor Damage,Police,22,1,YES,0,3,?,34800,N
+275,45,2000,0,FEMALE,Associate,adm-clerical,Multi-vehicle Collision,Side Collision,Total Loss,Ambulance,8,3,YES,1,1,?,64320,N
+156,37,1000,6000000,MALE,Associate,machine-op-inspct,Multi-vehicle Collision,Rear Collision,Total Loss,Other,17,3,?,1,1,YES,77440,N
+371,50,1000,0,MALE,PhD,machine-op-inspct,Multi-vehicle Collision,Side Collision,Major Damage,Other,2,3,NO,2,1,YES,84500,Y
+1,29,500,0,FEMALE,JD,craft-repair,Single Vehicle Collision,Side Collision,Minor Damage,Police,15,1,?,2,3,YES,86790,N
+128,31,500,0,FEMALE,High School,transport-moving,Multi-vehicle Collision,Side Collision,Major Damage,Ambulance,2,3,NO,0,2,?,69930,Y
+173,36,1000,0,MALE,College,machine-op-inspct,Single Vehicle Collision,Rear Collision,Total Loss,Fire,22,1,YES,2,3,NO,52030,N
+70,26,1000,5000000,MALE,College,machine-op-inspct,Multi-vehicle Collision,Rear Collision,Major Damage,Other,0,3,?,1,2,YES,52110,N
+448,57,2000,0,FEMALE,PhD,tech-support,Multi-vehicle Collision,Front Collision,Major Damage,Police,10,3,NO,2,1,?,47760,Y
+317,46,1000,0,MALE,MD,sales,Single Vehicle Collision,Front Collision,Major Damage,Fire,18,1,NO,2,1,NO,104610,Y
+468,62,500,0,MALE,PhD,machine-op-inspct,Multi-vehicle Collision,Rear Collision,Major Damage,Fire,7,3,YES,0,3,?,64350,N
+276,46,2000,0,MALE,College,handlers-cleaners,Single Vehicle Collision,Front Collision,Minor Damage,Ambulance,17,1,NO,1,2,?,51390,Y
+11,40,2000,0,FEMALE,MD,prof-specialty,Multi-vehicle Collision,Side Collision,Major Damage,Other,6,3,?,1,0,?,53460,Y
+36,37,1000,0,FEMALE,Masters,machine-op-inspct,Multi-vehicle Collision,Side Collision,Minor Damage,Ambulance,20,3,YES,1,3,?,48780,N
+32,26,2000,6000000,MALE,JD,other-service,Single Vehicle Collision,Side Collision,Total Loss,Fire,16,1,?,1,2,?,45500,N
+342,49,500,0,MALE,PhD,transport-moving,Single Vehicle Collision,Rear Collision,Minor Damage,Fire,3,1,?,2,0,YES,76700,N
+134,32,500,0,FEMALE,MD,other-service,Single Vehicle Collision,Side Collision,Total Loss,Fire,2,1,?,2,1,YES,64240,N
+258,46,1000,10000000,MALE,MD,machine-op-inspct,Multi-vehicle Collision,Side Collision,Total Loss,Other,14,3,NO,0,1,?,47700,Y
+330,47,2000,0,FEMALE,High School,craft-repair,Multi-vehicle Collision,Side Collision,Total Loss,Other,20,2,?,0,2,YES,60500,Y
+313,47,1000,0,MALE,College,prof-specialty,Single Vehicle Collision,Front Collision,Major Damage,Ambulance,20,1,YES,1,3,NO,40260,Y
+115,31,1000,0,FEMALE,Associate,exec-managerial,Multi-vehicle Collision,Side Collision,Major Damage,Ambulance,18,3,YES,0,3,NO,34160,Y
+399,55,2000,0,MALE,JD,tech-support,Multi-vehicle Collision,Side Collision,Total Loss,Police,23,3,YES,1,1,YES,88400,N
+96,27,1000,0,FEMALE,High School,priv-house-serv,Parked Car,?,Trivial Damage,Police,4,1,?,1,2,NO,6030,N
+289,43,1000,0,FEMALE,Associate,sales,Multi-vehicle Collision,Side Collision,Minor Damage,Fire,19,3,YES,1,3,?,68580,N
+473,58,2000,0,FEMALE,MD,transport-moving,Multi-vehicle Collision,Side Collision,Major Damage,Other,12,4,YES,0,0,NO,63120,Y
+271,42,500,0,FEMALE,High School,machine-op-inspct,Multi-vehicle Collision,Rear Collision,Total Loss,Ambulance,21,3,NO,1,0,NO,93720,N
+225,41,2000,0,MALE,High School,exec-managerial,Multi-vehicle Collision,Side Collision,Major Damage,Police,20,3,?,2,2,NO,70400,Y
+158,33,2000,0,FEMALE,Associate,handlers-cleaners,Single Vehicle Collision,Side Collision,Total Loss,Other,0,1,?,0,0,?,35000,N
+89,32,2000,0,FEMALE,MD,tech-support,Parked Car,?,Trivial Damage,Police,5,1,YES,1,2,?,100,N
+233,39,2000,0,MALE,JD,craft-repair,Multi-vehicle Collision,Rear Collision,Minor Damage,Fire,20,3,?,1,0,YES,48870,N
+142,30,2000,0,MALE,JD,adm-clerical,Multi-vehicle Collision,Rear Collision,Major Damage,Other,13,3,YES,0,3,YES,63600,N
+124,28,1000,0,MALE,MD,exec-managerial,Multi-vehicle Collision,Side Collision,Total Loss,Other,20,3,?,0,1,?,60200,N
+98,31,500,0,MALE,Masters,machine-op-inspct,Single Vehicle Collision,Front Collision,Minor Damage,Other,3,1,?,2,0,?,64080,N
+458,61,1000,0,FEMALE,High School,protective-serv,Single Vehicle Collision,Front Collision,Minor Damage,Fire,18,1,NO,2,1,NO,56340,N
+186,33,1000,0,FEMALE,Associate,craft-repair,Vehicle Theft,?,Trivial Damage,Police,3,1,NO,2,1,?,4730,Y
+121,34,500,0,MALE,MD,priv-house-serv,Single Vehicle Collision,Front Collision,Major Damage,Fire,11,1,NO,1,1,NO,67300,Y
+128,32,2000,0,FEMALE,College,sales,Single Vehicle Collision,Rear Collision,Total Loss,Fire,0,1,?,1,0,NO,59800,Y
+238,39,2000,0,FEMALE,JD,protective-serv,Vehicle Theft,?,Minor Damage,Police,9,1,YES,1,3,YES,5500,N
+136,32,500,0,FEMALE,JD,sales,Single Vehicle Collision,Side Collision,Major Damage,Police,6,1,YES,0,0,NO,55000,Y
+298,47,2000,0,FEMALE,PhD,machine-op-inspct,Single Vehicle Collision,Front Collision,Major Damage,Fire,1,1,?,0,0,?,70590,Y
+107,31,2000,0,FEMALE,PhD,machine-op-inspct,Single Vehicle Collision,Rear Collision,Minor Damage,Police,16,1,NO,0,3,NO,51260,N
+255,45,500,0,MALE,High School,sales,Single Vehicle Collision,Front Collision,Total Loss,Other,16,1,NO,2,0,YES,67320,N
+65,23,1000,0,FEMALE,College,sales,Single Vehicle Collision,Side Collision,Major Damage,Other,14,1,NO,1,0,YES,52400,Y
+446,61,1000,0,FEMALE,High School,tech-support,Multi-vehicle Collision,Rear Collision,Minor Damage,Police,1,3,?,2,1,NO,80880,N
+64,29,2000,0,MALE,High School,exec-managerial,Single Vehicle Collision,Side Collision,Minor Damage,Ambulance,4,1,?,1,2,NO,43700,Y
+73,26,2000,4000000,MALE,MD,farming-fishing,Multi-vehicle Collision,Rear Collision,Total Loss,Other,9,3,?,0,1,YES,40160,N
+4,34,500,0,FEMALE,College,exec-managerial,Multi-vehicle Collision,Side Collision,Major Damage,Police,0,4,?,0,0,?,66880,Y
+166,38,2000,0,MALE,MD,protective-serv,Single Vehicle Collision,Side Collision,Total Loss,Other,8,1,NO,0,0,?,40320,N
+20,23,1000,0,FEMALE,JD,tech-support,Multi-vehicle Collision,Rear Collision,Major Damage,Fire,21,3,NO,2,2,NO,63250,Y
+134,36,1000,0,MALE,PhD,machine-op-inspct,Multi-vehicle Collision,Side Collision,Minor Damage,Ambulance,17,3,NO,2,0,YES,77200,N
+198,36,1000,0,MALE,High School,armed-forces,Multi-vehicle Collision,Rear Collision,Total Loss,Fire,11,3,?,1,3,YES,49410,N
+214,40,1000,0,MALE,JD,transport-moving,Single Vehicle Collision,Rear Collision,Total Loss,Other,17,1,NO,1,0,YES,44220,N
+436,60,500,0,MALE,High School,prof-specialty,Single Vehicle Collision,Front Collision,Minor Damage,Ambulance,16,1,NO,0,2,NO,82060,N
+141,30,1000,0,FEMALE,High School,craft-repair,Single Vehicle Collision,Front Collision,Total Loss,Fire,13,1,NO,1,0,YES,61740,N
+165,32,500,0,FEMALE,High School,tech-support,Parked Car,?,Minor Damage,Police,9,1,?,2,0,?,3960,N
+250,43,1000,0,FEMALE,JD,tech-support,Single Vehicle Collision,Side Collision,Minor Damage,Other,22,1,YES,1,3,NO,64900,N
+65,27,1000,0,FEMALE,College,adm-clerical,Single Vehicle Collision,Front Collision,Total Loss,Ambulance,17,1,?,1,2,YES,42840,N
+37,31,500,0,FEMALE,MD,sales,Multi-vehicle Collision,Side Collision,Total Loss,Fire,21,3,NO,1,1,YES,76450,N
+70,27,1000,4000000,FEMALE,Masters,adm-clerical,Vehicle Theft,?,Trivial Damage,Police,19,1,NO,2,3,?,4400,N
+229,37,2000,0,FEMALE,MD,craft-repair,Multi-vehicle Collision,Side Collision,Major Damage,Other,14,3,YES,1,1,YES,68760,N
+2,20,1000,4000000,FEMALE,High School,craft-repair,Single Vehicle Collision,Side Collision,Minor Damage,Other,22,1,NO,1,3,YES,48360,N
+183,38,500,0,FEMALE,Masters,prof-specialty,Single Vehicle Collision,Side Collision,Major Damage,Police,17,1,NO,0,1,YES,51920,Y
+41,25,1000,0,FEMALE,College,exec-managerial,Multi-vehicle Collision,Side Collision,Major Damage,Other,12,3,YES,2,0,?,45120,Y
+273,47,1000,0,FEMALE,Associate,prof-specialty,Multi-vehicle Collision,Side Collision,Minor Damage,Police,0,3,NO,1,3,?,39800,N
+78,31,1000,4000000,MALE,PhD,protective-serv,Single Vehicle Collision,Front Collision,Major Damage,Other,21,1,NO,1,0,NO,55660,Y
+222,39,1000,0,MALE,High School,armed-forces,Multi-vehicle Collision,Front Collision,Major Damage,Fire,21,3,?,1,0,NO,87960,Y
+377,53,500,0,FEMALE,MD,craft-repair,Multi-vehicle Collision,Front Collision,Total Loss,Fire,10,3,YES,1,3,NO,59040,N
+275,40,2000,0,MALE,Masters,exec-managerial,Single Vehicle Collision,Rear Collision,Minor Damage,Fire,17,1,?,1,3,YES,43230,N
+343,48,500,3000000,MALE,JD,adm-clerical,Multi-vehicle Collision,Side Collision,Total Loss,Police,13,4,NO,2,3,NO,65070,N
+234,41,500,0,FEMALE,JD,transport-moving,Multi-vehicle Collision,Side Collision,Major Damage,Police,3,3,NO,2,1,?,98280,Y
+70,28,1000,0,MALE,High School,machine-op-inspct,Multi-vehicle Collision,Side Collision,Minor Damage,Police,14,4,NO,1,0,YES,31680,N
+110,28,1000,0,MALE,College,other-service,Multi-vehicle Collision,Side Collision,Minor Damage,Police,20,3,YES,0,2,?,65040,N
+75,25,1000,0,FEMALE,Associate,priv-house-serv,Multi-vehicle Collision,Side Collision,Total Loss,Other,23,2,?,2,3,YES,65100,N
+430,59,2000,7000000,MALE,MD,other-service,Multi-vehicle Collision,Front Collision,Minor Damage,Fire,19,3,?,0,3,YES,81800,N
+316,45,2000,5000000,FEMALE,High School,prof-specialty,Multi-vehicle Collision,Side Collision,Major Damage,Ambulance,6,3,NO,2,0,YES,78870,N
+269,44,2000,0,MALE,JD,priv-house-serv,Single Vehicle Collision,Front Collision,Minor Damage,Other,14,1,YES,0,2,?,56400,N
+200,40,1000,0,FEMALE,High School,sales,Vehicle Theft,?,Minor Damage,Police,9,1,?,0,0,NO,3690,N
+230,43,2000,0,MALE,High School,exec-managerial,Multi-vehicle Collision,Front Collision,Minor Damage,Police,0,3,?,0,3,YES,51900,Y
+288,45,1000,0,MALE,Masters,priv-house-serv,Multi-vehicle Collision,Rear Collision,Major Damage,Fire,4,3,?,2,1,?,48060,N
+192,40,1000,0,FEMALE,Associate,sales,Multi-vehicle Collision,Side Collision,Minor Damage,Ambulance,18,3,YES,1,0,YES,42930,N
+116,34,500,0,MALE,Associate,transport-moving,Single Vehicle Collision,Side Collision,Major Damage,Police,1,1,?,1,1,?,97080,Y
+160,38,500,0,MALE,High School,sales,Multi-vehicle Collision,Side Collision,Major Damage,Fire,13,3,NO,2,1,YES,66780,N
+246,44,2000,0,MALE,College,farming-fishing,Single Vehicle Collision,Front Collision,Major Damage,Other,18,1,YES,1,2,YES,61380,Y
+122,34,500,0,FEMALE,Masters,prof-specialty,Multi-vehicle Collision,Rear Collision,Total Loss,Fire,18,3,NO,2,0,YES,99990,N
+156,38,500,0,MALE,High School,armed-forces,Multi-vehicle Collision,Front Collision,Major Damage,Fire,23,3,?,0,3,?,55200,Y
+164,38,2000,0,FEMALE,PhD,transport-moving,Single Vehicle Collision,Rear Collision,Minor Damage,Fire,4,1,NO,1,3,YES,90000,N
+99,28,500,0,MALE,MD,prof-specialty,Single Vehicle Collision,Front Collision,Total Loss,Other,3,1,NO,2,2,YES,49900,N
+286,43,500,3000000,FEMALE,MD,prof-specialty,Single Vehicle Collision,Rear Collision,Minor Damage,Fire,18,1,?,2,2,YES,34290,N
+202,38,2000,0,FEMALE,Associate,armed-forces,Single Vehicle Collision,Side Collision,Major Damage,Other,12,1,YES,1,1,NO,77440,N
+290,42,500,0,MALE,Masters,machine-op-inspct,Single Vehicle Collision,Rear Collision,Minor Damage,Ambulance,10,1,NO,0,1,NO,48000,N
+1,33,2000,0,MALE,Associate,sales,Single Vehicle Collision,Side Collision,Total Loss,Other,23,1,YES,0,3,NO,69400,N
+381,55,500,0,FEMALE,MD,other-service,Single Vehicle Collision,Rear Collision,Major Damage,Fire,8,1,YES,1,2,YES,60600,N
+419,53,2000,6000000,MALE,College,transport-moving,Multi-vehicle Collision,Side Collision,Minor Damage,Police,17,4,?,0,0,YES,62280,N
+303,43,1000,7000000,FEMALE,Associate,machine-op-inspct,Single Vehicle Collision,Rear Collision,Minor Damage,Fire,20,1,?,2,0,?,60210,N
+461,57,500,7000000,FEMALE,High School,farming-fishing,Multi-vehicle Collision,Side Collision,Major Damage,Ambulance,7,3,NO,0,1,?,59040,N
+152,30,500,0,FEMALE,JD,craft-repair,Single Vehicle Collision,Side Collision,Major Damage,Fire,9,1,YES,1,1,?,84590,Y
+192,38,1000,0,FEMALE,Masters,transport-moving,Multi-vehicle Collision,Rear Collision,Total Loss,Other,10,3,?,0,2,NO,30700,N
+255,44,2000,6000000,FEMALE,PhD,priv-house-serv,Parked Car,?,Trivial Damage,Police,7,1,?,2,2,NO,6400,Y
+281,43,1000,6000000,MALE,College,priv-house-serv,Multi-vehicle Collision,Side Collision,Minor Damage,Fire,21,3,NO,1,0,NO,60190,N
+27,27,2000,0,FEMALE,College,adm-clerical,Single Vehicle Collision,Front Collision,Total Loss,Fire,23,1,?,1,3,?,61560,N
+9,30,1000,0,FEMALE,High School,machine-op-inspct,Single Vehicle Collision,Rear Collision,Total Loss,Police,12,1,?,0,0,NO,85690,N
+369,55,2000,0,MALE,College,handlers-cleaners,Multi-vehicle Collision,Rear Collision,Minor Damage,Police,6,3,?,2,0,YES,85300,N
+85,27,2000,0,MALE,College,priv-house-serv,Multi-vehicle Collision,Rear Collision,Minor Damage,Fire,14,4,YES,0,0,NO,59070,N
+104,30,500,0,FEMALE,MD,protective-serv,Vehicle Theft,?,Minor Damage,Police,8,1,NO,0,0,YES,4800,N
+88,30,1000,0,FEMALE,College,transport-moving,Single Vehicle Collision,Side Collision,Total Loss,Fire,3,1,NO,2,0,YES,56000,N
+84,30,2000,0,FEMALE,MD,protective-serv,Single Vehicle Collision,Side Collision,Minor Damage,Police,9,1,NO,1,0,YES,57640,N
+137,30,500,0,MALE,MD,exec-managerial,Multi-vehicle Collision,Front Collision,Minor Damage,Other,4,3,?,2,1,?,74030,N
+209,36,2000,0,FEMALE,MD,craft-repair,Multi-vehicle Collision,Rear Collision,Total Loss,Ambulance,17,3,?,1,3,?,65440,N
+283,41,500,0,FEMALE,Associate,sales,Multi-vehicle Collision,Side Collision,Major Damage,Other,13,3,NO,0,2,?,42700,Y

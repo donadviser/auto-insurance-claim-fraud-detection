@@ -1,0 +1,870 @@
+metrics:
+- metric: DatasetDriftMetric
+  result:
+    dataset_drift: false
+    drift_share: 0.5
+    number_of_columns: 19
+    number_of_drifted_columns: 4
+    share_of_drifted_columns: 0.21052631578947367
+- metric: DataDriftTable
+  result:
+    current_fi: null
+    dataset_drift: false
+    drift_by_columns:
+      age:
+        column_name: age
+        column_type: num
+        current:
+          small_distribution:
+            x:
+            - 25.0
+            - 28.7
+            - 32.4
+            - 36.1
+            - 39.8
+            - 43.5
+            - 47.2
+            - 50.900000000000006
+            - 54.6
+            - 58.300000000000004
+            - 62.0
+            y:
+            - 0.02524502524502525
+            - 0.04306504306504307
+            - 0.04306504306504303
+            - 0.04009504009504014
+            - 0.04900504900504897
+            - 0.029700029700029676
+            - 0.017820017820017808
+            - 0.00445500445500446
+            - 0.011880011880011872
+            - 0.005940005940005946
+        drift_detected: false
+        drift_score: 0.6300586018174044
+        reference:
+          small_distribution:
+            x:
+            - 19.0
+            - 23.5
+            - 28.0
+            - 32.5
+            - 37.0
+            - 41.5
+            - 46.0
+            - 50.5
+            - 55.0
+            - 59.5
+            - 64.0
+            y:
+            - 0.004890722909980131
+            - 0.016200519639309185
+            - 0.04157114473483112
+            - 0.029650007641754548
+            - 0.04921289928167508
+            - 0.02873299709613327
+            - 0.023842274186153138
+            - 0.009781445819960263
+            - 0.011309796729329052
+            - 0.007030414183096439
+        stattest_name: K-S p_value
+        stattest_threshold: 0.05
+      authorities_contacted:
+        column_name: authorities_contacted
+        column_type: cat
+        current:
+          small_distribution:
+            x:
+            - Ambulance
+            - Fire
+            - Other
+            - Police
+            y:
+            - 35
+            - 42
+            - 51
+            - 54
+        drift_detected: false
+        drift_score: 0.07376211864870784
+        reference:
+          small_distribution:
+            x:
+            - Ambulance
+            - Fire
+            - Other
+            - Police
+            y:
+            - 161
+            - 181
+            - 147
+            - 238
+        stattest_name: chi-square p_value
+        stattest_threshold: 0.05
+      bodily_injuries:
+        column_name: bodily_injuries
+        column_type: num
+        current:
+          small_distribution:
+            x:
+            - 0.0
+            - 0.2
+            - 0.4
+            - 0.6000000000000001
+            - 0.8
+            - 1.0
+            - 1.2000000000000002
+            - 1.4000000000000001
+            - 1.6
+            - 1.8
+            - 2.0
+            y:
+            - 1.6483516483516483
+            - 0.0
+            - 0.0
+            - 0.0
+            - 0.0
+            - 1.5934065934065917
+            - 0.0
+            - 0.0
+            - 0.0
+            - 1.7582417582417587
+        drift_detected: false
+        drift_score: 0.9129972991541584
+        reference:
+          small_distribution:
+            x:
+            - 0.0
+            - 0.2
+            - 0.4
+            - 0.6000000000000001
+            - 0.8
+            - 1.0
+            - 1.2000000000000002
+            - 1.4000000000000001
+            - 1.6
+            - 1.8
+            - 2.0
+            y:
+            - 1.6987620357634112
+            - 0.0
+            - 0.0
+            - 0.0
+            - 0.0
+            - 1.616231086657495
+            - 0.0
+            - 0.0
+            - 0.0
+            - 1.6850068775790925
+        stattest_name: chi-square p_value
+        stattest_threshold: 0.05
+      collision_type:
+        column_name: collision_type
+        column_type: cat
+        current:
+          small_distribution:
+            x:
+            - '?'
+            - Front Collision
+            - Rear Collision
+            - Side Collision
+            y:
+            - 19
+            - 53
+            - 59
+            - 51
+        drift_detected: false
+        drift_score: 0.8293140167999972
+        reference:
+          small_distribution:
+            x:
+            - '?'
+            - Front Collision
+            - Rear Collision
+            - Side Collision
+            y:
+            - 68
+            - 201
+            - 233
+            - 225
+        stattest_name: chi-square p_value
+        stattest_threshold: 0.05
+      fraud_reported:
+        column_name: fraud_reported
+        column_type: cat
+        current:
+          small_distribution:
+            x:
+            - N
+            - Y
+            y:
+            - 136
+            - 46
+        drift_detected: false
+        drift_score: 0.6722441815060654
+        reference:
+          small_distribution:
+            x:
+            - N
+            - Y
+            y:
+            - 532
+            - 195
+        stattest_name: Z-test p_value
+        stattest_threshold: 0.05
+      incident_hour_of_the_day:
+        column_name: incident_hour_of_the_day
+        column_type: num
+        current:
+          small_distribution:
+            x:
+            - 0.0
+            - 2.3
+            - 4.6
+            - 6.8999999999999995
+            - 9.2
+            - 11.5
+            - 13.799999999999999
+            - 16.099999999999998
+            - 18.4
+            - 20.7
+            - 23.0
+            y:
+            - 0.02627806975633063
+            - 0.04300047778308649
+            - 0.01433349259436216
+            - 0.04061156235069279
+            - 0.03822264691829908
+            - 0.05255613951266128
+            - 0.07166746297181083
+            - 0.04538939321548016
+            - 0.03344481605351169
+            - 0.06927854753941708
+        drift_detected: true
+        drift_score: 0.011173329001155207
+        reference:
+          small_distribution:
+            x:
+            - 0.0
+            - 2.3
+            - 4.6
+            - 6.8999999999999995
+            - 9.2
+            - 11.5
+            - 13.799999999999999
+            - 16.099999999999998
+            - 18.4
+            - 20.7
+            - 23.0
+            y:
+            - 0.05681478380479637
+            - 0.035883021350397705
+            - 0.031696668859517975
+            - 0.04604987739967705
+            - 0.032294719215357925
+            - 0.03588302135039772
+            - 0.05801088451647631
+            - 0.04305962562047723
+            - 0.034088870282877805
+            - 0.06100113629567608
+        stattest_name: K-S p_value
+        stattest_threshold: 0.05
+      incident_severity:
+        column_name: incident_severity
+        column_type: cat
+        current:
+          small_distribution:
+            x:
+            - Major Damage
+            - Minor Damage
+            - Total Loss
+            - Trivial Damage
+            y:
+            - 54
+            - 65
+            - 52
+            - 11
+        drift_detected: false
+        drift_score: 0.7589305173847277
+        reference:
+          small_distribution:
+            x:
+            - Major Damage
+            - Minor Damage
+            - Total Loss
+            - Trivial Damage
+            y:
+            - 222
+            - 239
+            - 228
+            - 38
+        stattest_name: chi-square p_value
+        stattest_threshold: 0.05
+      incident_type:
+        column_name: incident_type
+        column_type: cat
+        current:
+          small_distribution:
+            x:
+            - Multi-vehicle Collision
+            - Parked Car
+            - Single Vehicle Collision
+            - Vehicle Theft
+            y:
+            - 76
+            - 8
+            - 87
+            - 11
+        drift_detected: false
+        drift_score: 0.5153614827044
+        reference:
+          small_distribution:
+            x:
+            - Multi-vehicle Collision
+            - Parked Car
+            - Single Vehicle Collision
+            - Vehicle Theft
+            y:
+            - 343
+            - 26
+            - 316
+            - 42
+        stattest_name: chi-square p_value
+        stattest_threshold: 0.05
+      insured_education_level:
+        column_name: insured_education_level
+        column_type: cat
+        current:
+          small_distribution:
+            x:
+            - Associate
+            - College
+            - High School
+            - JD
+            - MD
+            - Masters
+            - PhD
+            y:
+            - 34
+            - 21
+            - 25
+            - 39
+            - 19
+            - 24
+            - 20
+        drift_detected: true
+        drift_score: 0.018748646223674847
+        reference:
+          small_distribution:
+            x:
+            - Associate
+            - College
+            - High School
+            - JD
+            - MD
+            - Masters
+            - PhD
+            y:
+            - 95
+            - 91
+            - 121
+            - 106
+            - 113
+            - 106
+            - 95
+        stattest_name: chi-square p_value
+        stattest_threshold: 0.05
+      insured_occupation:
+        column_name: insured_occupation
+        column_type: cat
+        current:
+          small_distribution:
+            x:
+            - adm-clerical
+            - armed-forces
+            - craft-repair
+            - exec-managerial
+            - farming-fishing
+            - handlers-cleaners
+            - machine-op-inspct
+            - other-service
+            - priv-house-serv
+            - prof-specialty
+            - protective-serv
+            - sales
+            - tech-support
+            - transport-moving
+            y:
+            - 8
+            - 10
+            - 15
+            - 16
+            - 4
+            - 10
+            - 17
+            - 9
+            - 15
+            - 20
+            - 14
+            - 18
+            - 15
+            - 11
+        drift_detected: false
+        drift_score: 0.3606510175121788
+        reference:
+          small_distribution:
+            x:
+            - adm-clerical
+            - armed-forces
+            - craft-repair
+            - exec-managerial
+            - farming-fishing
+            - handlers-cleaners
+            - machine-op-inspct
+            - other-service
+            - priv-house-serv
+            - prof-specialty
+            - protective-serv
+            - sales
+            - tech-support
+            - transport-moving
+            y:
+            - 46
+            - 49
+            - 55
+            - 52
+            - 44
+            - 43
+            - 70
+            - 52
+            - 51
+            - 57
+            - 44
+            - 52
+            - 56
+            - 56
+        stattest_name: chi-square p_value
+        stattest_threshold: 0.05
+      insured_sex:
+        column_name: insured_sex
+        column_type: cat
+        current:
+          small_distribution:
+            x:
+            - FEMALE
+            - MALE
+            y:
+            - 87
+            - 95
+        drift_detected: true
+        drift_score: 0.04752227377378526
+        reference:
+          small_distribution:
+            x:
+            - FEMALE
+            - MALE
+            y:
+            - 407
+            - 320
+        stattest_name: Z-test p_value
+        stattest_threshold: 0.05
+      months_as_customer:
+        column_name: months_as_customer
+        column_type: num
+        current:
+          small_distribution:
+            x:
+            - 1.0
+            - 47.2
+            - 93.4
+            - 139.60000000000002
+            - 185.8
+            - 232.0
+            - 278.20000000000005
+            - 324.40000000000003
+            - 370.6
+            - 416.8
+            - 463.0
+            y:
+            - 0.001070358213215356
+            - 0.002140716426430712
+            - 0.004281432852861423
+            - 0.002735359878217022
+            - 0.00261643118785976
+            - 0.0036867894010751117
+            - 0.002497502497502498
+            - 0.0008325008325008327
+            - 0.0009514295228580945
+            - 0.0008325008325008327
+        drift_detected: false
+        drift_score: 0.4722488502900758
+        reference:
+          small_distribution:
+            x:
+            - 0.0
+            - 47.9
+            - 95.8
+            - 143.7
+            - 191.6
+            - 239.5
+            - 287.4
+            - 335.3
+            - 383.2
+            - 431.09999999999997
+            - 479.0
+            y:
+            - 0.0020388647830619157
+            - 0.0021824468100381067
+            - 0.0026993421071523954
+            - 0.0028142077287333475
+            - 0.002957789755709539
+            - 0.0036182670798000204
+            - 0.0016081187021333406
+            - 0.0009476413780428626
+            - 0.0009476413780428626
+            - 0.0010625069996238145
+        stattest_name: K-S p_value
+        stattest_threshold: 0.05
+      number_of_vehicles_involved:
+        column_name: number_of_vehicles_involved
+        column_type: num
+        current:
+          small_distribution:
+            x:
+            - 1.0
+            - 1.3
+            - 1.6
+            - 1.9
+            - 2.2
+            - 2.5
+            - 2.8
+            - 3.1
+            - 3.4
+            - 3.6999999999999997
+            - 4.0
+            y:
+            - 1.941391941391941
+            - 0.0
+            - 0.0
+            - 0.183150183150183
+            - 0.0
+            - 0.0
+            - 1.1538461538461529
+            - 0.0
+            - 0.0
+            - 0.054945054945054896
+        drift_detected: true
+        drift_score: 0.01961066157402389
+        reference:
+          small_distribution:
+            x:
+            - 1.0
+            - 1.3
+            - 1.6
+            - 1.9
+            - 2.2
+            - 2.5
+            - 2.8
+            - 3.1
+            - 3.4
+            - 3.6999999999999997
+            - 4.0
+            y:
+            - 1.760660247592847
+            - 0.0
+            - 0.0
+            - 0.09170105456212739
+            - 0.0
+            - 0.0
+            - 1.3525905547913788
+            - 0.0
+            - 0.0
+            - 0.12838147638697833
+        stattest_name: chi-square p_value
+        stattest_threshold: 0.05
+      police_report_available:
+        column_name: police_report_available
+        column_type: cat
+        current:
+          small_distribution:
+            x:
+            - '?'
+            - 'NO'
+            - 'YES'
+            y:
+            - 64
+            - 63
+            - 55
+        drift_detected: false
+        drift_score: 0.899530784815665
+        reference:
+          small_distribution:
+            x:
+            - '?'
+            - 'NO'
+            - 'YES'
+            y:
+            - 252
+            - 244
+            - 231
+        stattest_name: chi-square p_value
+        stattest_threshold: 0.05
+      policy_deductable:
+        column_name: policy_deductable
+        column_type: num
+        current:
+          small_distribution:
+            x:
+            - 500.0
+            - 650.0
+            - 800.0
+            - 950.0
+            - 1100.0
+            - 1250.0
+            - 1400.0
+            - 1550.0
+            - 1700.0
+            - 1850.0
+            - 2000.0
+            y:
+            - 0.002564102564102564
+            - 0.0
+            - 0.0
+            - 0.002271062271062271
+            - 0.0
+            - 0.0
+            - 0.0
+            - 0.0
+            - 0.0
+            - 0.0018315018315018315
+        drift_detected: false
+        drift_score: 0.3503450703309393
+        reference:
+          small_distribution:
+            x:
+            - 500.0
+            - 650.0
+            - 800.0
+            - 950.0
+            - 1100.0
+            - 1250.0
+            - 1400.0
+            - 1550.0
+            - 1700.0
+            - 1850.0
+            - 2000.0
+            y:
+            - 0.002246675836772123
+            - 0.0
+            - 0.0
+            - 0.0023383768913342504
+            - 0.0
+            - 0.0
+            - 0.0
+            - 0.0
+            - 0.0
+            - 0.0020816139385602937
+        stattest_name: chi-square p_value
+        stattest_threshold: 0.05
+      property_damage:
+        column_name: property_damage
+        column_type: cat
+        current:
+          small_distribution:
+            x:
+            - '?'
+            - 'NO'
+            - 'YES'
+            y:
+            - 60
+            - 66
+            - 56
+        drift_detected: false
+        drift_score: 0.47061097373800376
+        reference:
+          small_distribution:
+            x:
+            - '?'
+            - 'NO'
+            - 'YES'
+            y:
+            - 269
+            - 238
+            - 220
+        stattest_name: chi-square p_value
+        stattest_threshold: 0.05
+      total_claim_amount:
+        column_name: total_claim_amount
+        column_type: num
+        current:
+          small_distribution:
+            x:
+            - 2700.0
+            - 13012.0
+            - 23324.0
+            - 33636.0
+            - 43948.0
+            - 54260.0
+            - 64572.0
+            - 74884.0
+            - 85196.0
+            - 95508.0
+            - 105820.0
+            y:
+            - 1.0123700969317726e-05
+            - 0.0
+            - 5.328263668061962e-07
+            - 6.92674276848055e-06
+            - 1.918174920502306e-05
+            - 2.2911533772666435e-05
+            - 2.184588103905404e-05
+            - 7.992395502092941e-06
+            - 4.262610934449569e-06
+            - 3.196958200837177e-06
+        drift_detected: false
+        drift_score: 0.29366989535832666
+        reference:
+          small_distribution:
+            x:
+            - 100.0
+            - 11582.0
+            - 23064.0
+            - 34546.0
+            - 46028.0
+            - 57510.0
+            - 68992.0
+            - 80474.0
+            - 91956.0
+            - 103438.0
+            - 114920.0
+            y:
+            - 8.146235468852988e-06
+            - 2.395951608486173e-07
+            - 2.9949395106077164e-06
+            - 8.266033049277297e-06
+            - 1.808943464407061e-05
+            - 2.1922957217648486e-05
+            - 1.6412268518130285e-05
+            - 8.146235468852988e-06
+            - 2.036558867213247e-06
+            - 8.385830629701606e-07
+        stattest_name: K-S p_value
+        stattest_threshold: 0.05
+      umbrella_limit:
+        column_name: umbrella_limit
+        column_type: num
+        current:
+          small_distribution:
+            x:
+            - 0.0
+            - 900000.0
+            - 1800000.0
+            - 2700000.0
+            - 3600000.0
+            - 4500000.0
+            - 5400000.0
+            - 6300000.0
+            - 7200000.0
+            - 8100000.0
+            - 9000000.0
+            y:
+            - 8.363858363858363e-07
+            - 0.0
+            - 6.105006105006105e-09
+            - 1.8315018315018314e-08
+            - 3.052503052503053e-08
+            - 9.768009768009768e-08
+            - 5.494505494505495e-08
+            - 3.663003663003663e-08
+            - 1.8315018315018314e-08
+            - 1.221001221001221e-08
+        drift_detected: false
+        drift_score: 0.4999647280484623
+        reference:
+          small_distribution:
+            x:
+            - -1000000.0
+            - 100000.0
+            - 1200000.0
+            - 2300000.0
+            - 3400000.0
+            - 4500000.0
+            - 5600000.0
+            - 6700000.0
+            - 7800000.0
+            - 8900000.0
+            - 10000000.0
+            y:
+            - 7.377766662498437e-07
+            - 0.0
+            - 2.500937851694385e-09
+            - 1.000375140677754e-08
+            - 4.001500562711016e-08
+            - 3.37626609978742e-08
+            - 5.1269225959734906e-08
+            - 2.2508440665249466e-08
+            - 6.2523446292359636e-09
+            - 5.00187570338877e-09
+        stattest_name: K-S p_value
+        stattest_threshold: 0.05
+      witnesses:
+        column_name: witnesses
+        column_type: num
+        current:
+          small_distribution:
+            x:
+            - 0.0
+            - 0.3
+            - 0.6
+            - 0.8999999999999999
+            - 1.2
+            - 1.5
+            - 1.7999999999999998
+            - 2.1
+            - 2.4
+            - 2.6999999999999997
+            - 3.0
+            y:
+            - 0.9523809523809524
+            - 0.0
+            - 0.0
+            - 0.8424908424908424
+            - 0.0
+            - 0.0
+            - 0.732600732600732
+            - 0.0
+            - 0.0
+            - 0.8058608058608052
+        drift_detected: false
+        drift_score: 0.42878075514392877
+        reference:
+          small_distribution:
+            x:
+            - 0.0
+            - 0.3
+            - 0.6
+            - 0.8999999999999999
+            - 1.2
+            - 1.5
+            - 1.7999999999999998
+            - 2.1
+            - 2.4
+            - 2.6999999999999997
+            - 3.0
+            y:
+            - 0.8161393856029345
+            - 0.0
+            - 0.0
+            - 0.8344795965153599
+            - 0.0
+            - 0.0
+            - 0.8895002292526356
+            - 0.0
+            - 0.0
+            - 0.7932141219624019
+        stattest_name: chi-square p_value
+        stattest_threshold: 0.05
+    number_of_columns: 19
+    number_of_drifted_columns: 4
+    reference_fi: null
+    share_of_drifted_columns: 0.21052631578947367
+timestamp: '2024-07-15 12:19:34.702724'
+version: 0.4.30

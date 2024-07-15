@@ -93,10 +93,10 @@ class TrainPipeline:
                 data_ingestion_artefact=data_ingestion_artefact
             )
 
-            """data_transformation_artefact = self.start_data_transformation(
+            data_transformation_artefact = self.start_data_transformation(
                 data_ingestion_artefact=data_ingestion_artefact
             )
-
+            """
             model_trainer_artefact = self.start_model_trainer(
                 data_transformation_artefact=data_transformation_artefact
             )

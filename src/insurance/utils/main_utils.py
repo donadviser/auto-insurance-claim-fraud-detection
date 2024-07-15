@@ -56,3 +56,16 @@ class MainUtils:
             return array
         except Exception as e:
             raise CustomException(e, sys)
+        
+    
+    @staticmethod
+    def save_object(file_path: str, obj: object) -> None:
+        logging.info("Entered the save_object method of MainUtils class")
+        try:
+            with open(file_path, "wb") as file_obj:
+                dill.dump(obj, file_obj)
+            logging.info(f"Successfully saved the object to {file_path}")
+            logging.info("Exited the save_object method of MainUtils class")
+            return file_path
+        except Exception as e:
+            raise CustomException(e, sys)
