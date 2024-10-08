@@ -18,4 +18,10 @@ train_model:
     criterion:
     - gini
     - entropy
+grid_search:
+  class: GridSearchCV
+  module: sklearn.model_selection
+  params:
+    cv: 3
+    verbose: 3
 base_model_score: '0.7857142857142857'

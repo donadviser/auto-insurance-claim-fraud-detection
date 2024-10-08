@@ -99,6 +99,7 @@ class DataIngestion:
             test_data_file_path = self.data_ingestion_config.TEST_DATA_FILE_PATH
 
             test_set.to_csv(test_data_file_path, index=False, header=True)
+            
             logging.info("Saved the train and test data as csv files")
             logging.info(f"Saved {os.path.basename(self.data_ingestion_config.TRAIN_DATA_FILE_PATH)}, \
                           {os.path.basename(self.data_ingestion_config.TEST_DATA_FILE_PATH)} in \

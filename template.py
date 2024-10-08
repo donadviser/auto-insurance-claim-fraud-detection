@@ -20,10 +20,18 @@ list_of_files = [
     "config/config.yaml",
     "dvc.yaml",
     "params.yaml",
+    "schema.yaml",
+    "main.py",
+    "app.py",
     "requirements.txt",
     "setup.py",
-    "research/trials.ipynb",
-    "templates/index.html"
+    "templates/index.html",
+    "reports/.gitkeep",
+    "reports/figures/.gitkeep",
+    "references/.gitkeep",
+    "notebooks/.gitkeep",
+    "notebooks/notebook01.ipynb",
+    ".env.example"
 ]
 
 

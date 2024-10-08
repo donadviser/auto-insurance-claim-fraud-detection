@@ -5,9 +5,9 @@ with open("README.md", "r", encoding="utf-8") as f:
 
 __version__ = "0.0.0"
 
-REPO_NAME = "insurance-claim-fraud-detection-prediction"
+REPO_NAME = "insurance"
 AUTHOR_USER_NAME = "donadviser"
-SRC_REPO = "insurance-claim-fraud-detection-prediction"
+SRC_REPO = "auto-insurance-claim-fraud-detection"
 AUTHOR_EMAIL = "donadviser@gmail.com"
 
 
