@@ -223,32 +223,34 @@ class DataTransformation:
                 bins_hour = self.data_transformation_config.SCHEMA_CONFIG['incident_hour_time_bins']['bins_hour']
                 names_period = self.data_transformation_config.SCHEMA_CONFIG['incident_hour_time_bins']['names_period']
                 drop_columns = self.data_transformation_config.SCHEMA_CONFIG['drop_columns']
+                yes_no_map = self.data_transformation_config.SCHEMA_CONFIG['yes_no_map']
                 
                 # Apply the preprocess_data function to both train and test datasets
-                input_process_train_data = self.preprocess_data(df=input_feature_train_df, current_year=CURRENT_YEAR,
+                input_processed_train_data = self.preprocess_data(df=input_feature_train_df, current_year=CURRENT_YEAR,
                                                                 drop_cols=drop_columns, bins_hour=bins_hour, names_period=names_period)
-                input_process_test_data = self.preprocess_data(df=input_feature_test_df, current_year=CURRENT_YEAR,
+                input_processed_test_data = self.preprocess_data(df=input_feature_test_df, current_year=CURRENT_YEAR,
                                                                 drop_cols=drop_columns, bins_hour=bins_hour, names_period=names_period)
                 logging.info("Applied the preprocess_data function to both train and test datasets")
                 
-                logging.info(f"{input_process_train_data.columns=}\n")
-                logging.info(f"Length of input_process_train_data: {len(input_process_train_data.columns)}\n")
-                logging.info(f"Difference between self.ALL_FEATURES and input_process_train_data: {input_process_train_data.columns.difference(pd.Index(self.ALL_FEATURES))}")
-
+                # Update the dataframe with the yes_no_map
+                target_processed_train_data = (target_feature_train_df.map(yes_no_map))                                    
+                target_processed_test_data = (target_feature_test_df.map(yes_no_map))
+                logging.info("Updated the y_train and y_test dataset with the yes_no_map")
+                
                 # Applying preprocessing object on training dataframe and testing dataframe
-                input_feature_train_array = preprocessor.fit_transform(input_process_train_data)
-                input_feature_test_array = preprocessor.transform(input_process_test_data)
+                input_feature_train_array = preprocessor.fit_transform(input_processed_train_data)
+                input_feature_test_array = preprocessor.transform(input_processed_test_data)
                 logging.info("Applied the preprocessor object on training and testing dataframe")
 
                 # Concatenating input features and target features array for Train dataset and Test dataset
                 train_array = np.c_[
                     input_feature_train_array,
-                    target_feature_train_df.values.reshape(-1, 1),
+                    target_processed_train_data.values.reshape(-1, 1),
                 ]
 
                 test_array = np.c_[
                     input_feature_test_array,
-                    target_feature_test_df.values.reshape(-1, 1),
+                    target_processed_test_data.values.reshape(-1, 1),
                 ]
                 logging.info("Concatenated the input features and target features array for Train and Test dataset")
 

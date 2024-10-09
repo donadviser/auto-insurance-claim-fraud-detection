@@ -138,3 +138,7 @@ target_column: fraud_reported
 incident_hour_time_bins:
   bins_hour: [-1, 5, 11, 17, 20, 24]
   names_period: ["early_morning", "morning", "afternoon", "evening", "night"]
+
+yes_no_map:
+  Y: 0
+  N: 1
