@@ -8,7 +8,7 @@ from insurance import logging
 from insurance import CustomException
 from insurance.constants import CURRENT_YEAR
 
-
+from imblearn.combine import SMOTEENN
 from sklearn.impute import SimpleImputer
 from sklearn.pipeline import Pipeline
 from sklearn.compose import ColumnTransformer
@@ -241,16 +241,34 @@ class DataTransformation:
                 input_feature_train_array = preprocessor.fit_transform(input_processed_train_data)
                 input_feature_test_array = preprocessor.transform(input_processed_test_data)
                 logging.info("Applied the preprocessor object on training and testing dataframe")
+                
+                # Applying SMOTEENN sampling strategy for imbalance datasets
+                logging.info("Applying SMOTEENN on Training dataset")
 
+                smt = SMOTEENN(sampling_strategy="minority")
+
+                input_feature_train_final, target_feature_train_final = smt.fit_resample(
+                    input_feature_train_array, target_processed_train_data
+                )
+                logging.info("Applied SMOTEENN on training dataset")
+
+                logging.info("Applying SMOTEENN on testing dataset")
+                input_feature_test_final, target_feature_test_final = smt.fit_resample(
+                    input_feature_test_array, target_processed_test_data
+                )
+                logging.info("Applied SMOTEENN on testing dataset")
+                
+                
+                
                 # Concatenating input features and target features array for Train dataset and Test dataset
                 train_array = np.c_[
-                    input_feature_train_array,
-                    target_processed_train_data.values.reshape(-1, 1),
+                    input_feature_train_final,
+                    target_feature_train_final.values.reshape(-1, 1),
                 ]
 
                 test_array = np.c_[
-                    input_feature_test_array,
-                    target_processed_test_data.values.reshape(-1, 1),
+                    input_feature_test_final,
+                    target_feature_test_final.values.reshape(-1, 1),
                 ]
                 logging.info("Concatenated the input features and target features array for Train and Test dataset")
 
