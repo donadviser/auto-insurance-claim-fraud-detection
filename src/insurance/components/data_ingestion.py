@@ -57,6 +57,7 @@ class DataIngestion:
 
             filename = self.data_ingestion_config.DOWNLOADED_DATA_FILE_PATH
             df = pd.read_csv(filename)
+            logging.info(f"The length of the column in the dataset is: {len(df.columns)}\n The columns are: {df.columns}")
             logging.info(f"Obtaied the dataframe from local data file:  {filename}")
             logging.info("Exited the get_data_from_local_data_file method of DataIngestion class")
             return df
@@ -105,6 +106,7 @@ class DataIngestion:
                           {os.path.basename(self.data_ingestion_config.TEST_DATA_FILE_PATH)} in \
                             {os.path.basename(self.data_ingestion_config.DATA_INGESTION_ARTEFACTS_DIR)} directory")
             logging.info("Exited the split_data_as_train_test method of DataIngestion class")
+            logging.info(f"length of train_set: {len(train_set.columns)} \n length of test_set: {len(test_set.columns)}")
             return train_set, test_set
         except Exception as e:
             raise CustomException(e, sys) 
@@ -134,13 +136,8 @@ class DataIngestion:
             df = self.get_data_from_local_data_file()
             print(df.head())
 
-            # Dropping the unnecessary columns from the dataframe
-            df1 = df.drop(columns=self.data_ingestion_config.DROP_COLS, axis=1)
-            df1 = df1.dropna()
-            logging.info("Obtained the data from mongodb and dropped the unnecessary columns from the dataframe")
-
             # Splitting the data as train set and test set
-            train_set, test_set = self.split_data_as_train_test(df1)
+            train_set, test_set = self.split_data_as_train_test(df)
             logging.info("Initiated the data ingestion")
             logging.info("Exited the initiate_data_ingestion method of DataIngestion class")
 

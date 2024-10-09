@@ -14,6 +14,7 @@ from insurance.entity import DataTransformationConfig
 
 from insurance.entity import (
     DataIngestionArtefacts,
+    DataValidationArtefacts,
     DataTransformationArtefacts,
     )
 
@@ -58,7 +59,7 @@ class DataTransformation:
 
             # Using transformer objects in column transformer
             preprocessor = ColumnTransformer(
-                transformers=[
+                transformers = [
                     ('OneHotEncoder', oh_transformer, onehot_columns),
                     ('BinaryEncoder', binary_transformer, binary_columns),
                     ('StandardScaler', numerical_transformer, numerical_columns),                   

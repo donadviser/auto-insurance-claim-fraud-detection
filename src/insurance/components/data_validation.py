@@ -41,6 +41,8 @@ class DataValidation:
         """
         logging.info("Entered the validate_schema_columns method of DataValidation class.")
         try:
+            logging.info(f"length of columns - df.columns: {len(df.columns)}")
+            logging.info(f'length of columns from schema: {len(self.data_validation_config.SCHEMA_CONFIG["columns"])}')
             # Checking the len of the dataframe columns and schema file columns
             if len(df.columns) == len(self.data_validation_config.SCHEMA_CONFIG["columns"]):
                 validation_status = True
@@ -256,6 +258,10 @@ class DataValidation:
             self.test_set = pd.read_csv(
                 self.data_ingestion_artefacts.test_data_file_path
             )
+            
+            logging.info(f"The length of train_set columns before validataion is {len(self.train_set.columns)}")
+            logging.info(f"The length of test_set columns before validataion is {len(self.test_set.columns)}")
+            
             logging.info("Initiated data validation for the dataset")
 
             # Creating the Data Validation Artefacts directory

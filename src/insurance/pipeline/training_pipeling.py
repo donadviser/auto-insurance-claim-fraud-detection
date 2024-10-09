@@ -109,11 +109,11 @@ class TrainPipeline:
         logging.info("Entered the run_pipeline method of TrainPipeline class.")
         try:
             data_ingestion_artefact = self.start_data_ingestion()
-            """
+            
             data_validation_artefact = self.start_data_validation(
                 data_ingestion_artefact=data_ingestion_artefact
             )
-
+            """
             data_transformation_artefact = self.start_data_transformation(
                 data_ingestion_artefact=data_ingestion_artefact
             )

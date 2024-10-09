@@ -41,39 +41,83 @@ columns:
 
 
 numerical_columns:
-  - months_as_customer
+  - months_as_customer 
   - age 
-  - policy_deductable
-  - umbrella_limit
+  - policy_number 
+  - policy_annual_premium 
+  - umbrella_limit 
+  - insured_zip 
+  - capital-gains 
+  - capital-loss 
   - incident_hour_of_the_day 
-  - number_of_vehicles_involved
-  - bodily_injuries 
-  - witnesses 
-  - total_claim_amount
+  - total_claim_amount 
+  - injury_claim 
+  - property_claim 
+  - vehicle_claim 
+  - auto_year
+
+  
 
 
 categorical_columns:
-  - insured_sex
-  - insured_education_level 
-  - insured_occupation
-  - incident_type 
-  - collision_type
-  - incident_severity
-  - authorities_contacted 
-  - property_damage 
-  - police_report_available
-
-onehot_columns:
+  - policy_state 
+  - policy_csl 
   - insured_sex 
   - insured_education_level 
-  - insured_occupation
+  - insured_occupation 
+  - insured_hobbies 
+  - insured_relationship 
   - incident_type 
   - collision_type 
-  - incident_severity
+  - incident_severity 
   - authorities_contacted 
+  - incident_state 
+  - incident_city 
   - property_damage 
-  - police_report_available
+  - police_report_available 
+  - auto_make 
+  - fraud_reported 
+  - policy_deductable 
+  - number_of_vehicles_involved 
+  - bodily_injuries 
+  - witnesses
 
+# features used for the pipeline
+onehot_columns:
+  - policy_state 
+  - insured_sex 
+  - insured_education_level 
+  - insured_relationship 
+  - incident_type 
+  - incident_severity 
+  - authorities_contacted 
+  - incident_state 
+  - incident_city 
+  - policy_deductable 
+  - number_of_vehicles_involved 
+  - bodily_injuries 
+  - witnesses 
+  - incident_period_of_day 
+
+num_features:
+  - months_as_customer 
+  - age 
+  - policy_annual_premium 
+  - total_claim_amount 
+  - injury_claim 
+  - property_claim 
+  - vehicle_claim 
+  - vehicle_age
+
+ord_features:
+  - insured_occupation
+  - insured_hobbies
+  - auto_make
+
+transform_columns:
+  - umbrella_limit
+  - capital_gains
+  - capital_loss
 
 drop_columns:
   - policy_number
@@ -96,9 +140,5 @@ drop_columns:
   - auto_make
   - auto_model
   - auto_year
-
-binary_columns:
-  - insured_sex
-
 
 target_column: fraud_reported
