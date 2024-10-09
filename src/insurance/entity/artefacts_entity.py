@@ -12,6 +12,7 @@ class DataIngestionArtefacts:
 class DataValidationArtefacts:
     data_drift_file_path: str
     validation_status: bool
+    validation_message: str
 
 
 @dataclass

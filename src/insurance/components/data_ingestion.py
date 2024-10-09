@@ -12,6 +12,7 @@ from insurance import logging, CustomException
 from insurance.utils import get_size
 from sklearn.model_selection import train_test_split
 from insurance.constants import TEST_SIZE
+from insurance.utils.main_utils import MainUtils
 
 
 class DataIngestion:
@@ -20,7 +21,7 @@ class DataIngestion:
             data_ingestion_config: DataIngestionConfig,
             ):
         self.data_ingestion_config = data_ingestion_config
-        
+        self.UTILS = MainUtils()
 
     def get_data_from_data_source(self):
         """
@@ -59,8 +60,13 @@ class DataIngestion:
             df = pd.read_csv(filename)
             logging.info(f"The length of the column in the dataset is: {len(df.columns)}\n The columns are: {df.columns}")
             logging.info(f"Obtaied the dataframe from local data file:  {filename}")
+            data = (
+                df
+                .pipe(self.UTILS.rename_columns_to_snake_case)
+                )
+            logging.info("Renamed the columns to snake case")
             logging.info("Exited the get_data_from_local_data_file method of DataIngestion class")
-            return df
+            return data
         except Exception as e:
             raise CustomException(e, sys) 
 

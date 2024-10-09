@@ -1,4 +1,5 @@
 import shutil
+import re
 import sys
 from typing import Dict, Tuple, List
 import dill
@@ -195,5 +196,31 @@ class MainUtils:
             with open(MODEL_CONFIG_FILE, "w+") as file_obj:
                 safe_dump(model_config, file_obj, sort_keys=False)
             logging.info("Exited the update_model_score method of MainUtils class")
+        except Exception as e:
+            raise CustomException(e, sys)
+        
+    @staticmethod
+    def rename_columns_to_snake_case(df: pd.DataFrame) -> pd.DataFrame:
+        """
+        Renames the columns of a DataFrame to snake_case, handling camel case, acronyms, Pascal case, hyphens, 
+        multiple spaces, and already snake_case columns.
+        
+        Args:
+            df: The DataFrame to rename.
+        
+        Returns:
+            A new DataFrame with the columns renamed to snake_case.
+        """
+        try:
+            def to_snake_case(col_name):
+                # Replace hyphens or multiple spaces with an underscore
+                col_name = re.sub(r'[-\s]+', '_', col_name)
+                # Handle acronyms and split camel case / Pascal case
+                col_name = re.sub(r'(?<!^)(?=[A-Z])', '_', col_name).lower()
+                # Replace multiple underscores with a single underscore
+                return re.sub(r'_+', '_', col_name)
+
+            # Apply the snake_case function to all column names
+            return df.rename(columns=lambda col: to_snake_case(col))
         except Exception as e:
             raise CustomException(e, sys)

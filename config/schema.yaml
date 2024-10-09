@@ -14,8 +14,8 @@ columns:
   - insured_occupation: object
   - insured_hobbies: object
   - insured_relationship: object
-  - capital-gains: int64
-  - capital-loss: int64
+  - capital_gains: int64
+  - capital_loss: int64
   - incident_date: object
   - incident_type: object
   - collision_type: object
@@ -47,8 +47,8 @@ numerical_columns:
   - policy_annual_premium 
   - umbrella_limit 
   - insured_zip 
-  - capital-gains 
-  - capital-loss 
+  - capital_gains 
+  - capital_loss 
   - incident_hour_of_the_day 
   - total_claim_amount 
   - injury_claim 
@@ -83,8 +83,11 @@ categorical_columns:
   - witnesses
 
 # features used for the pipeline
-onehot_columns:
+onehot_features:
   - policy_state 
+  - collision_type
+  - property_damage
+  - police_report_available
   - insured_sex 
   - insured_education_level 
   - insured_relationship 
@@ -99,7 +102,7 @@ onehot_columns:
   - witnesses 
   - incident_period_of_day 
 
-num_features:
+numerical_features:
   - months_as_customer 
   - age 
   - policy_annual_premium 
@@ -109,12 +112,12 @@ num_features:
   - vehicle_claim 
   - vehicle_age
 
-ord_features:
+ordinal_features:
   - insured_occupation
   - insured_hobbies
   - auto_make
 
-transform_columns:
+transform_features:
   - umbrella_limit
   - capital_gains
   - capital_loss
@@ -122,23 +125,16 @@ transform_columns:
 drop_columns:
   - policy_number
   - policy_bind_date
-  - policy_state
   - policy_csl
-  - policy_annual_premium
+  - incident_hour_of_the_day
   - insured_zip
-  - insured_hobbies
-  - insured_relationship
-  - capital-gains
-  - capital-loss
   - incident_date
-  - incident_state
-  - incident_city
   - incident_location
-  - injury_claim
-  - property_claim
-  - vehicle_claim
-  - auto_make
   - auto_model
   - auto_year
 
 target_column: fraud_reported
+
+incident_hour_time_bins:
+  bins_hour: [-1, 5, 11, 17, 20, 24]
+  names_period: ["early_morning", "morning", "afternoon", "evening", "night"]

@@ -4,6 +4,7 @@ from datetime import datetime
 from from_root import from_root
 
 TIMESTAMP: str = datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
+CURRENT_YEAR =  datetime.now().year
 
 # Configuration file
 MODEL_CONFIG_FILE = "config/model.yaml"

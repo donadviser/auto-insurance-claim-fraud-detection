@@ -66,15 +66,18 @@ class TrainPipeline:
         except Exception as e:
             raise CustomException(e, sys)
     
-     # This method is used to start the data transformation.
+    # This method is used to start the data transformation.
     def start_data_transformation(
-            self, data_ingestion_artefact: DataIngestionArtefacts
+            self, data_ingestion_artefact: DataIngestionArtefacts,
+            data_validation_artefact: DataValidationArtefacts
             ) -> DataTransformationArtefacts:
         logging.info("Entered the start_data_transformation method of TrainPipeline class.")
         try:
             data_transformation = DataTransformation(
                 data_ingestion_artefacts=data_ingestion_artefact,
-                data_transformation_config=self.data_transformation_config)
+                data_transformation_config=self.data_transformation_config,
+                data_validation_artefacts=data_validation_artefact
+                )
             
             data_transformation_artefact = data_transformation.initiate_data_transformation()
             logging.info("Performed the data transformation operation.")
@@ -113,11 +116,12 @@ class TrainPipeline:
             data_validation_artefact = self.start_data_validation(
                 data_ingestion_artefact=data_ingestion_artefact
             )
-            """
-            data_transformation_artefact = self.start_data_transformation(
-                data_ingestion_artefact=data_ingestion_artefact
-            )
             
+            data_transformation_artefact = self.start_data_transformation(
+                data_ingestion_artefact=data_ingestion_artefact,
+                data_validation_artefact=data_validation_artefact
+            )
+            """
             model_trainer_artefact = self.start_model_trainer(
                 data_transformation_artefact=data_transformation_artefact
             )

@@ -250,7 +250,7 @@ class DataValidation:
         """
         logging.info("Entered the initiate_data_validation method of DataValidation class.")
         try:
-            # Reading the Train and Test data from Data Ingestion Artefacts folder
+            validation_error_message = ""
 
             self.train_set = pd.read_csv(
                 self.data_ingestion_artefacts.train_data_file_path
@@ -270,49 +270,64 @@ class DataValidation:
             )
             logging.info(f"Created the Data Validation Artefacts for {os.path.basename(self.data_validation_config.DATA_VALIDATION_ARTEFACTS_DIR)}")  
 
-            # Checking the dataset drift
-            drift = self.detect_dataset_drift(self.train_set, self.test_set)
+            # Validating the dataset schema
             (
                 schema_train_col_status,
                 schema_test_col_status,
             ) = self.validate_dataset_schema_columns()
             logging.info(f"Schema train cols status is {schema_train_col_status} and schema test cols status is {schema_test_col_status}")
-
+            if not schema_train_col_status:
+                validation_error_message += "Columns are missing in training dataframe. | "
+            if not schema_test_col_status:
+                validation_error_message += "Columns are missing in test dataframe. | "
+             
+            
             (
                 schema_train_cat_cols_status,
                 schema_test_cat_cols_status,
             ) = self.validate_is_categorical_column_exists()
             logging.info(f"Schema train cat cols status is {schema_train_cat_cols_status} and schema test cat cols status is {schema_test_cat_cols_status}")
-
+            if not schema_train_cat_cols_status:
+                validation_error_message += "Categorical Columns are missing in training dataframe. | "
+            if not schema_test_cat_cols_status:
+                validation_error_message += "Categorical Columns are missing in test dataframe. | "
+                
+                
             (
                 schema_train_num_cols_status,
                 schema_test_num_cols_status,
             ) = self.validate_is_numerical_column_exists()
             logging.info(f"Schema train num cols status is {schema_train_num_cols_status} and schema test num cols status is {schema_test_num_cols_status}")
-
+            if not schema_train_num_cols_status:
+                validation_error_message += "Numerical Columns are missing in training dataframe. | "
+            if not schema_test_num_cols_status:
+                validation_error_message += "Numerical Columns are missing in test dataframe. | "               
             logging.info("Validated dataset schema for numerical datatype")
-
-            # Checking drift status, initially the status is None
-            drift_status = None
-            if (
-                schema_train_cat_cols_status is True and
-                schema_test_cat_cols_status is True and
-                schema_train_num_cols_status is True and
-                schema_test_num_cols_status is True and
-                schema_train_col_status is True and
-                schema_test_col_status is True and
-                drift is False
-            ):
-                logging.info(f"Dataset schema validation completed")
-                drift_status = True
+            
+            validation_status = len(validation_error_message) == 0
+            
+            if validation_status:
+                # Checking the dataset drift
+                drift_status = self.detect_dataset_drift(self.train_set, self.test_set)
+                if drift_status:
+                    logging.info("Drift detected")
+                    validation_error_message += "Drift detected. | "
+                else:
+                    logging.info("No drift detected")
+                    validation_error_message += "No drift detected. | "
             else:
-                drift_status = False
-
+                logging.info(f"Dataset schema validation completed with errors: {validation_error_message}")
+                validation_error_message = validation_error_message.rstrip("| ")
+                
+            
             # Saving data validation artfefacts
             data_validation_artefacts = DataValidationArtefacts(
                 data_drift_file_path=self.data_validation_config.DATA_DRIFT_FILE_PATH,
-                validation_status=drift_status,
+                validation_status=validation_status,
+                validation_message=validation_error_message
             )
+            logging.info(f"Data validation artefact: {data_validation_artefacts}")
+            
 
             return data_validation_artefacts
     
