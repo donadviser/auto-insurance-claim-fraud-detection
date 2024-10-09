@@ -121,11 +121,11 @@ class TrainPipeline:
                 data_ingestion_artefact=data_ingestion_artefact,
                 data_validation_artefact=data_validation_artefact
             )
-            """
+            
             model_trainer_artefact = self.start_model_trainer(
                 data_transformation_artefact=data_transformation_artefact
             )
-            
+            """
             model_evaluation_artefact = self.start_model_evaluation(
                 data_ingestion_artefact=data_ingestion_artefact,
                 model_trainer_artefact=model_trainer_artefact,

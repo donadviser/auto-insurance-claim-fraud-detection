@@ -11,6 +11,7 @@ from yaml import safe_dump
 
 import xgboost
 import lightgbm
+import catboost
 from sklearn.metrics import accuracy_score
 from sklearn.model_selection import GridSearchCV
 from sklearn.utils import all_estimators
@@ -99,6 +100,8 @@ class MainUtils:
                 model = xgboost.__dict__[model_name]()
             elif model_name.lower().startswith("lgb") is True:
                 model = lightgbm.__dict__[model_name]()
+            elif model_name.lower().startswith("cat") is True:
+                model = catboost.__dict__[model_name]()
             else:
                 model_idx = [model[0] for model in all_estimators()].index(model_name)
                 model = all_estimators().__getitem__(model_idx)[1]()

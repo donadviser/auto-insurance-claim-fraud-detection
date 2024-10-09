@@ -76,7 +76,7 @@ class ModelTrainer:
                 filename=MODEL_CONFIG_FILE
             )
             models_list = list(model_config["train_model"].keys())
-            logging.info("Got model list from tthe config file")
+            logging.info("Got model list from the config file")
 
             # Splitting the data in X_train, y_train  X_test, and y_test
             X_train, y_train, X_test, y_test = (

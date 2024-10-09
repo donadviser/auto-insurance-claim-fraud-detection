@@ -3,13 +3,14 @@ train_model:
     max_depth:
     - 5
     - 8
+    - 15
     max_features:
     - 5
     - 7
     n_estimators:
-    - 1
-    - 100
-    - 200
+    - 3
+    - 5
+    - 9
   DecisionTreeClassifier:
     max_depth:
     - 1
@@ -18,13 +19,43 @@ train_model:
     criterion:
     - gini
     - entropy
+  XGBClassifier:
+    max_depth:
+    - 3
+    - 5
+    - 10
+    min_child_weight:
+    - 1
+    - 4
+    - 6
+    learning_rate:
+    - 0.01
+    - 0.1
+    - 0.2
+    subsample:
+    - 0.8
+    - 0.9
+    - 1.0
+  CatBoostClassifier:
+    depth:
+    - 3
+    - 5
+    - 7
+    learning_rate:
+    - 0.1
+    - 0.2
+    iterations:
+    - 100
+    - 200
+    - 300
+    l2_leaf_reg:
+    - 3
+    - 5
+    - 7
 grid_search:
   class: GridSearchCV
   module: sklearn.model_selection
   params:
     cv: 3
     verbose: 3
-base_model_score: '0.7857142857142857'
-
-
-    
+base_model_score: '0.9657534246575342'

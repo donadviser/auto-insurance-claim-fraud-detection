@@ -36,15 +36,15 @@ TRANSFORMED_TRAIN_DATA_DIR = "TransformedTrain"
 TRANSFORMED_TEST_DATA_DIR = "TransformedTest"
 TRANSFORMED_TRAIN_DATA_FILE_NAME = "transformed_train_data.npz"
 TRANSFORMED_TEST_DATA_FILE_NAME = "transformed_test_data.npz"
-PREPROCESSOR_OBJECT_FILE_NAME = "shipping_preprocessor.pkl"
+PREPROCESSOR_OBJECT_FILE_NAME = "insurance_claim_fraud_preprocessor.pkl"
 
 MODEL_TRAINER_ARTEFACTS_DIR = "ModelTrainerArtefacts"
-MODEL_FILE_NAME = "shipping_price_model.pkl"
+MODEL_FILE_NAME = "insurance_claim_fraud_model.pkl"
 MODEL_SAVE_FORMAT = ".pkl"
 
 #S3 BUCKET
 BUCKET_NAME = "hexa-shipment-model-io-files"
-S3_MODEL_NAME = "shipping_price_model.pkl"
+S3_MODEL_NAME = "insurance_claim_fraud_model.pkl"
 
 
 APP_HOST = "0.0.0.0"
