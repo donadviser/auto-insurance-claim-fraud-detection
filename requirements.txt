@@ -21,4 +21,5 @@ Jinja2
 uvicorn
 dill
 lightgbm
+optuna
 -e .

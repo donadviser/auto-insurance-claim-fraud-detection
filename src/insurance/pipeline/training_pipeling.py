@@ -88,12 +88,16 @@ class TrainPipeline:
         
 
     # This method is used to start the model trainer.
-    def start_model_trainer(
-            self, data_transformation_artefact: DataTransformationArtefacts
+    def start_model_trainer(self,
+                            data_ingestion_artefact: DataIngestionArtefacts,
+                            data_transformation_artefact: DataTransformationArtefacts
             ) -> ModelTrainerArtefacts:
+        
         logging.info("Entered the start_model_trainer method of TrainPipeline class.")
+        
         try:
             model_trainer = ModelTrainer(
+                data_ingestion_artefacts=data_ingestion_artefact,
                 data_transformation_artefact=data_transformation_artefact,
                 model_trainer_config=self.model_trainer_config
                 )
@@ -121,8 +125,9 @@ class TrainPipeline:
                 data_ingestion_artefact=data_ingestion_artefact,
                 data_validation_artefact=data_validation_artefact
             )
-            
+        
             model_trainer_artefact = self.start_model_trainer(
+                data_ingestion_artefact=data_ingestion_artefact,
                 data_transformation_artefact=data_transformation_artefact
             )
             """

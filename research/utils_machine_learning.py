@@ -220,9 +220,9 @@ def plot_confusion_matrix(confusion_mat, title="Confusion Matrix"):
     # To return to values
     confusion_matrix_clf = confusion_mat.tolist()
     mat_values_dict = {"true_pos" : confusion_matrix_clf[1][1],
-                    "true_neg" : confusion_matrix_clf[0][0],
-                    "false_pos" : confusion_matrix_clf[0][1],
-                    "false_neg" : confusion_matrix_clf[1][0]
+                        "true_neg" : confusion_matrix_clf[0][0],
+                        "false_pos" : confusion_matrix_clf[0][1],
+                        "false_neg" : confusion_matrix_clf[1][0]
                     }
     
     # Create pandas dataframe for easier manipulation

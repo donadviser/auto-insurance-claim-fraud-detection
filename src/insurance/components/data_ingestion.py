@@ -11,7 +11,7 @@ from insurance.entity import DataIngestionArtefacts
 from insurance import logging, CustomException
 from insurance.utils import get_size
 from sklearn.model_selection import train_test_split
-from insurance.constants import TEST_SIZE
+from insurance.constants import TEST_SIZE, TARGET_COLUMN
 from insurance.utils.main_utils import MainUtils
 
 
@@ -88,7 +88,7 @@ class DataIngestion:
             os.makedirs(self.data_ingestion_config.DATA_INGESTION_ARTEFACTS_DIR, exist_ok=True)
             
             # Splitting the data into train an test
-            train_set, test_set = train_test_split(df, test_size=TEST_SIZE)
+            train_set, test_set = train_test_split(df, test_size=TEST_SIZE, random_state=42)
             logging.info("Splitted the data into train and test")
 
             # Creating Train directory inside DataIngestionArtefacts directory

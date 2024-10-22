@@ -2,6 +2,7 @@ import shutil
 import re
 import sys
 from typing import Dict, Tuple, List
+from typing_extensions import Annotated
 import dill
 import pandas as pd
 import numpy as np
@@ -59,6 +60,19 @@ class MainUtils:
             return array
         except Exception as e:
             raise CustomException(e, sys)
+        
+    # Separate X and y
+    @staticmethod
+    def separate_data(data: pd.DataFrame, target_col: str) -> Tuple[
+        Annotated[pd.DataFrame, "Features"], 
+        Annotated[pd.Series, "Target"]
+        ]:
+        try:
+            X = data.drop(columns=[target_col])
+            y = data[target_col]
+            return X, y
+        except Exception as e:
+                raise CustomException(e, sys)
         
     def get_tuned_model(
             self,

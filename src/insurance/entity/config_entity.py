@@ -93,6 +93,8 @@ class ModelTrainerConfig:
     def __init__(self):
         self.UTILS = MainUtils()
         
+        self.SCHEMA_CONFIG = self.UTILS.read_yaml_file(filename=SCHEMA_FILE_PATH)
+        
         self.DATA_TRANSFORMATION_ARTEFACTS_DIR: str = os.path.join(
             from_root(), ARTEFACTS_DIR, DATA_TRANSFORMATION_ARTEFACTS_DIR
         )

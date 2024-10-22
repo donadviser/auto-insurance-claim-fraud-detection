@@ -11,7 +11,7 @@ MODEL_CONFIG_FILE = "config/model.yaml"
 #CONFIG_FILE_PATH = "config/config.yaml"
 SCHEMA_FILE_PATH = "config/schema.yaml"
 
-SOURCE_URL = "https://github.com/donadviser/datasets/raw/master/data-don/insurance_fraud_claims.csv"
+SOURCE_URL = "https://github.com/donadviser/datasets/raw/master/data-don/auto_insurance_claim_fraud.csv"
 LOCAL_FILE_NAME = "insurance_fraud_claims.csv"
 
 TARGET_COLUMN = "fraud_reported"

@@ -140,5 +140,5 @@ incident_hour_time_bins:
   names_period: ["early_morning", "morning", "afternoon", "evening", "night"]
 
 yes_no_map:
-  Y: 0
-  N: 1
+  Y: 1
+  N: 0
