@@ -69,6 +69,18 @@ class DataTransformation:
             
             yes_no_map = self.data_transformation_config.SCHEMA_CONFIG['yes_no_map']
             
+            preprocessor_features = {
+                "bins_hour": bins_hour,
+                "names_period": names_period,
+                "drop_columns":drop_columns,
+                "numerical_features":numerical_features,
+                "onehot_features": onehot_features,
+                "ordinal_features": ordinal_features,
+                "transform_features":transform_features,
+                "yes_no_map": yes_no_map,
+            }
+            
+            
             
     
             #pipeline_preprocessor = copy.deepcopy(pipeline_imbalance)
@@ -76,7 +88,7 @@ class DataTransformation:
             logging.info("Initialised the CustomTransformers, StandardScaler, OneHotEncoder, OrdinalEncoder and PowerTransformer and Resampling")
             logging.info("Created preprocessor object from ColumnTransformer.")
             logging.info("Exited the get_data_transformer_object method of DataTransformation class.")
-            return yes_no_map
+            return preprocessor_features
         except Exception as e:
             raise CustomException(e, sys)
         
@@ -99,7 +111,7 @@ class DataTransformation:
                 logging.info(f"Created the data transformation artefacts directory for {os.path.basename(self.data_transformation_config.DATA_TRANSFORMATION_ARTEFACTS_DIR)}")
 
                 # Getting the preprocessor object
-                pipeline_preprocessor = self.get_data_transformer_object()
+                preprocessor_features = self.get_data_transformer_object()
                 logging.info("Obtained the transformer object")
 
                 #target_column_name = self.data_transformation_config.SCHEMA_CONFIG['target_column']
@@ -126,17 +138,28 @@ class DataTransformation:
                 logging.info("Updated the y_train and y_test dataset with the yes_no_map")
                
 
-                preprocessor_obj_file = self.data_transformation_config.UTILS.save_object(
-                    self.data_transformation_config.PREPROCESSOR_FILE_PATH,
-                    pipeline_preprocessor,
+                preprocessor_features_obj_file = self.data_transformation_config.UTILS.save_object(
+                    self.data_transformation_config.TRANSFORM_FEATURES_DICT_FILE_PATH,
+                    preprocessor_features,
                 )
                 logging.info("Created the preprocessor object and saving the object")
                 logging.info("Created the transformed train dataset array and saving the array")
                 logging.info("Created the transformed test dataset array and saving the array")
                 logging.info("Exited the initiate_data_transformation method of DataTransformation class.")
                 data_transformation_artefacts = DataTransformationArtefacts(
-                    transformed_object_file_path = preprocessor_obj_file,
+                    transform_features_file_path = self.data_transformation_config.TRANSFORM_FEATURES_DICT_FILE_PATH,
+                    transform_features_dict = preprocessor_features_obj_file
                 )
+                
+                loaded_dict = self.data_transformation_config.UTILS.load_object(
+                    self.data_transformation_config.TRANSFORM_FEATURES_DICT_FILE_PATH,
+                )
+                # Create variables dynamically from the dictionary
+                for key, value in loaded_dict.items():
+                    globals()[key] = value
+                logging.info("Loaded the variables dynamically from the dictionary")
+                logging.info(f"bins_hour: {bins_hour}")
+                
             else:
                 logging.info("Data validation failed. Skipping data transformation")
                 data_transformation_artefacts = None  # Returning None if data validation fails.

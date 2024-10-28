@@ -9,7 +9,6 @@ from pathlib import Path
 from insurance.entity import DataIngestionConfig
 from insurance.entity import DataIngestionArtefacts
 from insurance import logging, CustomException
-from insurance.utils import get_size
 from sklearn.model_selection import train_test_split
 from insurance.constants import TEST_SIZE, TARGET_COLUMN
 from insurance.utils.main_utils import MainUtils
@@ -43,7 +42,7 @@ class DataIngestion:
             logging.info(f"{filename} download! with following info: \n{headers}")
 
         else:
-            logging.info(f"File already exists of size: {get_size(Path(self.data_ingestion_config.DOWNLOADED_DATA_FILE_PATH))}")  
+            logging.info(f"File already exists of size: {self.UTILS.get_size(Path(self.data_ingestion_config.DOWNLOADED_DATA_FILE_PATH))}")  
 
     # This method will fetch data from mongoDB
     def get_data_from_local_data_file(self) -> pd.DataFrame:

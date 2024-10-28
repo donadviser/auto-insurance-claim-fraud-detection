@@ -4,13 +4,13 @@ import pandas as pd
 import numpy as np
 
 import optuna
-from typing import Union
+import joblib
+from typing import Union, Dict
 from optuna.samplers import TPESampler
 
 from insurance import logging
 from insurance import CustomException
-from insurance.utils.common import save_bin, load_bin
-from insurance.constants import MODEL_CONFIG_FILE
+from insurance.constants import MODEL_CONFIG_FILE, MODEL_SAVE_FORMAT
 from insurance.entity import ModelTrainerConfig
 from insurance.entity import (
     DataIngestionArtefacts,
@@ -36,10 +36,11 @@ from xgboost import XGBClassifier
 from lightgbm import LGBMClassifier
 from catboost import CatBoostClassifier
 
+from sklearn.metrics import  accuracy_score, precision_score, recall_score, f1_score, roc_auc_score, classification_report
+
 from sklearn.decomposition import PCA
 from imblearn.over_sampling import (
     RandomOverSampler,
-    SMOTE,
     ADASYN,
 )
 from imblearn.under_sampling import (
@@ -54,8 +55,10 @@ from imblearn.combine import (
 from insurance.utils.custom_transformers import (
     DropRedundantColumns,
     CreateNewFeature,
-    LogTransforms,
-    ReplaceValueTransformer
+    LogTransformer,
+    OutlierDetector,
+    ReplaceValueTransformer,
+    OutlierHandler,
 )
 
 
@@ -90,6 +93,7 @@ class CostModel:
     
     def __str__(self) -> str:
         return f"{type(self.trained_model_object).__name__}()"
+    
 
 class HyperparameterTuner:
     """
@@ -145,22 +149,15 @@ class HyperparameterTuner:
         elif classifier_name == "LogisticRegression":
             # Basic hyperparameters
             params = {
-                "solver": trial.suggest_categorical('solver', ['lbfgs', 'liblinear', 'sag', 'saga']),
+                "solver": trial.suggest_categorical('solver', ['newton-cholesky', 'lbfgs', 'liblinear', 'sag', 'saga']),
                 "max_iter": trial.suggest_int('max_iter', 10000, 50000),  # Increased max_iter to allow for better convergence
             }
 
-            # Adjust penalties based on solver
-            if params['solver'] == 'lbfgs':
-                params['penalty'] = trial.suggest_categorical('penalty_lbfgs', ['l2', None])
-            elif params['solver'] == 'liblinear':
-                params['penalty'] = trial.suggest_categorical('penalty_liblinear', ['l1', 'l2'])
-            elif params['solver'] == 'sag':
-                params['penalty'] = trial.suggest_categorical('penalty_sag', ['l2', None])
-            else:
-                # For 'saga', which supports 'elasticnet'
-                params['penalty'] = trial.suggest_categorical('penalty_saga', ['elasticnet', 'l1', 'l2', None])
+            # Suggest penalty from a unified set
+            all_penalties = ['l1', 'l2', 'elasticnet', None]  # Unified penalties
+            params['penalty'] = trial.suggest_categorical('penalty', all_penalties)
 
-            # Only suggest C and l1_ratio if penalty is not None
+            # Only suggest C if penalty is not None
             if params['penalty'] is not None:
                 params["C"] = trial.suggest_float('C', 1e-10, 1000, log=True)
             
@@ -168,7 +165,19 @@ class HyperparameterTuner:
             if params['penalty'] == 'elasticnet':
                 params['l1_ratio'] = trial.suggest_float('l1_ratio', 0, 1)
 
+            # Prune invalid combinations:
+            if (
+                (params['solver'] == 'lbfgs' and params['penalty'] not in ['l2', None]) or
+                (params['solver'] == 'liblinear' and params['penalty'] not in ['l1', 'l2']) or
+                (params['solver'] == 'sag' and params['penalty'] not in ['l2', None]) or
+                (params['solver'] == 'newton-cholesky' and params['penalty'] not in ['l2', None]) or
+                (params['solver'] == 'saga' and params['penalty'] not in ['elasticnet', 'l1', 'l2', None])
+            ):
+                raise optuna.TrialPruned()  # Invalid combination of solver and penalty
+
             return params
+
+        
         elif classifier_name == "GradientBoosting":
             return {
                 "learning_rate" : trial.suggest_float('learning_rate', 0.001, 0.3, log=True),
@@ -198,19 +207,19 @@ class ModelFactory:
 
     Attributes:
         model_name (str): The name of the model to be instantiated.
-        best_params (dict): The best hyperparameters for the model.
+        model_hyperparams (dict): The best hyperparameters for the model.
     """
 
-    def __init__(self, model_name: str, best_params: dict):
+    def __init__(self, model_name: str, model_hyperparams: dict):
         """
         Initialize the ModelFactory with a model name and parameters.
         
         Args:
             model_name (str): The name of the model.
-            best_params (dict): Hyperparameters for the model.
+            model_hyperparams (dict): Hyperparameters for the model.
         """
         self.model_name = model_name
-        self.best_params = best_params
+        self.model_hyperparams = model_hyperparams
 
     def get_model_instance(self):
         """
@@ -219,7 +228,7 @@ class ModelFactory:
         Returns:
             A model instance with the appropriate parameters.
         """
-        # Dictionary of model classes
+         
         model_dict = {
             "LGBM": LGBMClassifier,
             "XGBoost": XGBClassifier,
@@ -232,24 +241,25 @@ class ModelFactory:
             "KNeighbors": KNeighborsClassifier
         }
 
-        # Check if the model exists in the model_dict
+         
         if self.model_name not in model_dict:
             raise ValueError(f"Model {self.model_name} is not supported.")
 
         # Create a model instance with specific parameters
         if self.model_name == "LGBM":
-            return model_dict[self.model_name](**self.best_params, random_state=42, verbose=-1)  # Add verbose for LGBM
+            return model_dict[self.model_name](**self.model_hyperparams, random_state=42, verbose=-1)   
         elif self.model_name == "RandomForest":
-            return model_dict[self.model_name](**self.best_params, random_state=42, n_jobs=-1)  # Add n_jobs for RandomForest
+            return model_dict[self.model_name](**self.model_hyperparams, random_state=42, n_jobs=-1)  
         elif self.model_name == "SVC":
-            return model_dict[self.model_name](**self.best_params, random_state=42, probability=True)  # Add probability for SVC
+            return model_dict[self.model_name](**self.model_hyperparams, random_state=42, probability=True)   
         elif self.model_name == "CatBoost":
-            return model_dict[self.model_name](**self.best_params, random_state=42, verbose=0)  # Suppress CatBoost verbosity
+            return model_dict[self.model_name](**self.model_hyperparams, random_state=42, verbose=0)   
         elif self.model_name == "KNeighbors":
-            return model_dict[self.model_name](**self.best_params)
+            return model_dict[self.model_name](**self.model_hyperparams)   
         else:
-            return model_dict[self.model_name](**self.best_params, random_state=42)  # Default for other models
- 
+            return model_dict[self.model_name](**self.model_hyperparams, random_state=42)   
+
+
 
 class PipelineManager:
     """
@@ -320,6 +330,8 @@ class PipelineManager:
         """
         return self.pipeline
     
+    
+    
 class PreprocessingPipeline:
     """
     A class that encapsulates the preprocessing steps for feature engineering,
@@ -347,37 +359,47 @@ class PreprocessingPipeline:
         self.onehot_features = onehot_features
         self.ordinal_features = ordinal_features
         self.transform_features = transform_features
+        self.trial = trial
         
-    def instantiate_numerical_simple_imputer(self, trial: optuna.Trial=None, strategy: str='mean', fill_value: int=-1) -> SimpleImputer:
-        if strategy is None and trial:
-            strategy = trial.suggest_categorical(
-                'numerical_strategy', ['mean', 'median', 'most_frequent']
-            )
-        #print(f"instantiate_numerical_simple_imputer: strategy= {strategy}")
+    def instantiate_numerical_simple_imputer(self, strategy: str=None, fill_value: int=-1) -> SimpleImputer:
+        if strategy is None and self.trial:
+            strategy = self.trial.suggest_categorical('numerical_strategy', ['mean', 'median', 'most_frequent'])
         return SimpleImputer(strategy=strategy, fill_value=fill_value)
 
-    def instantiate_categorical_simple_imputer(self, trial: optuna.Trial=None, strategy: str='most_frequent', fill_value: str='missing') -> SimpleImputer:
-        if strategy is None and trial:
-            strategy = trial.suggest_categorical('categorical_strategy', ['most_frequent', 'constant'])
+    def instantiate_categorical_simple_imputer(self, strategy: str=None, fill_value: str='missing') -> SimpleImputer:
+        if strategy is None and self.trial:
+            strategy = self.trial.suggest_categorical('categorical_strategy', ['most_frequent', 'constant'])
         return SimpleImputer(strategy=strategy, fill_value=fill_value)
     
-    def instantiate_outliers(self, trial: optuna.Trial=None, strategy: str='power_transform') -> Union[PowerTransformer, LogTransforms, str]:
-        if strategy is None and trial:
-            strategy = trial.suggest_categorical(
-                'outlier_strategy', ['power_transform', 'log_transform']
-            )
-        #print(f"instantiate_outliers: strategy= {strategy}")
+    def instantiate_outliers(self, strategy: str=None) -> Union[PowerTransformer, FunctionTransformer, OutlierDetector]:
+        """
+        Instantiate outlier handling method: PowerTransformer, LogTransformer, or OutlierDetector.
+
+        Args:
+            trial (optuna.Trial, optional): The trial object for hyperparameter optimization.
+
+        Returns:
+            Union[PowerTransformer, FunctionTransformer, OutlierDetector]: The selected outlier handling method.
+        """
+        # Suggest from available options
+        options = ['power_transform', 'log_transform', 'iqr_clip', 'iqr_median', 'iqr_mean']
+        if self.trial:
+            strategy = self.trial.suggest_categorical('outlier_strategy', options)
+        else:
+            strategy = strategy  # Default to first option if no trial is provided
+
         if strategy == 'power_transform':
-            #print("instantiate_outliers: Entered PowerTransformer() ")
             return PowerTransformer(method='yeo-johnson')
         elif strategy == 'log_transform':
-            #print("instantiate_outliers: Entered FunctionTransformer()")
-            return FunctionTransformer(np.log1p, validate=False)
+            return LogTransformer()
+            #return FunctionTransformer(np.log1p)  # Log transformation
+        elif strategy in ['iqr_clip', 'iqr_median', 'iqr_mean']:
+            return OutlierHandler(strategy=strategy)  # Instantiate OutlierDetector
         else:
-            #print("instantiate_outliers: Entered 'passthrough'")
-            return "passthrough"
+            raise ValueError(f"Unknown strategy for outlier handling: {strategy}")
+
          
-    def build(self, step_name=None, trial: optuna.Trial=None):
+    def build(self, step_name=None, **column_transformer_strategy):
         """
         Build the preprocessing pipeline with feature creation, transformation, 
         imputation, scaling, and encoding steps.
@@ -396,31 +418,39 @@ class PreprocessingPipeline:
             return DropRedundantColumns(redundant_cols=self.drop_columns)
         
         if step_name == 'column_transformer':
+            
+            numerical_strategy = column_transformer_strategy.get('numerical_strategy', None)
+            categorical_strategy = column_transformer_strategy.get('categorical_strategy',None)
+            outlier_strategy = column_transformer_strategy.get('outlier_strategy', None)        
+            
             return ColumnTransformer(
                 transformers=[
-                    ('numerical', Pipeline([
-                        ('imputer', self.instantiate_numerical_simple_imputer(trial=trial, strategy='mean')),
-                        #('scaler', StandardScaler())  # Add scaler if needed
-                    ]), self.numerical_features),
-                    
                     ('categorical', Pipeline([
-                        ('imputer', self.instantiate_categorical_simple_imputer(trial=trial, strategy='most_frequent', fill_value='missing')),   
+                        ('imputer', self.instantiate_categorical_simple_imputer(strategy=categorical_strategy)),   
                         ('onehot', OneHotEncoder(handle_unknown='ignore', drop='first', sparse_output=False))
                     ]), self.onehot_features),
                     
+                    ('numerical', Pipeline([
+                        ('imputer', self.instantiate_numerical_simple_imputer(strategy=numerical_strategy)),
+                        #('scaler', StandardScaler())  # Add scaler if needed
+                    ]), self.numerical_features),
+                    
+                    
+                    
                     ('ordinal', Pipeline([
-                        ('imputer', self.instantiate_categorical_simple_imputer(trial=trial, strategy='most_frequent', fill_value='missing')),
+                        ('imputer', self.instantiate_categorical_simple_imputer(strategy=categorical_strategy)),
                         ('ordinal', OrdinalEncoder())
                     ]), self.ordinal_features),
                     
                     ('outlier_transform', Pipeline([
-                        ('imputer', self.instantiate_numerical_simple_imputer(trial=trial)),
-                        ('outlier_transformer', self.instantiate_outliers(trial=trial, strategy="power_transformer"))
+                        ('imputer', self.instantiate_numerical_simple_imputer(strategy=numerical_strategy)),
+                        ('outlier_transformer', self.instantiate_outliers(strategy=outlier_strategy))  # Update this line
                     ]), self.transform_features),
                 ],
                 remainder='passthrough'
             )
-   
+            
+            
         
 class ResamplerSelector:
     """
@@ -539,7 +569,7 @@ class DimensionalityReductionSelector:
         """
         self.trial = trial
 
-    def get_dimensionality_reduction(self, dim_red=None):
+    def get_dimensionality_reduction(self, dim_red=None, pca_n_components=5):
         """
         Return the dimensionality reduction algorithm based on the provided `dim_red` parameter.
         If `dim_red` is not given, it is suggested from the trial.
@@ -558,7 +588,7 @@ class DimensionalityReductionSelector:
             if self.trial:
                 pca_n_components = self.trial.suggest_int("pca_n_components", 2, 30)
             else:
-                pca_n_components = 5  # Default value if trial is not provided
+                pca_n_components = pca_n_components  # Default value if trial is not provided
             dimen_red_algorithm = PCA(n_components=pca_n_components)
         else:
             dimen_red_algorithm = 'passthrough'
@@ -580,6 +610,10 @@ class ModelTrainer:
         
          # Get the model parameters from model config file
         self.model_config = self.model_trainer_config.UTILS.read_yaml_file(filename=MODEL_CONFIG_FILE)
+        
+        # Get the model artefact directory path
+        self.model_trainer_artefacts_dir = self.model_trainer_config.MODEL_TRAINER_ARTEFACTS_DIR
+    
         
         # Reading the Train and Test data from Data Ingestion Artefacts folder
         self.train_set = pd.read_csv(self.data_ingestion_artefacts.train_data_file_path)
@@ -611,15 +645,90 @@ class ModelTrainer:
 
         self.X_train = X_train.copy()
         # target label to 1 and 0
-        self.y_train = y_train.replace(self.yes_no_map)  # Map target labels
+        self.y_train = y_train.map(self.yes_no_map)  # Map target labels
         
         self.X_test = X_test.copy()
         # target label to 1 and 0
-        self.y_test = y_test.replace(self.yes_no_map)  # Map target labels
+        self.y_test = y_test.map(self.yes_no_map)  # Map target labels
         logging.info("Completed setting the Train and Test X and y")
         
+        
+    def get_pipeline_model_and_params(self, classifier_name, trial, model_hyperparams=None):
+         
+        # Got the Preprocessed Pipeline containting Data Cleaning and Column Transformation
+    
+        preprocessing_pipeline = PreprocessingPipeline(
+            bins_hour=self.bins_hour,
+            names_period=self.names_period,
+            drop_columns=self.drop_columns,
+            numerical_features=self.numerical_features,
+            onehot_features=self.onehot_features,
+            ordinal_features=self.ordinal_features,
+            transform_features=self.transform_features,
+            trial=trial
+        )
+        
+        # Initialize the manager with the preferred pipeline type ('ImbPipeline' or 'Pipeline')
+        pipeline_manager = PipelineManager(pipeline_type='ImbPipeline')
+        
+        pipeline_manager.add_step('create_new_features', preprocessing_pipeline.build(step_name='create_new_features', trial=None), position=0)
+        pipeline_manager.add_step('replace_class', preprocessing_pipeline.build(step_name='replace_class', trial=None), position=1)
+        pipeline_manager.add_step('drop_cols', preprocessing_pipeline.build(step_name='drop_cols', trial=None), position=2)
+        pipeline_manager.add_step('column_transformer', preprocessing_pipeline.build(step_name='column_transformer', trial=trial), position=3)
+        
+        # Add the resampler step based on the provided resample name or trial suggestion
+        resample_selector = ResamplerSelector(trial=trial)   
+        resampler_obj = resample_selector.get_resampler()
+        pipeline_manager.add_step('resampler', resampler_obj, position=4)
+        
+        
+        # Add the scaler step based on the provided resample name or trial suggestion
+        scaler_selector = ScalerSelector(trial=trial)  
+        scaler_obj = scaler_selector.get_scaler()
+        pipeline_manager.add_step('scaler', scaler_obj, position=5)
+        
+        
+        # Add the Dimensional Reduction step based on the provided parameter or trial suggestion
+        dim_red_selector = DimensionalityReductionSelector(trial=trial) 
+        dim_red_obj = dim_red_selector.get_dimensionality_reduction()
+        pipeline_manager.add_step('dim_reduction', dim_red_obj, position=6)
+
+        # Create an instance of the ModelFactory class with best_model and best_params
+        model_factory = ModelFactory(classifier_name, model_hyperparams)
+        model_obj = model_factory.get_model_instance()
+        pipeline_manager.add_step('model', model_obj, position=7)
+        
+        pipeline = pipeline_manager.get_pipeline()
+        
+        return pipeline
+    
+    
+    def get_classification_metrics(self, y_true, y_pred, y_pred_proba=None):
+        accuracy = accuracy_score(y_true, y_pred) # Calculate Accuracy
+        f1 = f1_score(y_true, y_pred) # Calculate F1-score
+        precision = precision_score(y_true, y_pred) # Calculate Precision
+        recall = recall_score(y_true, y_pred)  # Calculate Recall
+        if y_pred_proba is not None:
+            roc_auc = roc_auc_score(y_true, y_pred_proba)
+        else:
+            roc_auc = roc_auc_score(y_true, y_pred) #Calculate Roc
+        detailed_report = classification_report(y_true, y_pred, output_dict=True)  # Detailed report
+            
+        return {
+            'f1': f1,
+            'accuracy': accuracy,
+            'precision': precision,
+            'recall': recall,
+            'roc_auc': roc_auc,
+            "classification_report":  detailed_report
+        }
+            
+         
+
+        
+        
     # Define objective function for Optuna
-    def objective(self, trial: optuna.Trial, classifier_name: str, scoring='f1') -> float:
+    def objective(self,  classifier_name: str, trial: optuna.Trial=None, scoring='f1') -> float:
         """
         Objective function to optimize classifiers dynamically using Optuna.
 
@@ -634,65 +743,77 @@ class ModelTrainer:
         
         # Get hyperparameters for the classifier from HyperparameterTuner
         hyperparameter_tuner = HyperparameterTuner()
-        params = hyperparameter_tuner.get_params(trial, classifier_name)
-        #print("hyperparameter parameters obtained from HyperparameterTuner class")
+        model_hyperparams = hyperparameter_tuner.get_params(trial, classifier_name)
+            
         
-        # Got the Preprocessed Pipeline containting Data Cleaning and Column Transformation
-        preprocessing_pipeline = PreprocessingPipeline(
-            bins_hour=self.bins_hour,
-            names_period=self.names_period,
-            drop_columns=self.drop_columns,
-            numerical_features=self.numerical_features,
-            onehot_features=self.onehot_features,
-            ordinal_features=self.ordinal_features,
-            transform_features=self.transform_features
-        )
+        pipeline = self.get_pipeline_model_and_params(classifier_name=classifier_name, trial=trial, model_hyperparams=model_hyperparams)
         
-        # Initialize the manager with the preferred pipeline type ('ImbPipeline' or 'Pipeline')
-        pipeline_manager = PipelineManager(pipeline_type='ImbPipeline')
-        
-        # Add transformation steps: Option 1 = Does not work, see the error message    
-        pipeline_manager.add_step('create_new_features', preprocessing_pipeline.build(step_name='create_new_features', trial=None), position=0)
-        pipeline_manager.add_step('replace_class', preprocessing_pipeline.build(step_name='replace_class', trial=None), position=1)
-        pipeline_manager.add_step('drop_cols', preprocessing_pipeline.build(step_name='drop_cols', trial=None), position=2)
-        pipeline_manager.add_step('column_transformer', preprocessing_pipeline.build(step_name='column_transformer', trial=trial), position=3)
-        
-        # Add the resampler step based on the provided resample name or trial suggestion
-        resample_selector = ResamplerSelector(trial=trial)    
-        resampler_obj = resample_selector.get_resampler()
-        pipeline_manager.add_step('resampler', resampler_obj, position=4)
-        
-        
-        # Add the scaler step based on the provided resample name or trial suggestion
-        scaler_selector = ScalerSelector(trial=trial)    
-        scaler_obj = scaler_selector.get_scaler()
-        pipeline_manager.add_step('scaler', scaler_obj, position=5)
-        
-        
-        # Add the Dimensional Reduction step based on the provided parameter or trial suggestion
-        #dim_red_selector = DimensionalityReductionSelector(trial=trial)
-        #dim_red_obj = dim_red_selector.get_dimensionality_reduction(dim_red=None)
-        #pipeline_manager.add_step('dim_reduction', dim_red_obj, position=6)
-
-        # Create an instance of the ModelFactory class with best_model and best_params
-        model_factory = ModelFactory(classifier_name, params)
-        model_obj = model_factory.get_model_instance()
-        pipeline_manager.add_step('model', model_obj, position=7)
-        
-        pipeline = pipeline_manager.get_pipeline()
-        #print(f"pipeline: {pipeline.steps[2:4]}")
 
         # Cross-validation
         kfold = StratifiedKFold(n_splits=10)
         score = cross_val_score(pipeline, self.X_train, self.y_train, scoring=scoring, n_jobs=-1, cv=kfold, verbose=0, error_score='raise')
-        result = score.mean()
+        score_training = score.mean()
         
-        """pipeline.fit(X_train, y_train)
-        y_pred = pipeline.predict(X_test)
-        accuracy = accuracy_score(y_test, y_pred)
-        result = accuracy"""
+        pipeline.fit(self.X_train, self.y_train)
+        
+        y_pred = pipeline.predict(self.X_test)
+        y_pred_proba = pipeline.predict_proba(self.X_test)[:, 1]
+        
+        classification_metrics = self.get_classification_metrics(self.y_test, y_pred, y_pred_proba)
+        
+        classification_metrics['classifier_name'] = classifier_name
+        classification_metrics['training_score'] = score_training
+        
+        # Return the metric used in the scoring the training        
+        return classification_metrics[scoring]
+    
+    
+    # Define objective function for Optuna
+    def detailed_objective(self, classifier_name: str, trial: optuna.Trial=None, scoring='f1') -> Dict:
+        """
+        Objective function to optimize classifiers dynamically using Optuna.
 
-        return result
+        Args:
+            trial (optuna.Trial): Optuna trial object for suggesting hyperparameters.
+            classifier_name (str): Classifier to optimize.
+            scoring (str): Scoring metric for cross-validation.
+
+        Returns:
+            float: The mean score from cross-validation.
+        """
+        
+        # Get hyperparameters for the classifier from HyperparameterTuner
+        hyperparameter_tuner = HyperparameterTuner()
+        model_hyperparams = hyperparameter_tuner.get_params(trial, classifier_name)
+         
+        
+        # Got the Preprocessed Pipeline containting Data Cleaning and Column Transformation        
+        pipeline = self.get_pipeline_model_and_params(classifier_name, trial, model_hyperparams=model_hyperparams)
+        
+        # Cross-validation
+        kfold = StratifiedKFold(n_splits=10)
+        score = cross_val_score(pipeline, self.X_train, self.y_train, scoring=scoring, n_jobs=-1, cv=kfold, verbose=0, error_score='raise')
+        score_training = score.mean()
+        
+        
+        pipeline.fit(self.X_train, self.y_train)
+        
+        y_pred = pipeline.predict(self.X_test)
+        y_pred_proba = pipeline.predict_proba(self.X_test)[:, 1]
+        
+        classification_metrics = self.get_classification_metrics(self.y_test, y_pred, y_pred_proba)
+        
+        classification_metrics['classifier_name'] = classifier_name
+        classification_metrics['training_score'] = score_training
+        
+        # Save the variables to a file
+        # Serialise the trained pipeline
+        trained_model_filename = f'{classifier_name}_pipeline{MODEL_SAVE_FORMAT}'
+        trained_model_saved_path = os.path.join(self.model_trainer_artefacts_dir, trained_model_filename)
+        joblib.dump((pipeline, classification_metrics), trained_model_saved_path)
+        print(f'Serialized {classifier_name} pipeline and test metrics to {trained_model_saved_path}')
+        
+        return classification_metrics
     
     
     # Run the Optuna study
@@ -709,18 +830,18 @@ class ModelTrainer:
         best_model_score = -1
         best_model = None
         best_params = None
-        results = []
+        best_of_models = []
 
         all_models = ["RandomForest", "DecisionTree", 
                     "XGBoost", "LGBM", "GradientBoosting", 
                     "LogisticRegression", "KNeighbors", "CatBoost"]
         
-        #all_models = ['DecisionTree']
+        all_models = ["RandomForest", "DecisionTree",  "XGBoost"]
         
-        for model_name in all_models:
-            logging.info(f"\n\nOptimizing model: {model_name}")
+        for classifier_name in all_models:
+            logging.info(f"Optimizing model: {classifier_name}")
             study = optuna.create_study(direction="maximize", sampler=TPESampler())
-            study.optimize(lambda trial: self.objective(trial, model_name, scoring), n_trials=n_trials)
+            study.optimize(lambda trial: self.objective(classifier_name, trial,  scoring), n_trials=n_trials)
             
             best_trial_obj = study.best_trial
             
@@ -728,11 +849,11 @@ class ModelTrainer:
             
             if current_score and current_score > best_model_score:
                 best_model_score = current_score
-                best_model = model_name
+                best_model = classifier_name
                 best_params = best_trial_obj.params
             
-            results.append({
-                "model": model_name,
+            best_of_models.append({
+                "model": classifier_name,
                 "params": best_trial_obj.params,
                 "model_score_params": best_trial_obj.params,
                 "model_score_trial_number": best_trial_obj.number,                
@@ -741,58 +862,17 @@ class ModelTrainer:
                 "model_score_key": scoring,
                 "model_score_value": best_trial_obj.value                
             })
+            logging.info(f"Model: {classifier_name}, Current Score: {current_score} | Best Model: {best_model}, Best Score: {best_model_score}")
+            
+            best_parameters_results = self.detailed_objective(classifier_name=classifier_name, trial=study.best_trial,  scoring=scoring)
+            logging.info(f"Best Parameters: {best_parameters_results}")
+            
+            # Display all results and the best model
+            for result in best_of_models:
+                logging.info(result)
+            
             
         return best_model, best_params, current_score
-        
-        """
-            best_trial = study.best_trial
-            results.append({
-                "model": model_name,
-                "params": best_trial.params,
-                "model_score_params": best_trial.params,
-                "model_score_trial_number": best_trial.number,
-                "model_score_datetime": best_trial.datetime_start,
-                "model_score_duration": best_trial.duration,
-                "model_score_status": best_trial.state,
-                "model_score_key": scoring,
-                "model_score_value": best_trial.value                
-            })
-
-            current_score = best_trial.value            
-            
-            if current_score and current_score > best_model_score:
-                best_model_score = current_score
-                best_model = model_name
-                best_params = best_trial.params
-                
-        logging.info(f"Model: {model_name}, Current Score: {current_score} | Best Model: {best_model}, Best Score: {best_model_score}")
-
-        # Display all results and the best model
-        for result in results:
-            logging.info(result)
-        
-        logging.info(f"Best model: {best_model}")
-        logging.info(f"Best parameters: {best_params}")
-        
-        
-        # Save the variables to a file
-        save_bin(data=(best_model, best_params, best_model_score), path="best_model_and_params.pkl")
-        
-
-        # Use list comprehension to gather keys that start with "pipe"
-        keys_to_remove = ["resampler", "scaler", "dim_red", "pca_n_components"]
-
-        # Pop those keys from the dictionary
-        for key in keys_to_remove:
-            best_params.pop(key, None)
-
-        # Resulting dictionary after removal
-        logging.info(f'cleaned best params: {best_params}')
-         
-        return best_model, best_params, best_model_score"""
-    
-        
-
 
         
     # This method is used to initialise model training
@@ -814,11 +894,13 @@ class ModelTrainer:
 
             
             # Create and run the study
-            best_model, best_params, best_model_score = self.run_optimization(config_path=[], n_trials=30, scoring='f1')
-            logging.info(f"Completed the training process")
-            logging.info(f"Best params: {best_model}")
-            logging.info(f"Best params: {best_params}")
-            logging.info(f"best_model_score: {best_model_score}")
+            best_model_name, best_model_params, best_model_score = self.run_optimization(config_path=[], n_trials=30, scoring='f1')
+            logging.info("Completed the training process")
+            logging.info(f"Best params: {best_model_params}")
+            logging.info(f"Best params: {best_model_params}")
+            logging.info(f"The best model score from the model training: {best_model_score}")
+            
+            
              
             
             # Reading model config file for getting the best model score
@@ -827,11 +909,13 @@ class ModelTrainer:
             )
             base_model_score = float(model_config["base_model_score"])
             logging.info(f"Got the best model score from model config file: {base_model_score}")
-            logging.info(f"The best model score from the model training: {best_model_score}")
+             
 
             # Updating the best model score to model config file if the model score is greather than the base model score
             if best_model_score >= base_model_score:
-                self.model_trainer_config.UTILS.update_model_score(best_model_score)
+                best_model_info  = {'best_model_score': best_model_score, 'best_model_name': best_model_name}
+                self.model_trainer_config.UTILS.update_model_score(best_model_info)
+                
                 logging.info("Updated the best model score to model config file")
 
                 """# Loading cost model object with preprocessor and model
@@ -849,7 +933,7 @@ class ModelTrainer:
                 logging.info(f"Created best model file path: {trained_model_path}")
                 
                 model_file_path = self.model_trainer_config.UTILS.save_object(
-                    trained_model_path, best_params)
+                    trained_model_path, (best_model_name, best_model_params, best_model_score))
                 logging.info("Saved the best model object path")
             else:
                 logging.info("No best mode found: The best model score is less than the base model score")

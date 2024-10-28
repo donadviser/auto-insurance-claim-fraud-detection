@@ -85,6 +85,9 @@ class DataTransformationConfig:
         self.PREPROCESSOR_FILE_PATH: str = os.path.join(
             from_root(), ARTEFACTS_DIR, DATA_TRANSFORMATION_ARTEFACTS_DIR, PREPROCESSOR_OBJECT_FILE_NAME
             )
+        self.TRANSFORM_FEATURES_DICT_FILE_PATH: str = os.path.join(
+            self.DATA_TRANSFORMATION_ARTEFACTS_DIR, TRANSFORM_FEATURES_DICT_FILE_NAME
+        )
 
 
 # Model Evaluation Configurations

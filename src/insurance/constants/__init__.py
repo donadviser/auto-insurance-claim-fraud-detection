@@ -37,9 +37,10 @@ TRANSFORMED_TEST_DATA_DIR = "TransformedTest"
 TRANSFORMED_TRAIN_DATA_FILE_NAME = "transformed_train_data.npz"
 TRANSFORMED_TEST_DATA_FILE_NAME = "transformed_test_data.npz"
 PREPROCESSOR_OBJECT_FILE_NAME = "insurance_claim_fraud_preprocessor.pkl"
+TRANSFORM_FEATURES_DICT_FILE_NAME = "transformed_features.pkl"
 
 MODEL_TRAINER_ARTEFACTS_DIR = "ModelTrainerArtefacts"
-MODEL_FILE_NAME = "insurance_claim_fraud_model.pkl"
+MODEL_FILE_NAME = "best_model_insurance_claim_fraud.pkl"
 MODEL_SAVE_FORMAT = ".pkl"
 
 #S3 BUCKET

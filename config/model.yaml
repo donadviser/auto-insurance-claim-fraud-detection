@@ -116,4 +116,5 @@ grid_search:
   params:
     cv: 3
     verbose: 3
-base_model_score: '0.7315272668434116'
+base_model_name: DecisionTree
+base_model_score: '0.6206896551724138'

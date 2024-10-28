@@ -19,6 +19,16 @@ from sklearn.utils import all_estimators
 
 from insurance import logging, CustomException
 from insurance.constants import *
+
+import os
+from box.exceptions import BoxValueError
+import yaml
+import json
+import joblib
+from ensure import ensure_annotations
+from box import ConfigBox
+from pathlib import Path
+from typing import Any
  
 
 class MainUtils:
@@ -205,11 +215,15 @@ class MainUtils:
         except Exception as e:
             raise CustomException(e, sys)
         
-    def update_model_score(self, best_model_score: float) -> None:
+    def update_model_score(self, best_model_info: Dict) -> None:
         logging.info("Entered the update_model_score method of MainUtils class")
         try:
             model_config = self.read_yaml_file(filename=MODEL_CONFIG_FILE)
+            best_model_score = best_model_info['best_model_score']
+            best_model_name = best_model_info['best_model_name']
+            
             model_config["base_model_score"] = str(best_model_score)
+            model_config["base_model_name"] = str(best_model_name)
             with open(MODEL_CONFIG_FILE, "w+") as file_obj:
                 safe_dump(model_config, file_obj, sort_keys=False)
             logging.info("Exited the update_model_score method of MainUtils class")
@@ -241,3 +255,44 @@ class MainUtils:
             return df.rename(columns=lambda col: to_snake_case(col))
         except Exception as e:
             raise CustomException(e, sys)
+        
+    @staticmethod
+    def save_bin(data: Any, path: Path):
+        """save binary file
+
+        Args:
+            data (Any): data to be saved as binary
+            path (Path): path to binary file
+        """
+        joblib.dump(value=data, filename=path)
+        logger.info(f"binary file saved at: {path}")
+
+
+    @staticmethod
+    def load_bin(path: Path) -> Any:
+        """load binary data
+
+        Args:
+            path (Path): path to binary file
+
+        Returns:
+            Any: object stored in the file
+        """
+        data = joblib.load(path)
+        logger.info(f"binary file loaded from: {path}")
+        return data
+
+
+
+    @staticmethod
+    def get_size(path: Path) -> str:
+        """get size in KB
+
+        Args:
+            path (Path): path of the file
+
+        Returns:
+            str: size in KB
+        """
+        size_in_kb = round(os.path.getsize(path)/1024)
+        return f"~ {size_in_kb} KB"

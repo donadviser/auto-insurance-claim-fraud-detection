@@ -1,1 +1,0 @@
-from insurance.config.configuration import ConfigurationManager
