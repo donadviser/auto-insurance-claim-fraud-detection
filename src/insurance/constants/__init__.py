@@ -18,7 +18,8 @@ TARGET_COLUMN = "fraud_reported"
 
 TEST_SIZE = 0.2
 
-ARTEFACTS_DIR = os.path.join(from_root(), "artefacts", TIMESTAMP)
+ARTEFACTS_ROOT_DIR = os.path.join(from_root(), "artefacts")
+ARTEFACTS_DIR = os.path.join(ARTEFACTS_ROOT_DIR, TIMESTAMP)
 
 RAW_DATA_DIR = os.path.join(ARTEFACTS_DIR, "RawData")
 
@@ -42,6 +43,7 @@ TRANSFORM_FEATURES_DICT_FILE_NAME = "transformed_features.pkl"
 MODEL_TRAINER_ARTEFACTS_DIR = "ModelTrainerArtefacts"
 MODEL_FILE_NAME = "best_model_insurance_claim_fraud.pkl"
 MODEL_SAVE_FORMAT = ".pkl"
+BEST_MODEL_ARTIFACTS_DIR = "BestModelArtefacts"
 
 #S3 BUCKET
 BUCKET_NAME = "hexa-shipment-model-io-files"

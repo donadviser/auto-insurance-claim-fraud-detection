@@ -111,3 +111,7 @@ class ModelTrainerConfig:
         self.TRAINED_MODEL_FILE_PATH: str = os.path.join(
             from_root(), ARTEFACTS_DIR, MODEL_TRAINER_ARTEFACTS_DIR, MODEL_FILE_NAME
             )
+        
+        self.BEST_MODEL_ARTEFACTS_DIR: str = os.path.join(
+            from_root(), ARTEFACTS_ROOT_DIR, BEST_MODEL_ARTIFACTS_DIR
+            )

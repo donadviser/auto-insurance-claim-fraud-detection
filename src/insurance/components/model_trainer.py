@@ -5,7 +5,7 @@ import numpy as np
 
 import optuna
 import joblib
-from typing import Union, Dict
+from typing import Union, Dict, Tuple
 from optuna.samplers import TPESampler
 
 from insurance import logging
@@ -613,8 +613,11 @@ class ModelTrainer:
         
         # Get the model artefact directory path
         self.model_trainer_artefacts_dir = self.model_trainer_config.MODEL_TRAINER_ARTEFACTS_DIR
-    
         
+        self.best_model_artefacts_dir = self.model_trainer_config.BEST_MODEL_ARTEFACTS_DIR
+        os.makedirs(self.best_model_artefacts_dir, exist_ok=True)
+        logging.info(f"Created Best Model  Artefacts Directory: {self.best_model_artefacts_dir}")
+    
         # Reading the Train and Test data from Data Ingestion Artefacts folder
         self.train_set = pd.read_csv(self.data_ingestion_artefacts.train_data_file_path)
         self.test_set = pd.read_csv(self.data_ingestion_artefacts.test_data_file_path)
@@ -769,7 +772,7 @@ class ModelTrainer:
     
     
     # Define objective function for Optuna
-    def detailed_objective(self, classifier_name: str, trial: optuna.Trial=None, scoring='f1') -> Dict:
+    def detailed_objective(self, classifier_name: str, trial: optuna.Trial=None, scoring='f1') -> ImbPipeline:
         """
         Objective function to optimize classifiers dynamically using Optuna.
 
@@ -789,31 +792,14 @@ class ModelTrainer:
         
         # Got the Preprocessed Pipeline containting Data Cleaning and Column Transformation        
         pipeline = self.get_pipeline_model_and_params(classifier_name, trial, model_hyperparams=model_hyperparams)
+        logging.info(f"Fitted pipeline with the best parameters: {classifier_name}")
         
         # Cross-validation
-        kfold = StratifiedKFold(n_splits=10)
-        score = cross_val_score(pipeline, self.X_train, self.y_train, scoring=scoring, n_jobs=-1, cv=kfold, verbose=0, error_score='raise')
-        score_training = score.mean()
+        #kfold = StratifiedKFold(n_splits=10)
+        #score = cross_val_score(pipeline, self.X_train, self.y_train, scoring=scoring, n_jobs=-1, cv=kfold, verbose=0, error_score='raise')
+        #score_training = score.mean()
         
-        
-        pipeline.fit(self.X_train, self.y_train)
-        
-        y_pred = pipeline.predict(self.X_test)
-        y_pred_proba = pipeline.predict_proba(self.X_test)[:, 1]
-        
-        classification_metrics = self.get_classification_metrics(self.y_test, y_pred, y_pred_proba)
-        
-        classification_metrics['classifier_name'] = classifier_name
-        classification_metrics['training_score'] = score_training
-        
-        # Save the variables to a file
-        # Serialise the trained pipeline
-        trained_model_filename = f'{classifier_name}_pipeline{MODEL_SAVE_FORMAT}'
-        trained_model_saved_path = os.path.join(self.model_trainer_artefacts_dir, trained_model_filename)
-        joblib.dump((pipeline, classification_metrics), trained_model_saved_path)
-        print(f'Serialized {classifier_name} pipeline and test metrics to {trained_model_saved_path}')
-        
-        return classification_metrics
+        return  pipeline
     
     
     # Run the Optuna study
@@ -831,12 +817,13 @@ class ModelTrainer:
         best_model = None
         best_params = None
         best_of_models = []
+        best_pipeline = {}
 
         all_models = ["RandomForest", "DecisionTree", 
                     "XGBoost", "LGBM", "GradientBoosting", 
                     "LogisticRegression", "KNeighbors", "CatBoost"]
         
-        all_models = ["RandomForest", "DecisionTree",  "XGBoost"]
+        all_models = ["RandomForest", "DecisionTree",  "XGBoost", "LGBM", "GradientBoosting", ]
         
         for classifier_name in all_models:
             logging.info(f"Optimizing model: {classifier_name}")
@@ -845,34 +832,64 @@ class ModelTrainer:
             
             best_trial_obj = study.best_trial
             
-            current_score = best_trial_obj.value            
+            score_training = best_trial_obj.value 
             
-            if current_score and current_score > best_model_score:
-                best_model_score = current_score
+            
+            # patch the pipeline with tbe frozen best model trials
+            pipeline = self.detailed_objective(classifier_name=classifier_name, trial=study.best_trial,  scoring=scoring)
+        
+            pipeline.fit(self.X_train, self.y_train)
+        
+            y_pred = pipeline.predict(self.X_test)
+            y_pred_proba = pipeline.predict_proba(self.X_test)[:, 1]
+            
+            classification_metrics = self.get_classification_metrics(self.y_test, y_pred, y_pred_proba)
+            classification_metrics['training_score'] = score_training
+            
+            current_test_score =  classification_metrics[scoring]
+             
+            
+            
+            # Serialise the trained pipeline
+            trained_model_filename = f'{classifier_name}_pipeline{MODEL_SAVE_FORMAT}'
+            trained_model_saved_path = os.path.join(self.model_trainer_artefacts_dir, trained_model_filename)
+            joblib.dump((pipeline, classification_metrics), trained_model_saved_path)
+            print(f'Serialized {classifier_name} pipeline and test metrics to {trained_model_saved_path}')         
+            
+            logging.info(f"Model: {classifier_name}, Current Score: {current_test_score} | Best Model: {best_model}, Best Score: {best_model_score}")
+        
+            if current_test_score and current_test_score > best_model_score:
+                best_model_score = current_test_score
                 best_model = classifier_name
-                best_params = best_trial_obj.params
+                best_params = best_trial_obj.params    
             
-            best_of_models.append({
-                "model": classifier_name,
-                "params": best_trial_obj.params,
-                "model_score_params": best_trial_obj.params,
-                "model_score_trial_number": best_trial_obj.number,                
-                "model_score_duration": best_trial_obj.duration,
-                "model_score_status": best_trial_obj.state,
-                "model_score_key": scoring,
-                "model_score_value": best_trial_obj.value                
-            })
-            logging.info(f"Model: {classifier_name}, Current Score: {current_score} | Best Model: {best_model}, Best Score: {best_model_score}")
-            
-            best_parameters_results = self.detailed_objective(classifier_name=classifier_name, trial=study.best_trial,  scoring=scoring)
-            logging.info(f"Best Parameters: {best_parameters_results}")
-            
-            # Display all results and the best model
-            for result in best_of_models:
-                logging.info(result)
+                best_of_models.append({
+                    "model": classifier_name,
+                    "params": best_trial_obj.params,
+                    "model_score_params": best_trial_obj.params,
+                    "model_score_trial_number": best_trial_obj.number,                
+                    "model_score_duration": best_trial_obj.duration,
+                    "model_score_status": best_trial_obj.state,
+                    "model_score_key": scoring,
+                    "model_score_value": best_trial_obj.value,
+                })
+                
+                best_pipeline[best_model] = pipeline
+                
+                
             
             
-        return best_model, best_params, current_score
+        # Display all results and the best model
+        for result in best_of_models:
+            logging.info(result) 
+            
+        # Save the Overal Best Model Pipeline for Predictiona in Inference
+        best_trained_model_filename = f'best_model_pipeline{MODEL_SAVE_FORMAT}'
+        best_trained_model_saved_path = os.path.join(self.best_model_artefacts_dir, best_trained_model_filename)
+        joblib.dump(best_pipeline[best_model], best_trained_model_saved_path)
+        print(f'Serialized best model pipeline {classifier_name} to {best_trained_model_saved_path}')              
+            
+        return best_model, best_params, current_test_score
 
         
     # This method is used to initialise model training
@@ -900,9 +917,7 @@ class ModelTrainer:
             logging.info(f"Best params: {best_model_params}")
             logging.info(f"The best model score from the model training: {best_model_score}")
             
-            
-             
-            
+                       
             # Reading model config file for getting the best model score
             model_config = self.model_trainer_config.UTILS.read_yaml_file(
                 filename=MODEL_CONFIG_FILE
