@@ -6,6 +6,7 @@ import numpy as np
 import optuna
 import joblib
 from typing import Union, Dict, Tuple
+from typing_extensions import Annotated
 from optuna.samplers import TPESampler
 
 from insurance import logging
@@ -21,8 +22,8 @@ from insurance.entity import (
 from sklearn.impute import SimpleImputer
 from sklearn.preprocessing import (
     OneHotEncoder, StandardScaler, OrdinalEncoder, PowerTransformer, RobustScaler, MinMaxScaler,
-    FunctionTransformer, MinMaxScaler)
-from sklearn.model_selection import  RandomizedSearchCV, cross_val_score, StratifiedKFold, GridSearchCV
+    FunctionTransformer)
+from sklearn.model_selection import   cross_val_score, StratifiedKFold
 from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
 from imblearn.pipeline import Pipeline as ImbPipeline
@@ -63,13 +64,46 @@ from insurance.utils.custom_transformers import (
 
 
 class CostModel:
-    def __init__(
-            self, preprocessing_object: object, trained_model_object: object):
-        self.preprocessing_object = preprocessing_object
-        self.trained_model_object = trained_model_object
+    def __init__(self,
+                 pipeline_model: object,
+                 X_train: pd.DataFrame,
+                 y_train: pd.DataFrame,
+                 preprocess_pipeline: object=None, 
+                ):
+        """
+        Initialize the CostModel class
+
+        Args:
+            pipeline_model (object): model or model in the pipeline
+            X_train (pd.DataFrame): data (features)
+            y_train (pd.DataFrame): labels
+            preprocess_pipeline (object, optional): _description_. Defaults to None.
+        """
+        self.preprocess_pipeline = preprocess_pipeline
+        self.pipeline_model = pipeline_model
+        self.X_train = X_train
+        self.y_train = y_train
+        
+    @staticmethod
+    def _handle_exception(e: Exception) -> None:
+        raise CustomException(e, sys)
+        
+    
+    def train(self) -> object:
+        """Train the model with the provided data."""
+        try:
+            if self.preprocess_pipeline:
+                self.X_train = self.preprocess_pipeline.fit_transform(self.X_train)
+            self.pipeline_model.fit(self.X_train, self.y_train)
+            return self.pipeline_model
+        except Exception as e:
+            self._handle_exception(e)
 
 
-    def predict(self, X) -> float:
+    def predict(self, X_test) -> Tuple[
+        Annotated[float, "y_pred"], 
+        Annotated[float, "y_pred_proba"]
+        ]:
         """
         This method predicts the data
 
@@ -80,40 +114,67 @@ class CostModel:
             float: The predicted data.
         """
         try:
-            # Predict the data
-            transformed_feature = self.preprocessing_object.transform(X)
-            logging.info("Used the trained model to get predictions")
+            if self.preprocess_pipeline:
+                X_test = self.preprocess_pipeline.transform(X_test)
+                logging.info("Transformed the X_test using preprocess_pipeline to get predictions")                
              
-            return self.trained_model_object.predict(transformed_feature)
+            y_pred = self.pipeline_model.predict(X_test)
+            y_pred_proba = self.pipeline_model.predict_proba(X_test)[:, 1]
+            logging.info("Predicted y_pred and y_pred_proba")            
+             
+            return y_pred, y_pred_proba
         except Exception as e:
-            raise CustomException(e, sys)
+            self._handle_exception(e)
+            
+            
+    def evaluate(self, y_test, y_pred, y_pred_proba=None)-> Dict[str, float]:
+        try:
+            accuracy = accuracy_score(y_test, y_pred)  # Calculate Accuracy
+            f1 = f1_score(y_test, y_pred, average='binary')  # Calculate F1-score
+            precision = precision_score(y_test, y_pred)  # Calculate Precision
+            recall = recall_score(y_test, y_pred)  # Calculate Recall
+            roc_auc = roc_auc_score(y_test, y_pred_proba) if y_pred_proba is not None else roc_auc_score(y_test, y_pred)  # Calculate Roc
+            detailed_report = classification_report(y_test, y_pred, output_dict=True)  # Detailed report
+
+            return {
+                'f1': f1,
+                'accuracy': accuracy,
+                'precision': precision,
+                'recall': recall,
+                'roc_auc': roc_auc,
+                "classification_report": detailed_report
+            }
+        except Exception as e:
+            self._handle_exception(e)
+            
+    
         
     def __repr__(self) -> str:
-        return f"{type(self.trained_model_object).__name__}()"
+        return f"{type(self.pipeline_model).__name__}()"
     
     def __str__(self) -> str:
-        return f"{type(self.trained_model_object).__name__}()"
+        return f"{type(self.pipeline_model).__name__}()"
     
 
 class HyperparameterTuner:
     """
     HyperparameterTuner to return hyperparameters for each classifier.
     """
-    def get_params(self, trial: optuna.Trial, classifier_name: str):
-        if classifier_name == "RandomForest":
+    def get_params(self, trial: optuna.Trial, model_name: str):
+        if model_name == "RandomForest":
             return {
                 "n_estimators": trial.suggest_int("n_estimators", 50, 300),
                 "max_depth": trial.suggest_int("max_depth", 2, 30),
                 "min_samples_split": trial.suggest_int("min_samples_split", 2, 20),
                 "min_samples_leaf": trial.suggest_int("min_samples_leaf", 1, 20),
             }
-        elif classifier_name == "DecisionTree":
+        elif model_name == "DecisionTree":
             return {
                 "max_depth": trial.suggest_int("max_depth", 2, 30),
                 "min_samples_split": trial.suggest_int("min_samples_split", 2, 20),
                 "min_samples_leaf": trial.suggest_int("min_samples_leaf", 1, 20),
             }
-        elif classifier_name == "LGBM":
+        elif model_name == "LGBM":
             return {
                 "objective": "binary",
                 "metric": "binary_logloss",
@@ -127,7 +188,7 @@ class HyperparameterTuner:
                 "bagging_freq": trial.suggest_int("bagging_freq", 1, 7),
                 "min_child_samples": trial.suggest_int("min_child_samples", 5, 100),
             }
-        elif classifier_name == "XGBoost":
+        elif model_name == "XGBoost":
             return {
                 "verbosity": 0,
                 "objective": "binary:logistic",
@@ -138,7 +199,7 @@ class HyperparameterTuner:
                 "subsample": trial.suggest_float("subsample", 0.2, 1.0),
                 "colsample_bytree": trial.suggest_float("colsample_bytree", 0.2, 1.0),
             }
-        elif classifier_name == "CatBoost":
+        elif model_name == "CatBoost":
             return {
                 "objective": trial.suggest_categorical("objective", ["Logloss", "CrossEntropy"]),
                 "colsample_bylevel": trial.suggest_float("colsample_bylevel", 0.01, 0.1),
@@ -146,7 +207,7 @@ class HyperparameterTuner:
                 "boosting_type": trial.suggest_categorical("boosting_type", ["Ordered", "Plain"]),
                 "bootstrap_type": trial.suggest_categorical("bootstrap_type", ["Bayesian", "Bernoulli", "MVS"]),
             }
-        elif classifier_name == "LogisticRegression":
+        elif model_name == "LogisticRegression":
             # Basic hyperparameters
             params = {
                 "solver": trial.suggest_categorical('solver', ['newton-cholesky', 'lbfgs', 'liblinear', 'sag', 'saga']),
@@ -178,7 +239,7 @@ class HyperparameterTuner:
             return params
 
         
-        elif classifier_name == "GradientBoosting":
+        elif model_name == "GradientBoosting":
             return {
                 "learning_rate" : trial.suggest_float('learning_rate', 0.001, 0.3, log=True),
                 "n_estimators" : trial.suggest_int('n_estimators', 100, 1000),
@@ -188,7 +249,7 @@ class HyperparameterTuner:
                 "max_features" : trial.suggest_categorical('max_features', ['sqrt', 'log2', None])
     
             }
-        elif classifier_name == "KNeighbors":
+        elif model_name == "KNeighbors":
             params = {
                 "n_neighbors": trial.suggest_int('n_neighbors', 1, 50),
                 "weights": trial.suggest_categorical('weights', ['uniform', 'distance']),
@@ -198,7 +259,7 @@ class HyperparameterTuner:
             }
             return params
         else:
-            raise ValueError(f"Invalid classifier name: {classifier_name}")
+            raise ValueError(f"Invalid classifier name: {model_name}")
         
         
 class ModelFactory:
@@ -598,6 +659,18 @@ class DimensionalityReductionSelector:
       
              
 class ModelTrainer:
+    # Constants
+    VALID_CLASSIFIERS = {
+        "RandomForest": RandomForestClassifier,
+        "DecisionTree": DecisionTreeClassifier,
+        "LGBM": LGBMClassifier,
+        "XGBoost": XGBClassifier,
+        "CatBoost": CatBoostClassifier,
+        "LogisticRegression": LogisticRegression,
+        "GradientBoosting": GradientBoostingClassifier,
+        "KNeighbors": KNeighborsClassifier,
+    }
+
     def __init__(
             self,
             data_ingestion_artefacts: DataIngestionArtefacts,
@@ -656,7 +729,7 @@ class ModelTrainer:
         logging.info("Completed setting the Train and Test X and y")
         
         
-    def get_pipeline_model_and_params(self, classifier_name, trial, model_hyperparams=None):
+    def get_pipeline_model_and_params(self, trial, model_name,  model_hyperparams=None):
          
         # Got the Preprocessed Pipeline containting Data Cleaning and Column Transformation
     
@@ -697,199 +770,92 @@ class ModelTrainer:
         pipeline_manager.add_step('dim_reduction', dim_red_obj, position=6)
 
         # Create an instance of the ModelFactory class with best_model and best_params
-        model_factory = ModelFactory(classifier_name, model_hyperparams)
+        model_factory = ModelFactory(model_name, model_hyperparams)
         model_obj = model_factory.get_model_instance()
         pipeline_manager.add_step('model', model_obj, position=7)
         
         pipeline = pipeline_manager.get_pipeline()
         
         return pipeline
-    
-    
-    def get_classification_metrics(self, y_true, y_pred, y_pred_proba=None):
-        accuracy = accuracy_score(y_true, y_pred) # Calculate Accuracy
-        f1 = f1_score(y_true, y_pred) # Calculate F1-score
-        precision = precision_score(y_true, y_pred) # Calculate Precision
-        recall = recall_score(y_true, y_pred)  # Calculate Recall
-        if y_pred_proba is not None:
-            roc_auc = roc_auc_score(y_true, y_pred_proba)
-        else:
-            roc_auc = roc_auc_score(y_true, y_pred) #Calculate Roc
-        detailed_report = classification_report(y_true, y_pred, output_dict=True)  # Detailed report
-            
-        return {
-            'f1': f1,
-            'accuracy': accuracy,
-            'precision': precision,
-            'recall': recall,
-            'roc_auc': roc_auc,
-            "classification_report":  detailed_report
-        }
-            
-         
-
         
-        
-    # Define objective function for Optuna
-    def objective(self,  classifier_name: str, trial: optuna.Trial=None, scoring='f1') -> float:
-        """
-        Objective function to optimize classifiers dynamically using Optuna.
-
-        Args:
-            trial (optuna.Trial): Optuna trial object for suggesting hyperparameters.
-            classifier_name (str): Classifier to optimize.
-            scoring (str): Scoring metric for cross-validation.
-
-        Returns:
-            float: The mean score from cross-validation.
-        """
-        
-        # Get hyperparameters for the classifier from HyperparameterTuner
-        hyperparameter_tuner = HyperparameterTuner()
-        model_hyperparams = hyperparameter_tuner.get_params(trial, classifier_name)
-            
-        
-        pipeline = self.get_pipeline_model_and_params(classifier_name=classifier_name, trial=trial, model_hyperparams=model_hyperparams)
-        
-
-        # Cross-validation
-        kfold = StratifiedKFold(n_splits=10)
-        score = cross_val_score(pipeline, self.X_train, self.y_train, scoring=scoring, n_jobs=-1, cv=kfold, verbose=0, error_score='raise')
-        score_training = score.mean()
-        
-        pipeline.fit(self.X_train, self.y_train)
-        
-        y_pred = pipeline.predict(self.X_test)
-        y_pred_proba = pipeline.predict_proba(self.X_test)[:, 1]
-        
-        classification_metrics = self.get_classification_metrics(self.y_test, y_pred, y_pred_proba)
-        
-        classification_metrics['classifier_name'] = classifier_name
-        classification_metrics['training_score'] = score_training
-        
-        # Return the metric used in the scoring the training        
-        return classification_metrics[scoring]
-    
-    
-    # Define objective function for Optuna
-    def detailed_objective(self, classifier_name: str, trial: optuna.Trial=None, scoring='f1') -> ImbPipeline:
-        """
-        Objective function to optimize classifiers dynamically using Optuna.
-
-        Args:
-            trial (optuna.Trial): Optuna trial object for suggesting hyperparameters.
-            classifier_name (str): Classifier to optimize.
-            scoring (str): Scoring metric for cross-validation.
-
-        Returns:
-            float: The mean score from cross-validation.
-        """
-        
-        # Get hyperparameters for the classifier from HyperparameterTuner
-        hyperparameter_tuner = HyperparameterTuner()
-        model_hyperparams = hyperparameter_tuner.get_params(trial, classifier_name)
-         
-        
-        # Got the Preprocessed Pipeline containting Data Cleaning and Column Transformation        
-        pipeline = self.get_pipeline_model_and_params(classifier_name, trial, model_hyperparams=model_hyperparams)
-        logging.info(f"Fitted pipeline with the best parameters: {classifier_name}")
-        
-        # Cross-validation
-        #kfold = StratifiedKFold(n_splits=10)
-        #score = cross_val_score(pipeline, self.X_train, self.y_train, scoring=scoring, n_jobs=-1, cv=kfold, verbose=0, error_score='raise')
-        #score_training = score.mean()
-        
-        return  pipeline
-    
     
     # Run the Optuna study
-    def run_optimization(self, config_path: str, n_trials: int = 100, scoring: str = 'f1') -> None:
+    def run_optimization(self, n_trials: int = 100, scoring: str = 'f1') -> None:
         """
         Run Optuna study for hyperparameter tuning and model selection.
         
         Args:
-            config_path (str): Path to the YAML configuration file.
             n_trials (int): Number of trials for optimization. Defaults to 100.
             scoring (str): Scoring metric for optimization. Defaults to 'f1'.
         """
         
+        hyperparameter_tuner = HyperparameterTuner()
+        
         best_model_score = -1
-        best_model = None
-        best_params = None
-        best_of_models = []
-        best_pipeline = {}
-
-        all_models = ["RandomForest", "DecisionTree", 
-                    "XGBoost", "LGBM", "GradientBoosting", 
-                    "LogisticRegression", "KNeighbors", "CatBoost"]
+        best_model_name = ""
+        best_model_params = None
+        all_trained_models = {}
+        evaluation_scores = {}  
         
-        all_models = ["RandomForest", "DecisionTree",  "XGBoost", "LGBM", "GradientBoosting", ]
-        
-        for classifier_name in all_models:
-            logging.info(f"Optimizing model: {classifier_name}")
+        for model_name in self.VALID_CLASSIFIERS.keys():
+            logging.info(f"Starting tuning and training for {model_name}")
+            
+            # Define Optuna objective
+            def objective(trial):
+                model_hyperparams = hyperparameter_tuner.get_params(trial=trial, model_name=model_name)
+                pipeline = self.get_pipeline_model_and_params(trial=trial, model_name=model_name, model_hyperparams=model_hyperparams)
+                # Cross-validation
+                kfold = StratifiedKFold(n_splits=10)
+                score = cross_val_score(pipeline, self.X_train, self.y_train, scoring=scoring, n_jobs=-1, cv=kfold, verbose=0, error_score='raise')
+                score = score.mean()
+                return score
+            
             study = optuna.create_study(direction="maximize", sampler=TPESampler())
-            study.optimize(lambda trial: self.objective(classifier_name, trial,  scoring), n_trials=n_trials)
+            study.optimize(objective, n_trials=n_trials)
             
-            best_trial_obj = study.best_trial
-            
-            score_training = best_trial_obj.value 
-            
-            
-            # patch the pipeline with tbe frozen best model trials
-            pipeline = self.detailed_objective(classifier_name=classifier_name, trial=study.best_trial,  scoring=scoring)
+            # Train final pipeline with best parameters from Optuna
+            # Get hyperparameters for the classifier from HyperparameterTuner
+            model_hyperparams = hyperparameter_tuner.get_params(trial=study.best_trial, model_name=model_name)
+            pipeline = self.get_pipeline_model_and_params(trial=study.best_trial, model_name=model_name, model_hyperparams=model_hyperparams)
         
-            pipeline.fit(self.X_train, self.y_train)
-        
-            y_pred = pipeline.predict(self.X_test)
-            y_pred_proba = pipeline.predict_proba(self.X_test)[:, 1]
+            trainer = CostModel(pipeline, self.X_train, self.y_train)
+            trained_pipeline = trainer.train()
+            y_pred, y_pred_proba = trainer.predict(self.X_test)
+            evaluation_scores = trainer.evaluate(self.y_test, y_pred, y_pred_proba)
             
-            classification_metrics = self.get_classification_metrics(self.y_test, y_pred, y_pred_proba)
-            classification_metrics['training_score'] = score_training
+            model_score = evaluation_scores[scoring]
+            logging.info(f"Model: {model_name}, Current Score: {model_score}")
             
-            current_test_score =  classification_metrics[scoring]
-             
-            
+                # Update best model if current model has better performance
+            if model_score > best_model_score:
+                best_model_score = model_score
+                best_model_name = model_name
+                best_model_params = study.best_params
+                best_evaluation = evaluation_scores
+                
+                logging.info(f"New best model found: {model_name} with score {best_model_score}")
+                logging.info(f"Best Model Params: {best_model_params}")
+
             
             # Serialise the trained pipeline
-            trained_model_filename = f'{classifier_name}_pipeline{MODEL_SAVE_FORMAT}'
+            all_trained_models[model_name] = trained_pipeline
+            trained_model_filename = f'{model_name}_pipeline{MODEL_SAVE_FORMAT}'
             trained_model_saved_path = os.path.join(self.model_trainer_artefacts_dir, trained_model_filename)
-            joblib.dump((pipeline, classification_metrics), trained_model_saved_path)
-            print(f'Serialized {classifier_name} pipeline and test metrics to {trained_model_saved_path}')         
+            joblib.dump((pipeline, evaluation_scores), trained_model_saved_path)
+            print(f'Serialized {model_name} pipeline and test metrics to {trained_model_saved_path}')         
             
-            logging.info(f"Model: {classifier_name}, Current Score: {current_test_score} | Best Model: {best_model}, Best Score: {best_model_score}")
         
-            if current_test_score and current_test_score > best_model_score:
-                best_model_score = current_test_score
-                best_model = classifier_name
-                best_params = best_trial_obj.params    
-            
-                best_of_models.append({
-                    "model": classifier_name,
-                    "params": best_trial_obj.params,
-                    "model_score_params": best_trial_obj.params,
-                    "model_score_trial_number": best_trial_obj.number,                
-                    "model_score_duration": best_trial_obj.duration,
-                    "model_score_status": best_trial_obj.state,
-                    "model_score_key": scoring,
-                    "model_score_value": best_trial_obj.value,
-                })
-                
-                best_pipeline[best_model] = pipeline
-                
-                
-            
-            
-        # Display all results and the best model
-        for result in best_of_models:
-            logging.info(result) 
+        logging.info(f"Overall Best Model: {best_model_name}, Best Model Score: {best_model_score}")
+        logging.info(f"Overall Best Model Params: {best_model_params}")
+        
             
         # Save the Overal Best Model Pipeline for Predictiona in Inference
         best_trained_model_filename = f'best_model_pipeline{MODEL_SAVE_FORMAT}'
         best_trained_model_saved_path = os.path.join(self.best_model_artefacts_dir, best_trained_model_filename)
-        joblib.dump(best_pipeline[best_model], best_trained_model_saved_path)
-        print(f'Serialized best model pipeline {classifier_name} to {best_trained_model_saved_path}')              
+        joblib.dump(all_trained_models[best_model_name], best_trained_model_saved_path)
+        print(f'Serialized best model pipeline {model_name} to {best_trained_model_saved_path}')              
             
-        return best_model, best_params, current_test_score
+        return  best_model_name, all_trained_models, best_model_params, best_evaluation
 
         
     # This method is used to initialise model training
@@ -911,11 +877,14 @@ class ModelTrainer:
 
             
             # Create and run the study
-            best_model_name, best_model_params, best_model_score = self.run_optimization(config_path=[], n_trials=30, scoring='f1')
+            scoring = 'f1'
+            best_model_name, all_trained_models, best_model_params, best_evaluation = self.run_optimization(n_trials=30, scoring=scoring)
+            best_model_score = best_evaluation[scoring]
             logging.info("Completed the training process")
-            logging.info(f"Best params: {best_model_params}")
+            logging.info(f"Best Model Name: {best_model_name}")
             logging.info(f"Best params: {best_model_params}")
             logging.info(f"The best model score from the model training: {best_model_score}")
+            logging.info(f"Best Pipeline: {all_trained_models[best_model_name]}")
             
                        
             # Reading model config file for getting the best model score

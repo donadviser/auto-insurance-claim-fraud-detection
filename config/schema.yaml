@@ -106,7 +106,6 @@ numerical_features:
   - months_as_customer 
   - age 
   - policy_annual_premium 
-  - total_claim_amount 
   - injury_claim 
   - property_claim 
   - vehicle_claim 
@@ -132,6 +131,7 @@ drop_columns:
   - incident_location
   - auto_model
   - auto_year
+  - total_claim_amount 
 
 target_column: fraud_reported
 

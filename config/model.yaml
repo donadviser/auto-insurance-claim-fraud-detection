@@ -116,5 +116,5 @@ grid_search:
   params:
     cv: 3
     verbose: 3
-base_model_name: GradientBoosting
-base_model_score: '0.71875'
+base_model_name: DecisionTree
+base_model_score: '0.7244094488188977'

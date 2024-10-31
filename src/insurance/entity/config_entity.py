@@ -3,6 +3,7 @@ from from_root import from_root
 import os
 
 from insurance.utils.main_utils import MainUtils
+from insurance.configuration.s3_operations import S3Operation
 from insurance.constants import *
 from insurance import CustomException, logging
 
@@ -115,3 +116,13 @@ class ModelTrainerConfig:
         self.BEST_MODEL_ARTEFACTS_DIR: str = os.path.join(
             from_root(), ARTEFACTS_ROOT_DIR, BEST_MODEL_ARTIFACTS_DIR
             )
+        
+@dataclass
+class ModelEvaluationConfig:
+    def __init__(self):
+        self.S3_OPERATIONS = S3Operation()
+        self.UTILS = MainUtils()
+        self.BUCKET_NAME: str = MODEL_BUCKET_NAME
+        self.BEST_MODEL_PATH: str = os.path.join(
+            from_root(), ARTEFACTS_DIR, MODEL_TRAINER_ARTEFACTS_DIR, MODEL_FILE_NAME
+        )
