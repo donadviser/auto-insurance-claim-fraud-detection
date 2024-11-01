@@ -50,6 +50,7 @@ MODEL EVALUATION related constant #S3 BUCKET
 MODEL_EVALUATION_CHANGED_THRESHOLD_SCORE: float = 0.02
 MODEL_BUCKET_NAME:str = "insurance-claim-fraud-model"
 MODEL_PUSHER_S3_KEY = "model-registry"
+S3_MODEL_NAME = "best_model_insurance_claim_fraud.pkl"
 
 
 APP_HOST = "0.0.0.0"

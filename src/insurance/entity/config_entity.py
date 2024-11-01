@@ -3,7 +3,7 @@ from from_root import from_root
 import os
 
 from insurance.utils.main_utils import MainUtils
-from insurance.configuration.s3_operations import S3Operation
+from insurance.configuration.s3_operations import S3Operations
 from insurance.constants import *
 from insurance import CustomException, logging
 
@@ -120,8 +120,9 @@ class ModelTrainerConfig:
 @dataclass
 class ModelEvaluationConfig:
     def __init__(self):
-        self.S3_OPERATIONS = S3Operation()
         self.UTILS = MainUtils()
+        self.S3_OPERATIONS = S3Operations()
+        self.SCHEMA_CONFIG = self.UTILS.read_yaml_file(filename=SCHEMA_FILE_PATH)
         self.BUCKET_NAME: str = MODEL_BUCKET_NAME
         self.BEST_MODEL_PATH: str = os.path.join(
             from_root(), ARTEFACTS_DIR, MODEL_TRAINER_ARTEFACTS_DIR, MODEL_FILE_NAME

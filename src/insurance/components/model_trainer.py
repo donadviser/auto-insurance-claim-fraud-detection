@@ -8,6 +8,7 @@ import joblib
 from typing import Union, Dict, Tuple
 from typing_extensions import Annotated
 from optuna.samplers import TPESampler
+from dataclasses import dataclass
 
 from insurance import logging
 from insurance import CustomException
@@ -62,7 +63,16 @@ from insurance.utils.custom_transformers import (
     OutlierHandler,
 )
 
-
+@dataclass
+class TrainModelMetrics:
+    """Dataclass to encapsulate model evaluation metrics and comparison results."""    
+    accuracy_score: float
+    f1_score: float
+    precision_score: float
+    recall_score: float
+    roc_auc_score: float
+    
+    
 class CostModel:
     def __init__(self,
                  pipeline_model: object,
@@ -130,10 +140,10 @@ class CostModel:
     def evaluate(self, y_test, y_pred, y_pred_proba=None)-> Dict[str, float]:
         try:
             accuracy = accuracy_score(y_test, y_pred)  # Calculate Accuracy
-            f1 = f1_score(y_test, y_pred, average='binary')  # Calculate F1-score
-            precision = precision_score(y_test, y_pred)  # Calculate Precision
-            recall = recall_score(y_test, y_pred)  # Calculate Recall
-            roc_auc = roc_auc_score(y_test, y_pred_proba) if y_pred_proba is not None else roc_auc_score(y_test, y_pred)  # Calculate Roc
+            f1 = f1_score(y_test, y_pred, average='weighted')  # Calculate F1-score
+            precision = precision_score(y_test, y_pred, average='weighted')  # Calculate Precision
+            recall = recall_score(y_test, y_pred, average='weighted')  # Calculate Recall
+            roc_auc = roc_auc_score(y_test, y_pred_proba, average='weighted') if y_pred_proba is not None else roc_auc_score(y_test, y_pred, average='weighted')  # Calculate Roc
             detailed_report = classification_report(y_test, y_pred, output_dict=True)  # Detailed report
 
             return {
@@ -663,9 +673,9 @@ class ModelTrainer:
     VALID_CLASSIFIERS = {
         "RandomForest": RandomForestClassifier,
         "DecisionTree": DecisionTreeClassifier,
-        "LGBM": LGBMClassifier,
-        "XGBoost": XGBClassifier,
-        "CatBoost": CatBoostClassifier,
+        #"LGBM": LGBMClassifier,
+        #"XGBoost": XGBClassifier,
+        #"CatBoost": CatBoostClassifier,
         "LogisticRegression": LogisticRegression,
         "GradientBoosting": GradientBoostingClassifier,
         "KNeighbors": KNeighborsClassifier,
@@ -824,7 +834,8 @@ class ModelTrainer:
             evaluation_scores = trainer.evaluate(self.y_test, y_pred, y_pred_proba)
             
             model_score = evaluation_scores[scoring]
-            logging.info(f"Model: {model_name}, Current Score: {model_score}")
+            logging.info(f"Current Model: {model_name}, Best Current Model Score: {model_score}")
+            logging.info(f"Best Current Model Params: {study.best_params}")
             
                 # Update best model if current model has better performance
             if model_score > best_model_score:
@@ -893,7 +904,16 @@ class ModelTrainer:
             )
             base_model_score = float(model_config["base_model_score"])
             logging.info(f"Got the best model score from model config file: {base_model_score}")
+            
+            train_model_metrics = TrainModelMetrics(
+                accuracy_score=best_evaluation["accuracy"],  
+                f1_score=best_evaluation["f1"],  
+                precision_score=best_evaluation["precision"],  
+                recall_score=best_evaluation["recall"],  
+                roc_auc_score=best_evaluation["roc_auc"]
+                )
              
+            logging.info(f"The metrics for the best model: {train_model_metrics}")
 
             # Updating the best model score to model config file if the model score is greather than the base model score
             if best_model_score >= base_model_score:
@@ -917,7 +937,7 @@ class ModelTrainer:
                 logging.info(f"Created best model file path: {trained_model_path}")
                 
                 model_file_path = self.model_trainer_config.UTILS.save_object(
-                    trained_model_path, (best_model_name, best_model_params, best_model_score))
+                    trained_model_path, all_trained_models[best_model_name])
                 logging.info("Saved the best model object path")
             else:
                 logging.info("No best mode found: The best model score is less than the base model score")

@@ -14,7 +14,7 @@ from pandas import DataFrame, read_csv
 
 
 
-class S3Operation:
+class S3Operations:
     """
     This class provides various operations for handling objects in an S3 bucket,
     including uploading, downloading, folder creation, and CSV file handling.
