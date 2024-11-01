@@ -889,7 +889,7 @@ class ModelTrainer:
             
             # Create and run the study
             scoring = 'f1'
-            best_model_name, all_trained_models, best_model_params, best_evaluation = self.run_optimization(n_trials=30, scoring=scoring)
+            best_model_name, all_trained_models, best_model_params, best_evaluation = self.run_optimization(n_trials=100, scoring=scoring)
             best_model_score = best_evaluation[scoring]
             logging.info("Completed the training process")
             logging.info(f"Best Model Name: {best_model_name}")

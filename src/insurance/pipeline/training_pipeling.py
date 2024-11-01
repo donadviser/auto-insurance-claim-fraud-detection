@@ -9,6 +9,8 @@ from insurance.entity.artefacts_entity import (
     DataTransformationArtefacts,
     ModelTrainerArtefacts,
     ModelEvaluationArtefacts,
+    ModelPusherArtefacts,
+    # MongoDBOperationArtefacts,
     
     )
     
@@ -18,7 +20,7 @@ from insurance.entity.config_entity import (
     DataTransformationConfig,
     ModelTrainerConfig,
     ModelEvaluationConfig,
-    # ModelPusherConfig,
+    ModelPusherConfig,
     # MongoDBOperation,
     )
     
@@ -28,7 +30,7 @@ from insurance.components.data_transformation import DataTransformation
 from insurance.components.model_trainer import ModelTrainer
 from insurance.components.model_evaluation import ModelEvaluation
 from insurance.configuration.s3_operations import S3Operations
-# from shipment.components.model_pusher import ModelPusher
+from insurance.components.model_pusher import ModelPusher
 
 
 class TrainPipeline:
@@ -39,8 +41,8 @@ class TrainPipeline:
         self.model_trainer_config = ModelTrainerConfig()
         self.model_evaluation_config = ModelEvaluationConfig()
         self.s3_operations = S3Operations()
-        """self.model_pusher_config = ModelPusherConfig()
-        self.mongo_op = MongoDBOperation()"""
+        self.model_pusher_config = ModelPusherConfig()
+        """self.mongo_op = MongoDBOperation()"""
         
     @staticmethod
     def _handle_exception(e: Exception) -> None:
@@ -138,6 +140,31 @@ class TrainPipeline:
             return model_evaluation_artefact
         except Exception as e:
             self._handle_exception(e)
+            
+            
+    # This method is used to start the model pusher.
+    def start_model_pusher(
+            self,
+            model_trainer_artefacts: ModelTrainerArtefacts,
+            s3: S3Operations,
+            data_transformation_artefacts: DataTransformationArtefacts
+        ) -> ModelPusherArtefacts:
+        logging.info("Entered the start_model_pusher method of TrainPipeline class.")
+        try:
+            model_pusher = ModelPusher(
+                model_pusher_config=self.model_pusher_config,
+                model_trainer_artefacts=model_trainer_artefacts,
+                s3=s3,
+                data_transformation_artefacts=data_transformation_artefacts,
+            )
+            
+            model_pusher_artefact = model_pusher.initiate_model_pusher()
+            logging.info("Performed the model push operation.")
+            logging.info("Exited the start_model_pusher method of TrainPipeline class.")
+            return model_pusher_artefact
+        except Exception as e:
+            self._handle_exception(e)   
+    
         
 
     
@@ -168,13 +195,13 @@ class TrainPipeline:
             if not model_evaluation_artefact.is_model_accepted:
                 logging.info("The model is not accpeted.")
                 return None
-            """
+            
             model_pusher_artefact = self.start_model_pusher(
                 model_trainer_artefacts=model_trainer_artefact,
                 s3=self.s3_operations,
                 data_transformation_artefacts=data_transformation_artefact,
             )
-            """
+            
             logging.info("Exited the run_pipeline method of TrainPipeline class.")
         except Exception as e:
             self._handle_exception(e)       

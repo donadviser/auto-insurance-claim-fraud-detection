@@ -31,3 +31,9 @@ class ModelEvaluationArtefacts:
     is_model_accepted:bool
     changed_accuracy:float
     trained_model_path:str
+    
+
+@dataclass
+class ModelPusherArtefacts:
+    model_bucket_name: str
+    s3_model_path: str
