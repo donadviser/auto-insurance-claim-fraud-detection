@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Auto Insurance Claim Fraud Dectection</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  </head>
+  <body>
+    <a href="https://github.com/donadviser/auto-insurance-claim-fraud-detection" class="top-left-link" target="_blank">GitHub Repository Link</a>
+    <h1>Auto Insurance Claim Fraud Dectection - Derrick Njobuenwu</h1>
+    <img src="{{url_for('static', filename='/Image/your_profile_pic.jpg')}}" alt="Your Profile Picture" class="profile">
+    <div class="form-box">
+    <form action="{{url_for('predict_datapoint')}}" method="POST">
+      
+    <div class="form-group">
+      <label for="gender">Gender:</label>
+      <select id="gender" name="gender">
+        <option value="Male">Male</option>
+        <option value="Female">Female</option>
+      </select>
+    </div>
+      
+    <div class="form-group">
+      <label for="ethnicity">Race or Ethnicity:</label>
+      <select id="ethnicity" name="ethnicity">
+        <option value="Group A">Group A</option>
+        <option value="Group B">Group B</option>
+        <option value="Group C">Group C</option>
+        <option value="Group D">Group D</option>
+        <option value="Group E">Group E</option>
+      </select>
+    </div>
+    
+    <div class="form-group">
+      <label for="parental_level_of_education">Parental Level of Education:</label>
+      <select id="parental_level_of_education" name="parental_level_of_education">
+        <option value="associate's degree">associate's degree</option>
+        <option value="bachelor's degree">bachelor's degree</option>
+        <option value="high school">high school</option>
+        <option value="master's degree">master's degree</option>
+        <option value="some college">some college</option>
+        <option value="some high school">some high school</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="lunch">Lunch Type:</label>
+      <select id="lunch" name="lunch">
+        <option value="free/reduced">free/reduced</option>
+        <option value="standard">standard</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="test_preparation_course">Test Preparation Course:</label>
+      <select id="test_preparation_course" name="test_preparation_course">
+        <option value="none">None</option>
+        <option value="completed">Completed</option>
+      </select>
+    </div>
+
+            
+    <div class="form-group">
+      <label for="reading_score">Reading Score Out of 100:</label>
+      <input type="text" id="reading_score" name="reading_score" placeholder="Enter Reading Score (float)">
+    </div>   
+  
+    <div class="form-group">
+      <label for="writing_score">Writing Score out of 100:</label>
+      <input type="text" id="writing_score" name="writing_score" placeholder="Enter Writing Score (float)">
+    </div>   
+    
+    <div style="clear:both;"></div>
+      <input type="submit" value="Submit">
+    </form>
+    </div>
+    <div>      
+    <h2>
+      The Students Exam Performance Prediction is : {{ results }}
+    </h2>
+  </body>
+</html>

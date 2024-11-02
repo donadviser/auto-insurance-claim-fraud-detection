@@ -1,1 +1,5 @@
-key: value
+# General parameters
+CV: 10  # Number of cross-validation folds
+SCORING: "f1"  # Default scoring metric for model evaluation
+N_TRIALS: 100  # Number of trials for hyperparameter optimization
+RANDOM_SEED: 42  # Seed for reproducibility

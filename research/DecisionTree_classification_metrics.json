@@ -1,9 +1,0 @@
-{
-    "classifier_name": "DecisionTree",
-    "f1": 0.7079646017699115,
-    "accuracy": 0.835,
-    "precision": 0.625,
-    "recall": 0.8163265306122449,
-    "roc_auc": 0.8525476415731856,
-    "score_training_f1": 0.6628547996113652,
-    "best_params": 
