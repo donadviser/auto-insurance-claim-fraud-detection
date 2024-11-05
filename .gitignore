@@ -166,3 +166,4 @@ cython_debug/
 artefacts/
 catboost*/*
 logs/
+research/catboost_info/
