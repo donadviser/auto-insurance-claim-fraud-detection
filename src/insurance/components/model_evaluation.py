@@ -11,6 +11,8 @@ from insurance.entity.artefacts_entity import (
     ModelTrainerArtefacts,
     ModelEvaluationArtefacts,
 )
+import mlflow
+import mlflow.sklearn
 
 
 @dataclass

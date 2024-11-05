@@ -63,6 +63,10 @@ from insurance.utils.custom_transformers import (
     OutlierHandler,
 )
 
+import mlflow
+import mlflow.sklearn
+
+
 @dataclass
 class TrainModelMetrics:
     """Dataclass to encapsulate model evaluation metrics and comparison results."""    
@@ -152,7 +156,7 @@ class CostModel:
                 'precision': precision,
                 'recall': recall,
                 'roc_auc': roc_auc,
-                "classification_report": detailed_report
+                #"classification_report": detailed_report
             }
         except Exception as e:
             self._handle_exception(e)
@@ -673,13 +677,15 @@ class ModelTrainer:
     VALID_CLASSIFIERS = {
         "RandomForest": RandomForestClassifier,
         "DecisionTree": DecisionTreeClassifier,
-        #"LGBM": LGBMClassifier,
-        #"XGBoost": XGBClassifier,
+        "LGBM": LGBMClassifier,
+        "XGBoost": XGBClassifier,
         #"CatBoost": CatBoostClassifier,
         "LogisticRegression": LogisticRegression,
         "GradientBoosting": GradientBoostingClassifier,
         "KNeighbors": KNeighborsClassifier,
     }
+    
+    
 
     def __init__(
             self,
@@ -690,6 +696,9 @@ class ModelTrainer:
         self.data_ingestion_artefacts = data_ingestion_artefacts
         self.data_transformation_artefact = data_transformation_artefact
         self.model_trainer_config = model_trainer_config
+        
+        
+        mlflow.set_tracking_uri("http://localhost:5000")
         
          # Get the model parameters from model config file
         self.model_config = self.model_trainer_config.UTILS.read_yaml_file(filename=MODEL_CONFIG_FILE)
@@ -837,34 +846,62 @@ class ModelTrainer:
             logging.info(f"Current Model: {model_name}, Best Current Model Score: {model_score}")
             logging.info(f"Best Current Model Params: {study.best_params}")
             
-                # Update best model if current model has better performance
-            if model_score > best_model_score:
-                best_model_score = model_score
-                best_model_name = model_name
-                best_model_params = study.best_params
-                best_evaluation = evaluation_scores
+            # Start an MLflow run for each model
+            mlflow.set_experiment("ml_insurance_model")
+            with mlflow.start_run(run_name=model_name):
+                mlflow.log_params(model_hyperparams)
+                logging.info(f"evaluation scores: {evaluation_scores}")
+                mlflow.log_metrics(evaluation_scores)
                 
-                logging.info(f"New best model found: {model_name} with score {best_model_score}")
-                logging.info(f"Best Model Params: {best_model_params}")
+                # Update best model if current model has better performance
+                if model_score > best_model_score:
+                    best_model_score = model_score
+                    best_model_name = model_name
+                    best_model_params = study.best_params
+                    best_evaluation = evaluation_scores
+                    
+                    logging.info(f"New best model found: {model_name} with score {best_model_score}")
+                    logging.info(f"Best Model Params: {best_model_params}")
 
             
-            # Serialise the trained pipeline
-            all_trained_models[model_name] = trained_pipeline
-            trained_model_filename = f'{model_name}_pipeline{MODEL_SAVE_FORMAT}'
-            trained_model_saved_path = os.path.join(self.model_trainer_artefacts_dir, trained_model_filename)
-            joblib.dump((pipeline, evaluation_scores), trained_model_saved_path)
-            print(f'Serialized {model_name} pipeline and test metrics to {trained_model_saved_path}')         
+                # Serialise the trained pipeline
+                all_trained_models[model_name] = trained_pipeline
+                trained_model_filename = f'{model_name}_pipeline{MODEL_SAVE_FORMAT}'
+                trained_model_saved_path = os.path.join(self.model_trainer_artefacts_dir, trained_model_filename)
+                joblib.dump(trained_pipeline, trained_model_saved_path)
+                print(f'Serialized {model_name} pipeline and test metrics to {trained_model_saved_path}') 
+                
+                model_only = trained_pipeline.named_steps['model']
+                if model_name.lower().startswith("xgb") is True:
+                    mlflow.xgboost.log_model(model_only, artifact_path="model")
+                elif model_name.lower().startswith("lgb") is True:
+                    mlflow.lightgbm.log_model(model_only, artifact_path="model")
+                elif model_name.lower().startswith("cat") is True:
+                    mlflow.catboost.log_model(model_only, artifact_path="model")
+                else:
+                    mlflow.sklearn.log_model(model_only, artifact_path="model")
+                
+                # Log additional metrics
+                mlflow.log_metric("best_score", model_score)
+                mlflow.log_artifact(trained_model_saved_path)
+                        
             
         
         logging.info(f"Overall Best Model: {best_model_name}, Best Model Score: {best_model_score}")
         logging.info(f"Overall Best Model Params: {best_model_params}")
         
+        # Log overall best model information
+        #mlflow.log_params({"best_model_name": best_model_name, "best_model_score": best_model_score})
+        #mlflow.log_metrics(best_evaluation)
             
         # Save the Overal Best Model Pipeline for Predictiona in Inference
         best_trained_model_filename = f'best_model_pipeline{MODEL_SAVE_FORMAT}'
         best_trained_model_saved_path = os.path.join(self.best_model_artefacts_dir, best_trained_model_filename)
         joblib.dump(all_trained_models[best_model_name], best_trained_model_saved_path)
-        print(f'Serialized best model pipeline {model_name} to {best_trained_model_saved_path}')              
+        print(f'Serialized best model pipeline {model_name} to {best_trained_model_saved_path}') 
+        
+        #mlflow.sklearn.log_model(all_trained_models[best_model_name], artifact_path="best_model")
+                     
             
         return  best_model_name, all_trained_models, best_model_params, best_evaluation
 
@@ -889,7 +926,7 @@ class ModelTrainer:
             
             # Create and run the study
             scoring = 'f1'
-            best_model_name, all_trained_models, best_model_params, best_evaluation = self.run_optimization(n_trials=100, scoring=scoring)
+            best_model_name, all_trained_models, best_model_params, best_evaluation = self.run_optimization(n_trials=30, scoring=scoring)
             best_model_score = best_evaluation[scoring]
             logging.info("Completed the training process")
             logging.info(f"Best Model Name: {best_model_name}")

@@ -55,3 +55,6 @@ S3_MODEL_NAME = "best_model_insurance_claim_fraud.pkl"
 
 APP_HOST = "0.0.0.0"
 APP_PORT = 8080
+
+# MlFlow
+TRACKING_URI = "http://127.0.0.1:5000"
