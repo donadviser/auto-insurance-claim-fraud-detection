@@ -8,7 +8,7 @@ CURRENT_YEAR =  datetime.now().year
 
 # Configuration file
 MODEL_CONFIG_FILE = "config/model.yaml"
-#CONFIG_FILE_PATH = "config/config.yaml"
+PARAM_FILE_PATH = "params.yaml"
 SCHEMA_FILE_PATH = "config/schema.yaml"
 
 SOURCE_URL = "https://github.com/donadviser/datasets/raw/master/data-don/auto_insurance_claim_fraud.csv"
@@ -43,10 +43,11 @@ TRANSFORM_FEATURES_DICT_FILE_NAME = "transformed_features.pkl"
 MODEL_TRAINER_ARTEFACTS_DIR = "ModelTrainerArtefacts"
 MODEL_FILE_NAME = "best_model_insurance_claim_fraud.pkl"
 MODEL_SAVE_FORMAT = ".pkl"
-BEST_MODEL_ARTIFACTS_DIR = "BestModelArtefacts"
+BEST_MODEL_ARTEFACTS_DIR = "BestModelArtefacts"
 """
 MODEL EVALUATION related constant #S3 BUCKET
 """
+MODEL_EVALUATION_ARTEFACTS_DIR = "ModelEvaluationArtefacts"
 MODEL_EVALUATION_CHANGED_THRESHOLD_SCORE: float = 0.02
 MODEL_BUCKET_NAME:str = "insurance-claim-fraud-model"
 MODEL_PUSHER_S3_KEY = "model-registry"

@@ -114,7 +114,11 @@ class ModelTrainerConfig:
             )
         
         self.BEST_MODEL_ARTEFACTS_DIR: str = os.path.join(
-            from_root(), ARTEFACTS_ROOT_DIR, BEST_MODEL_ARTIFACTS_DIR
+            from_root(), ARTEFACTS_ROOT_DIR, BEST_MODEL_ARTEFACTS_DIR
+            )
+        
+        self.MODEL_EVALUATION_ARTEFACTS_DIR: str = os.path.join(
+            from_root(), ARTEFACTS_DIR, MODEL_EVALUATION_ARTEFACTS_DIR
             )
         
 @dataclass

@@ -73,13 +73,15 @@ class MainUtils:
         
     # Separate X and y
     @staticmethod
-    def separate_data(data: pd.DataFrame, target_col: str) -> Tuple[
+    def separate_data(data: pd.DataFrame, target_col: str, yes_no_map=None) -> Tuple[
         Annotated[pd.DataFrame, "Features"], 
         Annotated[pd.Series, "Target"]
         ]:
         try:
             X = data.drop(columns=[target_col])
             y = data[target_col]
+            if yes_no_map is not None:
+                y = y.map(yes_no_map)   
             return X, y
         except Exception as e:
                 raise CustomException(e, sys)
@@ -176,7 +178,7 @@ class MainUtils:
 
     @staticmethod
     def load_object(file_path: str) -> object:
-        logging.info("Entered the load_object method of MainUtils class")
+        logging.info(f"Entered the load_object method of MainUtils class from: {file_path}")
         try:
             with open(file_path, "rb") as file_obj:
                 obj = dill.load(file_obj)

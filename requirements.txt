@@ -25,4 +25,5 @@ optuna
 boto3
 mypy-boto3-s3
 mlflow
+shap
 -e .

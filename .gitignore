@@ -167,3 +167,6 @@ artefacts/
 catboost*/*
 logs/
 research/catboost_info/
+
+#mlflow
+mlruns/
