@@ -50,9 +50,10 @@ class SHAPLogger:
             
             if isinstance(preprocessor.named_steps['column_transformer'], ColumnTransformer):
                 self.feature_names = preprocessor.named_steps['column_transformer'].get_feature_names_out()
+                logging.info(f'1:self.feature_names: {self.feature_names}')
             else:
                 self.feature_names = self.X_test.columns  # Use original names if no transformation
-                
+                logging.info(f'2:self.feature_names: {self.feature_names}') 
             # Confirm shape match with SHAP
             if self.X_test_transformed.shape[1] != len(self.feature_names):
                 raise ValueError(f"Mismatch: {self.X_test_transformed.shape[1]} transformed features vs {len(self.feature_names)} feature names.")
@@ -63,64 +64,78 @@ class SHAPLogger:
             # Extract the final model from the pipeline
             self.model = self.pipeline.named_steps['model']
             
-            
         except Exception as e:
             raise CustomException(e, sys)
     
     def log_summary_plot(self):
-        """Log summary plot."""
-        logging.info("Log summary plot")
         try:
             plt.figure(figsize=(10, 6))
-                
-            if self.model_name in ["RandomForestClassifier", "DecisionTreeClassifier"]:
-                # Create a Tree SHAP explainer and calculate SHAP values
-                explainer = shap.TreeExplainer(self.model)
-                shap_values = explainer.shap_values(self.X_test_transformed_df)
-                shap.summary_plot(shap_values[:,:,0], self.X_test_transformed_df, show=False)
-            elif self.model_name in ["LGBMClassifier", "CatBoostClassifier", "GradientBoostingClassifier"]:
-                explainer = shap.Explainer(self.model)
-                shap_values = explainer.shap_values(self.X_test_transformed_df)
-                shap.summary_plot(shap_values, self.X_test_transformed_df, show=False) # work for LGBMClassifier, CatBoostClassifier, GradientBoostingClassifier    
-            elif self.model_name in ['KNearestNeighbors']:
-                self.explainer = shap.KernelExplainer(self.model.predict_proba, self.X_test_transformed_df)
-                self.shap_values = self.explainer.shap_values(self.X_test_transformed_df.iloc[0,:])
-                shap.summary_plot(self.shap_values[:,0], self.X_test_transformed_df.iloc[0,:],show=False)               
-                
+            print(f"Inside self.model_name: {self.model_name}")
+            print(f"Length of shap values[0]: {len(self.shap_values[:,0])}")
+            print(f"Length of X_test_transformed_df: {self.X_test_transformed_df.shape}")
+            if self.model_name == 'KNearestNeighbors':
+                shap.summary_plot(self.shap_values[:,0], self.X_test_transformed_df.iloc[0,:],show=False)
+            else:
+                shap.summary_plot(self.shap_values, self.X_test_transformed_df, show=False)
             plt.title(f"{self.model_name} - SHAP Summary Plot")
             file_path = os.path.join(self.artefact_dir_path, f"{self.model_name}_shap_summary_plot.png")
-            logging.info(f"file_path: {file_path}")
             plt.savefig(file_path, bbox_inches='tight')
             mlflow.log_artifact(file_path)
             plt.close()
             os.remove(file_path)
-            logging.info(f"{self.model_name}_shap_summary_plot saved")
         except Exception as e:
-            logging.info(f"Error while creating shap summary plot: {str(e)}")
-            
+            raise CustomException(e, sys)
+
+    def log_force_plot(self, index=0):
+        try:
+            plt.figure(10,4)
+            shap_values_single = self.shap_values.values[index]
+            expected_value = self.explainer.expected_value
+            shap.force_plot(expected_value, shap_values_single, self.X_test_transformed_df.iloc[index], matplotlib=True, show=False)
+            file_path = os.path.join(self.artefact_dir_path, f"{self.model_name}_shap_force_plot.png")
+            plt.savefig(file_path, bbox_inches='tight')
+            mlflow.log_artifact(file_path)
+            plt.close()
+        except Exception as e:
+            raise CustomException(e, sys)
+    
     def log_waterfall_plot(self, index=0):
         try:
-            if self.model_name in ["XGBClassifier"]:
-                plt.figure()
-                explainer = shap.Explainer(self.model, self.X_test_transformed_df)
-                self.shap_values = explainer(self.X_test_transformed_df)
-                shap.plots.waterfall(self.shap_values[index], show=False) #worked for XGBClassifier, GradientBoostingClassifier
-                #shap.plots.waterfall(shap_values[0,:,0]) #worked for XGBClassifier, GradientBoostingClassifier
-                file_path = os.path.join(self.artefact_dir_path, f"{self.model_name}_waterfall_plot.png")
-                plt.savefig(file_path, bbox_inches='tight')
-                mlflow.log_artifact(file_path)
-                plt.close()
+            plt.figure()
+            shap.plots.waterfall(self.shap_values[index], show=False)
+            file_path = os.path.join(self.artefact_dir_path, f"{self.model_name}_waterfall_plot.png")
+            plt.savefig(file_path, bbox_inches='tight')
+            mlflow.log_artifact(file_path)
+            plt.close()
         except Exception as e:
-            logging.info(f"Error while creating shap summary plot: {str(e)}")
-    
+            raise CustomException(e, sys)
 
+    def log_bar_plot(self):
+        try:
+            plt.figure()
+            shap.plots.bar(self.shap_values, show=False)
+            file_path = os.path.join(self.artefact_dir_path, f"{self.model_name}_shap_mean_plot.png")
+            plt.savefig(file_path, bbox_inches='tight')
+            mlflow.log_artifact(file_path)
+            plt.close()
+        except Exception as e:
+            raise CustomException(e, sys)
+    
+    def log_beeswarm_plot(self):
+        try:
+            plt.figure()
+            shap.plots.beeswarm(self.shap_values, show=False)
+            file_path = os.path.join(self.artefact_dir_path, f"{self.model_name}_shap_beeswarm_plot.png")
+            plt.savefig(file_path, bbox_inches='tight')
+            mlflow.log_artifact(file_path)
+            plt.close()
+        except Exception as e:
+            raise CustomException(e, sys)
     
     def log_all(self):
         """Log all SHAP visualizations."""
-        logging.info("Log all SHAP visualizations")
         self.log_summary_plot()
+        self.log_force_plot()
         self.log_waterfall_plot()
-        """self.log_force_plot()
-        
         self.log_bar_plot()
-        self.log_beeswarm_plot()"""
+        self.log_beeswarm_plot()

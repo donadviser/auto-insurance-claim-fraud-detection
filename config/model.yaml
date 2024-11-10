@@ -1,11 +1,13 @@
 classifiers:
-  - RandomForestClassifier
-  - DecisionTreeClassifier 
-  - LGBMClassifier
-  - XGBClassifier 
-  - CatBoostClassifier 
-  - LogisticRegression 
-  - GradientBoosting 
-  - KNeighborsClassifier 
-base_model_name: DecisionTree
-base_model_score: '0.8221387911553535'
+- AdaBoostClassifier
+- RandomForestClassifier
+- DecisionTreeClassifier
+- LGBMClassifier
+- LogisticRegression
+- XGBClassifier
+- CatBoostClassifier
+- GradientBoostingClassifier
+- KNeighborsClassifier
+
+base_model_name: DecisionTreeClassifier
+base_model_score: '0.8412638804764789'

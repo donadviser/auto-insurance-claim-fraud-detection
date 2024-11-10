@@ -2,9 +2,12 @@ import os
 import sys
 import pandas as pd
 import numpy as np
+import seaborn as sns 
+import matplotlib.pyplot as plt
 
 import optuna
 import joblib
+from tqdm.auto import tqdm
 from typing import Union, Dict, Tuple
 from typing_extensions import Annotated
 from optuna.samplers import TPESampler
@@ -254,7 +257,7 @@ class HyperparameterTuner:
             return params
 
         
-        elif model_name == "GradientBoosting":
+        elif model_name == "GradientBoostingClassifier":
             return {
                 "learning_rate" : trial.suggest_float('learning_rate', 0.001, 0.3, log=True),
                 "n_estimators" : trial.suggest_int('n_estimators', 100, 1000),
@@ -273,6 +276,11 @@ class HyperparameterTuner:
                 "metric": trial.suggest_categorical('metric', ['euclidean', 'manhattan', 'minkowski', 'chebyshev'])
             }
             return params
+        elif model_name == "AdaBoostClassifier":
+            return {
+                "n_estimators": trial.suggest_int('n_estimators', 50, 1000),  # Number of boosting stages
+                "learning_rate": trial.suggest_float('learning_rate', 0.01, 1.0, log=True),  # Learning rate for each stage
+            }
         else:
             raise ValueError(f"Invalid classifier name: {model_name}")
         
@@ -313,8 +321,9 @@ class ModelFactory:
             "DecisionTreeClassifier": DecisionTreeClassifier,
             "LogisticRegression": LogisticRegression,
             "SVC": SVC,
-            "GradientBoosting": GradientBoostingClassifier,
-            "KNeighborsClassifier": KNeighborsClassifier
+            "GradientBoostingClassifier": GradientBoostingClassifier,
+            "KNeighborsClassifier": KNeighborsClassifier,
+            "AdaBoostClassifier": AdaBoostClassifier
         }
 
          
@@ -459,7 +468,7 @@ class PreprocessingPipeline:
         """
         # Suggest from available options
         options = ['power_transform', 'log_transform', 'iqr_clip', 'iqr_median', 'iqr_mean']
-        if self.trial:
+        if self.trial and strategy is None:
             strategy = self.trial.suggest_categorical('outlier_strategy', options)
         else:
             strategy = strategy  # Default to first option if no trial is provided
@@ -488,16 +497,16 @@ class PreprocessingPipeline:
             return CreateNewFeature(bins_hour=self.bins_hour, names_period=self.names_period)
         
         if step_name == "replace_class":
-            return ReplaceValueTransformer(old_value="?", new_value=np.nan)
+            return ReplaceValueTransformer(old_value="?", new_value='missing')
         
         if step_name == "drop_cols":
             return DropRedundantColumns(redundant_cols=self.drop_columns)
         
         if step_name == 'column_transformer':
             
-            numerical_strategy = column_transformer_strategy.get('numerical_strategy', None)
-            categorical_strategy = column_transformer_strategy.get('categorical_strategy',None)
-            outlier_strategy = column_transformer_strategy.get('outlier_strategy', None)        
+            numerical_strategy = column_transformer_strategy.get('numerical_strategy', 'mean')
+            categorical_strategy = column_transformer_strategy.get('categorical_strategy','most_frequent')
+            outlier_strategy = column_transformer_strategy.get('outlier_strategy', 'power_transform')        
             
             return ColumnTransformer(
                 transformers=[
@@ -561,9 +570,13 @@ class ResamplerSelector:
             resampler_obj (object): The resampling instance based on the selected method.
         """
         if resampler is None and self.trial:
-            resampler = self.trial.suggest_categorical(
+            """resampler = self.trial.suggest_categorical(
                 'resampler', ['RandomOverSampler', 'ADASYN', 'RandomUnderSampler', 'NearMiss', 
                               'SMOTEENN', 'SMOTETomek']
+            )"""
+            
+            resampler = self.trial.suggest_categorical(
+                'resampler', ['RandomOverSampler',]
             )
 
         if resampler == 'RandomOverSampler':
@@ -615,7 +628,8 @@ class ScalerSelector:
          
         # -- Instantiate scaler (skip scaler for CatBoostClassifier as it handles categorical features internally)
         if scaler_name is None and self.trial:
-            scaler_name = self.trial.suggest_categorical("scaler", ['minmax', 'standard', 'robust'])
+            #scaler_name = self.trial.suggest_categorical("scaler", ['minmax', 'standard', 'robust'])
+            scaler_name = self.trial.suggest_categorical("scaler", ['minmax'])
             
         if scaler_name == "minmax":
             return MinMaxScaler()
@@ -701,11 +715,9 @@ class ModelTrainer:
         
         # Get the model artefact directory path
         self.model_trainer_artefacts_dir = self.model_trainer_config.MODEL_TRAINER_ARTEFACTS_DIR
-        self.model_evaluation_artefacts_dir = self.model_trainer_config.MODEL_EVALUATION_ARTEFACTS_DIR
+         
         
-        self.best_model_artefacts_dir = self.model_trainer_config.BEST_MODEL_ARTEFACTS_DIR
-        os.makedirs(self.best_model_artefacts_dir, exist_ok=True)
-        logging.info(f"Created Best Model  Artefacts Directory: {self.best_model_artefacts_dir}")
+         
     
         # Reading the Train and Test data from Data Ingestion Artefacts folder
         self.train_set = pd.read_csv(self.data_ingestion_artefacts.train_data_file_path)
@@ -786,9 +798,9 @@ class ModelTrainer:
             
             
             # Add the Dimensional Reduction step based on the provided parameter or trial suggestion
-            dim_red_selector = DimensionalityReductionSelector(trial=trial) 
-            dim_red_obj = dim_red_selector.get_dimensionality_reduction()
-            pipeline_manager.add_step('dim_reduction', dim_red_obj, position=6)
+            #dim_red_selector = DimensionalityReductionSelector(trial=trial) 
+            #dim_red_obj = dim_red_selector.get_dimensionality_reduction()
+            #pipeline_manager.add_step('dim_reduction', dim_red_obj, position=6)
 
             # Create an instance of the ModelFactory class with best_model and best_params
             model_factory = ModelFactory(model_name, model_hyperparams)
@@ -813,25 +825,45 @@ class ModelTrainer:
             hyperparameter_tuner = HyperparameterTuner()       
             
             all_trained_models = {}     
+            kfold = StratifiedKFold(n_splits=self.param_constants['N_SPLITS'])
+             
             
-            for model_name in self.classifiers:
+            
+            classifier_short_names = {
+            "KNeighborsClassifier": "KNeighbors",
+            "RandomForestClassifier": "RandomForest",
+            "GradientBoostingClassifier": "GradientBoosting",
+            "LogisticRegression": "LogisticRegression",
+            "SVC": "SVC",
+            "DecisionTreeClassifier": "DecisionTree",
+            "LGBMClassifier": "LightGBM",
+            "XGBClassifier": "XGB",
+            "CatBoostClassifier": "CatBoost",
+            "AdaBoostClassifier": "AdaBoost",
+            }
+            
+            scores_dict = {}
+            
+            for model_name in tqdm(self.classifiers):
                 logging.info(f"Starting tuning and training for {model_name}")
-                
+                # Initialize scores list for the current model
+                model_short_name = classifier_short_names.get(model_name, model_name)
+                scores_dict[model_short_name] = []
                 # Define Optuna objective
                 def objective(trial):
                     model_hyperparams = hyperparameter_tuner.get_params(trial=trial, model_name=model_name)
                     pipeline = self.get_pipeline_model_and_params(trial=trial, model_name=model_name, model_hyperparams=model_hyperparams)
-                    # Cross-validation
-                    kfold = StratifiedKFold(n_splits=self.param_constants['N_SPLITS'])
-                    score = cross_val_score(pipeline, self.X_train, self.y_train, 
+                    # Cross-validation                    
+                    scores = cross_val_score(pipeline, self.X_train, self.y_train, 
                                             scoring=self.param_constants['SCORING'], 
                                             n_jobs=self.param_constants['N_JOBS'], 
                                             cv=kfold, 
                                             verbose=self.param_constants['VERBOSE'], 
                                             error_score='raise')
-                    logging.info(f'completed cross-validation for the model_name: {model_name}')
-                    return score.mean()
-                
+                    mean_score = scores.mean()
+                    scores_dict[model_short_name].extend(scores)
+                    return mean_score
+                logging.info(f'completed cross-validation for the model_name: {model_name}')
                 study = optuna.create_study(direction="maximize", sampler=TPESampler())
                 study.optimize(objective, n_trials=self.param_constants['N_TRIALS'])
                 
@@ -844,14 +876,36 @@ class ModelTrainer:
                 trainer = CostModel(pipeline, self.X_train, self.y_train)
                 trained_pipeline = trainer.train()
                 y_pred, y_pred_proba = trainer.predict(self.X_train)
-                evaluation_scores = trainer.evaluate(self.y_train, y_pred, y_pred_proba)
-                
+                evaluation_scores = trainer.evaluate(self.y_train, y_pred, y_pred_proba)            
                 model_score = evaluation_scores[self.param_constants['SCORING']]
-                logging.info(f"Current Model: {model_name}, Best Current Model Train Score: {model_score}")
+                logging.info(f"Current Model: {model_name}, Best Current Model Trained Score: {model_score}")
                 logging.info(f"Best Current Model Params: {study.best_params}")
                    
                 # Serialise the trained pipeline
-                all_trained_models[model_name] = trained_pipeline                      
+                all_trained_models[model_name] = trained_pipeline    
+            
+            # Plotting boxplot for the training scores of each classifier
+            sns.set(style="darkgrid")
+            plt.figure(figsize=(12, 6))
+            sns.boxplot(data=[scores for scores in scores_dict.values()], 
+                        orient="v", 
+                        palette="Set3")
+            plt.xticks(ticks=range(len(scores_dict)), labels=scores_dict.keys())
+            plt.title("Comparison of Training Scores for Each Classifier")
+            plt.xlabel("Classifier")
+            plt.ylabel("Optuna Hyperparameter Tunning Cross-validation F1 Score ")
+            
+            
+            # Superimposing mean scores as scatter points with higher zorder
+            mean_scores = [np.mean(scores) for scores in scores_dict.values()]
+            for i, mean_score in enumerate(mean_scores):
+                plt.scatter(i, mean_score, color='red', marker='o', s=100, label='Mean Score' if i == 0 else "", zorder=10)
+            plt.legend()  
+                
+            file_path = f"Boxplot_training_score.png"
+            plt.savefig(file_path, bbox_inches='tight')
+            plt.close()
+                                  
                 
             return  all_trained_models
         except Exception as e:
@@ -874,7 +928,7 @@ class ModelTrainer:
             # Creating Model Trainer artefacts directory
             os.makedirs(self.model_trainer_config.MODEL_TRAINER_ARTEFACTS_DIR, exist_ok=True)
             logging.info(f"Created the model trainer artefacts directory for {os.path.basename(self.model_trainer_config.MODEL_TRAINER_ARTEFACTS_DIR)}")
-            os.makedirs(self.model_trainer_config.MODEL_EVALUATION_ARTEFACTS_DIR, exist_ok=True)
+            
             
             # Create and run the study
             all_trained_models = self.run_optimization()

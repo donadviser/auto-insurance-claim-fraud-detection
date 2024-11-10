@@ -111,15 +111,7 @@ class ModelTrainerConfig:
         )
         self.TRAINED_MODEL_FILE_PATH: str = os.path.join(
             from_root(), ARTEFACTS_DIR, MODEL_TRAINER_ARTEFACTS_DIR, MODEL_FILE_NAME
-            )
-        
-        self.BEST_MODEL_ARTEFACTS_DIR: str = os.path.join(
-            from_root(), ARTEFACTS_ROOT_DIR, BEST_MODEL_ARTEFACTS_DIR
-            )
-        
-        self.MODEL_EVALUATION_ARTEFACTS_DIR: str = os.path.join(
-            from_root(), ARTEFACTS_DIR, MODEL_EVALUATION_ARTEFACTS_DIR
-            )
+            ) 
         
 @dataclass
 class ModelEvaluationConfig:
@@ -128,9 +120,17 @@ class ModelEvaluationConfig:
         self.S3_OPERATIONS = S3Operations()
         self.SCHEMA_CONFIG = self.UTILS.read_yaml_file(filename=SCHEMA_FILE_PATH)
         self.BUCKET_NAME: str = MODEL_BUCKET_NAME
+        
+        self.BEST_MODEL_ARTEFACTS_DIR: str = os.path.join(
+            from_root(), ARTEFACTS_ROOT_DIR, BEST_MODEL_ARTEFACTS_DIR
+            )
+        
         self.BEST_MODEL_PATH: str = os.path.join(
-            from_root(), ARTEFACTS_DIR, MODEL_TRAINER_ARTEFACTS_DIR, MODEL_FILE_NAME
+            from_root(), ARTEFACTS_ROOT_DIR, BEST_MODEL_ARTEFACTS_DIR, MODEL_FILE_NAME
         )
+        self.MODEL_EVALUATION_ARTEFACTS_DIR: str = os.path.join(
+            from_root(), ARTEFACTS_DIR, MODEL_EVALUATION_ARTEFACTS_DIR
+            )
         
 
 # Model Pusher Configureations
