@@ -2,7 +2,7 @@ import os
 import sys
 import pandas as pd
 import numpy as np
-import seaborn as sns 
+import seaborn as sns
 import matplotlib.pyplot as plt
 
 import optuna
@@ -25,14 +25,18 @@ from insurance.entity import (
 
 from sklearn.impute import SimpleImputer
 from sklearn.preprocessing import (
-    OneHotEncoder, StandardScaler, OrdinalEncoder, PowerTransformer, RobustScaler, MinMaxScaler,
+    OneHotEncoder, StandardScaler,
+    OrdinalEncoder, PowerTransformer,
+    RobustScaler, MinMaxScaler,
     FunctionTransformer)
 from sklearn.model_selection import   cross_val_score, StratifiedKFold
 from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
 from imblearn.pipeline import Pipeline as ImbPipeline
 
-from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier, AdaBoostClassifier
+from sklearn.ensemble import (RandomForestClassifier,
+                              GradientBoostingClassifier,
+                              AdaBoostClassifier)
 from sklearn.linear_model import LogisticRegression
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.neighbors import KNeighborsClassifier
@@ -41,7 +45,8 @@ from xgboost import XGBClassifier
 from lightgbm import LGBMClassifier
 from catboost import CatBoostClassifier
 
-from sklearn.metrics import  accuracy_score, precision_score, recall_score, f1_score, roc_auc_score, classification_report
+from sklearn.metrics import (accuracy_score, precision_score, recall_score,
+                             f1_score, roc_auc_score, classification_report)
 
 from sklearn.decomposition import PCA
 from imblearn.over_sampling import (
@@ -73,20 +78,20 @@ from insurance.utils.shap_visualization_logger import SHAPLogger
 
 @dataclass
 class TrainModelMetrics:
-    """Dataclass to encapsulate model evaluation metrics and comparison results."""    
+    """Dataclass to encapsulate model evaluation metrics and comparison results."""
     accuracy_score: float
     f1_score: float
     precision_score: float
     recall_score: float
     roc_auc_score: float
-    
-    
+
+
 class CostModel:
     def __init__(self,
                  pipeline_model: object,
                  X_train: pd.DataFrame = None,
                  y_train: pd.DataFrame = None,
-                 preprocess_pipeline: object=None, 
+                 preprocess_pipeline: object=None,
                 ):
         """
         Initialize the CostModel class
@@ -101,12 +106,12 @@ class CostModel:
         self.pipeline_model = pipeline_model
         self.X_train = X_train
         self.y_train = y_train
-        
+
     @staticmethod
     def _handle_exception(e: Exception) -> None:
         raise CustomException(e, sys)
-        
-    
+
+
     def train(self) -> object:
         """Train the model with the provided data."""
         try:
@@ -119,7 +124,7 @@ class CostModel:
 
 
     def predict(self, X_test) -> Tuple[
-        Annotated[float, "y_pred"], 
+        Annotated[float, "y_pred"],
         Annotated[float, "y_pred_proba"]
         ]:
         """
@@ -134,17 +139,17 @@ class CostModel:
         try:
             if self.preprocess_pipeline:
                 X_test = self.preprocess_pipeline.transform(X_test)
-                logging.info("Transformed the X_test using preprocess_pipeline to get predictions")                
-             
+                logging.info("Transformed the X_test using preprocess_pipeline to get predictions")
+
             y_pred = self.pipeline_model.predict(X_test)
             y_pred_proba = self.pipeline_model.predict_proba(X_test)[:, 1]
-            logging.info("Predicted y_pred and y_pred_proba")            
-             
+            logging.info("Predicted y_pred and y_pred_proba")
+
             return y_pred, y_pred_proba
         except Exception as e:
             self._handle_exception(e)
-            
-            
+
+
     def evaluate(self, y_test, y_pred, y_pred_proba=None)-> Dict[str, float]:
         try:
             accuracy = accuracy_score(y_test, y_pred)  # Calculate Accuracy
@@ -164,15 +169,15 @@ class CostModel:
             }
         except Exception as e:
             self._handle_exception(e)
-            
-    
-        
+
+
+
     def __repr__(self) -> str:
         return f"{type(self.pipeline_model).__name__}()"
-    
+
     def __str__(self) -> str:
         return f"{type(self.pipeline_model).__name__}()"
-    
+
 
 class HyperparameterTuner:
     """
@@ -239,7 +244,7 @@ class HyperparameterTuner:
             # Only suggest C if penalty is not None
             if params['penalty'] is not None:
                 params["C"] = trial.suggest_float('C', 1e-10, 1000, log=True)
-            
+
             # Only suggest l1_ratio if penalty is 'elasticnet'
             if params['penalty'] == 'elasticnet':
                 params['l1_ratio'] = trial.suggest_float('l1_ratio', 0, 1)
@@ -256,7 +261,7 @@ class HyperparameterTuner:
 
             return params
 
-        
+
         elif model_name == "GradientBoostingClassifier":
             return {
                 "learning_rate" : trial.suggest_float('learning_rate', 0.001, 0.3, log=True),
@@ -265,7 +270,7 @@ class HyperparameterTuner:
                 "min_samples_split" : trial.suggest_int('min_samples_split', 2, 20),
                 "min_samples_leaf" : trial.suggest_int('min_samples_leaf', 1, 20),
                 "max_features" : trial.suggest_categorical('max_features', ['sqrt', 'log2', None])
-    
+
             }
         elif model_name == "KNeighborsClassifier":
             params = {
@@ -280,11 +285,12 @@ class HyperparameterTuner:
             return {
                 "n_estimators": trial.suggest_int('n_estimators', 50, 1000),  # Number of boosting stages
                 "learning_rate": trial.suggest_float('learning_rate', 0.01, 1.0, log=True),  # Learning rate for each stage
+                "algorithm": trial.suggest_categorical('algorithm', ["SAMME",])
             }
         else:
             raise ValueError(f"Invalid classifier name: {model_name}")
-        
-        
+
+
 class ModelFactory:
     """
     A class to create model instances with additional parameters for specific classifiers.
@@ -297,7 +303,7 @@ class ModelFactory:
     def __init__(self, model_name: str, model_hyperparams: dict):
         """
         Initialize the ModelFactory with a model name and parameters.
-        
+
         Args:
             model_name (str): The name of the model.
             model_hyperparams (dict): Hyperparameters for the model.
@@ -312,7 +318,7 @@ class ModelFactory:
         Returns:
             A model instance with the appropriate parameters.
         """
-         
+
         model_dict = {
             "LGBMClassifier": LGBMClassifier,
             "XGBClassifier": XGBClassifier,
@@ -326,23 +332,23 @@ class ModelFactory:
             "AdaBoostClassifier": AdaBoostClassifier
         }
 
-         
+
         if self.model_name not in model_dict:
             raise ValueError(f"Model {self.model_name} is not supported.")
 
         # Create a model instance with specific parameters
         if self.model_name == "LGBMClassifier":
-            return model_dict[self.model_name](**self.model_hyperparams, random_state=42, verbose=-1)   
+            return model_dict[self.model_name](**self.model_hyperparams, random_state=42, verbose=-1)
         elif self.model_name == "RandomForestClassifier":
-            return model_dict[self.model_name](**self.model_hyperparams, random_state=42, n_jobs=-1)  
+            return model_dict[self.model_name](**self.model_hyperparams, random_state=42, n_jobs=-1)
         elif self.model_name == "SVC":
-            return model_dict[self.model_name](**self.model_hyperparams, random_state=42, probability=True)   
+            return model_dict[self.model_name](**self.model_hyperparams, random_state=42, probability=True)
         elif self.model_name == "CatBoostClassifier":
-            return model_dict[self.model_name](**self.model_hyperparams, random_state=42, verbose=0)   
+            return model_dict[self.model_name](**self.model_hyperparams, random_state=42, verbose=0)
         elif self.model_name == "KNeighborsClassifier":
-            return model_dict[self.model_name](**self.model_hyperparams)   
+            return model_dict[self.model_name](**self.model_hyperparams)
         else:
-            return model_dict[self.model_name](**self.model_hyperparams, random_state=42)   
+            return model_dict[self.model_name](**self.model_hyperparams, random_state=42)
 
 
 
@@ -351,7 +357,7 @@ class PipelineManager:
     A class that handles both building and modifying pipelines dynamically.
     This class supports both scikit-learn's Pipeline and imbalanced-learn's Pipeline.
 
-    It allows the construction of the initial pipeline and the insertion of steps 
+    It allows the construction of the initial pipeline and the insertion of steps
     at any position within the pipeline.
     """
 
@@ -414,9 +420,9 @@ class PipelineManager:
             Pipeline: The constructed or modified pipeline object.
         """
         return self.pipeline
-    
-    
-    
+
+
+
 class PreprocessingPipeline:
     """
     A class that encapsulates the preprocessing steps for feature engineering,
@@ -445,7 +451,7 @@ class PreprocessingPipeline:
         self.ordinal_features = ordinal_features
         self.transform_features = transform_features
         self.trial = trial
-        
+
     def instantiate_numerical_simple_imputer(self, strategy: str=None, fill_value: int=-1) -> SimpleImputer:
         if strategy is None and self.trial:
             strategy = self.trial.suggest_categorical('numerical_strategy', ['mean', 'median', 'most_frequent'])
@@ -455,7 +461,7 @@ class PreprocessingPipeline:
         if strategy is None and self.trial:
             strategy = self.trial.suggest_categorical('categorical_strategy', ['most_frequent', 'constant'])
         return SimpleImputer(strategy=strategy, fill_value=fill_value)
-    
+
     def instantiate_outliers(self, strategy: str=None) -> Union[PowerTransformer, FunctionTransformer, OutlierDetector]:
         """
         Instantiate outlier handling method: PowerTransformer, LogTransformer, or OutlierDetector.
@@ -483,50 +489,50 @@ class PreprocessingPipeline:
         else:
             raise ValueError(f"Unknown strategy for outlier handling: {strategy}")
 
-         
+
     def build(self, step_name=None, **column_transformer_strategy):
         """
-        Build the preprocessing pipeline with feature creation, transformation, 
+        Build the preprocessing pipeline with feature creation, transformation,
         imputation, scaling, and encoding steps.
-        
+
         Returns:
             Transformer: The appropriate transformer for the given step.
         """
-        
+
         if step_name == "create_new_features":
             return CreateNewFeature(bins_hour=self.bins_hour, names_period=self.names_period)
-        
+
         if step_name == "replace_class":
             return ReplaceValueTransformer(old_value="?", new_value='missing')
-        
+
         if step_name == "drop_cols":
             return DropRedundantColumns(redundant_cols=self.drop_columns)
-        
+
         if step_name == 'column_transformer':
-            
+
             numerical_strategy = column_transformer_strategy.get('numerical_strategy', 'mean')
             categorical_strategy = column_transformer_strategy.get('categorical_strategy','most_frequent')
-            outlier_strategy = column_transformer_strategy.get('outlier_strategy', 'power_transform')        
-            
+            outlier_strategy = column_transformer_strategy.get('outlier_strategy', 'power_transform')
+
             return ColumnTransformer(
                 transformers=[
                     ('categorical', Pipeline([
-                        ('imputer', self.instantiate_categorical_simple_imputer(strategy=categorical_strategy)),   
+                        ('imputer', self.instantiate_categorical_simple_imputer(strategy=categorical_strategy)),
                         ('onehot', OneHotEncoder(handle_unknown='ignore', drop='first', sparse_output=False))
                     ]), self.onehot_features),
-                    
+
                     ('numerical', Pipeline([
                         ('imputer', self.instantiate_numerical_simple_imputer(strategy=numerical_strategy)),
                         #('scaler', StandardScaler())  # Add scaler if needed
                     ]), self.numerical_features),
-                    
-                    
-                    
+
+
+
                     ('ordinal', Pipeline([
                         ('imputer', self.instantiate_categorical_simple_imputer(strategy=categorical_strategy)),
                         ('ordinal', OrdinalEncoder())
                     ]), self.ordinal_features),
-                    
+
                     ('outlier_transform', Pipeline([
                         ('imputer', self.instantiate_numerical_simple_imputer(strategy=numerical_strategy)),
                         ('outlier_transformer', self.instantiate_outliers(strategy=outlier_strategy))  # Update this line
@@ -534,12 +540,12 @@ class PreprocessingPipeline:
                 ],
                 remainder='passthrough'
             )
-            
-            
-        
+
+
+
 class ResamplerSelector:
     """
-    A class to select and return a resampling algorithm based on a given parameter or 
+    A class to select and return a resampling algorithm based on a given parameter or
     from a trial suggestion if available.
 
     Attributes:
@@ -563,7 +569,7 @@ class ResamplerSelector:
         If `resampler` is not given, it is suggested from the trial.
 
         Args:
-            resampler (str, optional): The resampling method ('RandomOverSampler', 'ADASYN', etc.). 
+            resampler (str, optional): The resampling method ('RandomOverSampler', 'ADASYN', etc.).
                                        If not provided, it will be suggested from the trial (if available).
 
         Returns:
@@ -571,10 +577,10 @@ class ResamplerSelector:
         """
         if resampler is None and self.trial:
             """resampler = self.trial.suggest_categorical(
-                'resampler', ['RandomOverSampler', 'ADASYN', 'RandomUnderSampler', 'NearMiss', 
+                'resampler', ['RandomOverSampler', 'ADASYN', 'RandomUnderSampler', 'NearMiss',
                               'SMOTEENN', 'SMOTETomek']
             )"""
-            
+
             resampler = self.trial.suggest_categorical(
                 'resampler', ['RandomOverSampler',]
             )
@@ -592,12 +598,12 @@ class ResamplerSelector:
         elif resampler == 'SMOTETomek':
             return SMOTETomek(random_state=self.random_state)
         else:
-            raise ValueError(f"Unknown resampler: {resampler}")    
-        
-        
+            raise ValueError(f"Unknown resampler: {resampler}")
+
+
 class ScalerSelector:
     """
-    A class to select and return a scaling algorithm based on a given parameter or 
+    A class to select and return a scaling algorithm based on a given parameter or
     from a trial suggestion if available.
 
     Attributes:
@@ -619,18 +625,18 @@ class ScalerSelector:
         If `scaler_name` is not given, it is suggested from the trial.
 
         Args:
-            scaler_name (str, optional): The scalring method ('MinMaxScaler', 'StandardScaler', etc.). 
+            scaler_name (str, optional): The scalring method ('MinMaxScaler', 'StandardScaler', etc.).
                                        If not provided, it will be suggested from the trial (if available).
 
         Returns:
             rscaler_obj (object): The scaling instance based on the selected method.
-        """ 
-         
+        """
+
         # -- Instantiate scaler (skip scaler for CatBoostClassifier as it handles categorical features internally)
         if scaler_name is None and self.trial:
             #scaler_name = self.trial.suggest_categorical("scaler", ['minmax', 'standard', 'robust'])
             scaler_name = self.trial.suggest_categorical("scaler", ['minmax'])
-            
+
         if scaler_name == "minmax":
             return MinMaxScaler()
         elif scaler_name == "standard":
@@ -639,11 +645,11 @@ class ScalerSelector:
             return RobustScaler()
         else:
             raise ValueError(f"Unknown scaler: {scaler_name}")
-        
- 
+
+
 class DimensionalityReductionSelector:
     """
-    A class to select and return a dimensionality reduction algorithm based on a given parameter 
+    A class to select and return a dimensionality reduction algorithm based on a given parameter
     or from a trial suggestion if available.
 
     Attributes:
@@ -685,9 +691,9 @@ class DimensionalityReductionSelector:
 
         return dimen_red_algorithm
 
-      
-             
-class ModelTrainer:   
+
+
+class ModelTrainer:
 
     def __init__(
             self,
@@ -698,27 +704,30 @@ class ModelTrainer:
         self.data_ingestion_artefacts = data_ingestion_artefacts
         self.data_transformation_artefact = data_transformation_artefact
         self.model_trainer_config = model_trainer_config
-        
-        
+
+
         mlflow.set_tracking_uri("http://localhost:5000")
-        
+
          # Get the model parameters from model config file
         self.model_config = self.model_trainer_config.UTILS.read_yaml_file(filename=MODEL_CONFIG_FILE)
-        
+
         self.classifiers = self.model_config['classifiers']
         logging.info(f"self.classifiers: {self.classifiers}")
-        
+
         # Get the params from the params.yaml file
         self.param_constants = self.model_trainer_config.UTILS.read_yaml_file(filename=PARAM_FILE_PATH)
         logging.info(f"self.param_constants: {self.param_constants}")
-         
-        
+
+
         # Get the model artefact directory path
         self.model_trainer_artefacts_dir = self.model_trainer_config.MODEL_TRAINER_ARTEFACTS_DIR
-         
-        
-         
-    
+
+        # Get the train test artefact directory path
+        self.metric_artefacts_dir = self.model_trainer_config.METRIC_ARTEFACTS_DIR
+        os.makedirs(self.metric_artefacts_dir, exist_ok=True)
+
+
+
         # Reading the Train and Test data from Data Ingestion Artefacts folder
         self.train_set = pd.read_csv(self.data_ingestion_artefacts.train_data_file_path)
         self.test_set = pd.read_csv(self.data_ingestion_artefacts.test_data_file_path)
@@ -726,44 +735,44 @@ class ModelTrainer:
         logging.info(f"Loaded test_set dataset from the path: {self.data_ingestion_artefacts.test_data_file_path}")
         logging.info(f"Shape of train_set: {self.train_set.shape}")
         logging.info(f"Shape of test_set: {self.test_set.shape}")
-        
+
         # Getting neccessary column names from config file
         self.numerical_features = self.model_trainer_config.SCHEMA_CONFIG['numerical_features']
         self.onehot_features = self.model_trainer_config.SCHEMA_CONFIG['onehot_features']
         self.ordinal_features = self.model_trainer_config.SCHEMA_CONFIG['ordinal_features']
         self.transform_features = self.model_trainer_config.SCHEMA_CONFIG['transform_features']
         logging.info("Obtained the NUMERICAL COLS, ONE HOT COLS, ORDINAL COLS and TRANFORMER COLS from schema config")
-        
+
         # Data Cleaning and Feature Engineering for Training dataset
         # Getting the bins and namess from config file
         self.bins_hour = self.model_trainer_config.SCHEMA_CONFIG['incident_hour_time_bins']['bins_hour']
         self.names_period = self.model_trainer_config.SCHEMA_CONFIG['incident_hour_time_bins']['names_period']
         self.drop_columns = self.model_trainer_config.SCHEMA_CONFIG['drop_columns']
-        
+
         self.yes_no_map = self.model_trainer_config.SCHEMA_CONFIG['yes_no_map']
         self.target_columns = self.model_trainer_config.SCHEMA_CONFIG['target_column']
         logging.info("Completed reading the schema config file")
-        
-        
+
+
         self.X_train, self.y_train = self.model_trainer_config.UTILS.separate_data(
             self.train_set,
             self.target_columns,
             self.yes_no_map,
             )
-        
+
         self.X_test, self.y_test = self.model_trainer_config.UTILS.separate_data(
             self.test_set,
             self.target_columns,
             self.yes_no_map,
             )
         logging.info("Completed separating X and y into the X_train, y_train, X_test and y_test")
-        
+
     @staticmethod
     def _handle_exception(e: Exception) -> None:
         raise CustomException(e, sys)
-      
+
     def get_pipeline_model_and_params(self, trial, model_name,  model_hyperparams=None):
-         
+
         # Got the Preprocessed Pipeline containting Data Cleaning and Column Transformation
         try:
             preprocessing_pipeline = PreprocessingPipeline(
@@ -776,29 +785,29 @@ class ModelTrainer:
                 transform_features=self.transform_features,
                 trial=trial
             )
-            
+
             # Initialize the manager with the preferred pipeline type ('ImbPipeline' or 'Pipeline')
             pipeline_manager = PipelineManager(pipeline_type='ImbPipeline')
-            
+
             pipeline_manager.add_step('create_new_features', preprocessing_pipeline.build(step_name='create_new_features', trial=None), position=0)
             pipeline_manager.add_step('replace_class', preprocessing_pipeline.build(step_name='replace_class', trial=None), position=1)
             pipeline_manager.add_step('drop_cols', preprocessing_pipeline.build(step_name='drop_cols', trial=None), position=2)
             pipeline_manager.add_step('column_transformer', preprocessing_pipeline.build(step_name='column_transformer', trial=trial), position=3)
-            
+
             # Add the resampler step based on the provided resample name or trial suggestion
-            resample_selector = ResamplerSelector(trial=trial)   
+            resample_selector = ResamplerSelector(trial=trial)
             resampler_obj = resample_selector.get_resampler()
             pipeline_manager.add_step('resampler', resampler_obj, position=4)
-            
-            
+
+
             # Add the scaler step based on the provided resample name or trial suggestion
-            scaler_selector = ScalerSelector(trial=trial)  
+            scaler_selector = ScalerSelector(trial=trial)
             scaler_obj = scaler_selector.get_scaler()
             pipeline_manager.add_step('scaler', scaler_obj, position=5)
-            
-            
+
+
             # Add the Dimensional Reduction step based on the provided parameter or trial suggestion
-            #dim_red_selector = DimensionalityReductionSelector(trial=trial) 
+            #dim_red_selector = DimensionalityReductionSelector(trial=trial)
             #dim_red_obj = dim_red_selector.get_dimensionality_reduction()
             #pipeline_manager.add_step('dim_reduction', dim_red_obj, position=6)
 
@@ -806,29 +815,29 @@ class ModelTrainer:
             model_factory = ModelFactory(model_name, model_hyperparams)
             model_obj = model_factory.get_model_instance()
             pipeline_manager.add_step('model', model_obj, position=7)
-            
+
             pipeline = pipeline_manager.get_pipeline()
-            
+
             return pipeline
-        
+
         except Exception as e:
             self._handle_exception(e)
-            
-        
-    
+
+
+
     # Run the Optuna study
     def run_optimization(self) -> None:
         """
         Run Optuna study for hyperparameter tuning and model selection.
         """
         try:
-            hyperparameter_tuner = HyperparameterTuner()       
-            
-            all_trained_models = {}     
+            hyperparameter_tuner = HyperparameterTuner()
+
+            all_trained_models = {}
             kfold = StratifiedKFold(n_splits=self.param_constants['N_SPLITS'])
-             
-            
-            
+
+
+
             classifier_short_names = {
             "KNeighborsClassifier": "KNeighbors",
             "RandomForestClassifier": "RandomForest",
@@ -841,9 +850,11 @@ class ModelTrainer:
             "CatBoostClassifier": "CatBoost",
             "AdaBoostClassifier": "AdaBoost",
             }
-            
+
             scores_dict = {}
-            
+            best_training_score = 0
+            best_trained_model = None
+
             for model_name in tqdm(self.classifiers):
                 logging.info(f"Starting tuning and training for {model_name}")
                 # Initialize scores list for the current model
@@ -853,12 +864,12 @@ class ModelTrainer:
                 def objective(trial):
                     model_hyperparams = hyperparameter_tuner.get_params(trial=trial, model_name=model_name)
                     pipeline = self.get_pipeline_model_and_params(trial=trial, model_name=model_name, model_hyperparams=model_hyperparams)
-                    # Cross-validation                    
-                    scores = cross_val_score(pipeline, self.X_train, self.y_train, 
-                                            scoring=self.param_constants['SCORING'], 
-                                            n_jobs=self.param_constants['N_JOBS'], 
-                                            cv=kfold, 
-                                            verbose=self.param_constants['VERBOSE'], 
+                    # Cross-validation
+                    scores = cross_val_score(pipeline, self.X_train, self.y_train,
+                                            scoring=self.param_constants['SCORING'],
+                                            n_jobs=self.param_constants['N_JOBS'],
+                                            cv=kfold,
+                                            verbose=self.param_constants['VERBOSE'],
                                             error_score='raise')
                     mean_score = scores.mean()
                     scores_dict[model_short_name].extend(scores)
@@ -866,52 +877,57 @@ class ModelTrainer:
                 logging.info(f'completed cross-validation for the model_name: {model_name}')
                 study = optuna.create_study(direction="maximize", sampler=TPESampler())
                 study.optimize(objective, n_trials=self.param_constants['N_TRIALS'])
-                
+
                 # Train final pipeline with best parameters from Optuna
                 # Get hyperparameters for the classifier from HyperparameterTuner
                 logging.info(f'Training {model_name} with the best parameters obtained from Optuna tunning')
                 model_hyperparams = hyperparameter_tuner.get_params(trial=study.best_trial, model_name=model_name)
                 pipeline = self.get_pipeline_model_and_params(trial=study.best_trial, model_name=model_name, model_hyperparams=model_hyperparams)
-            
+
                 trainer = CostModel(pipeline, self.X_train, self.y_train)
                 trained_pipeline = trainer.train()
                 y_pred, y_pred_proba = trainer.predict(self.X_train)
-                evaluation_scores = trainer.evaluate(self.y_train, y_pred, y_pred_proba)            
+                evaluation_scores = trainer.evaluate(self.y_train, y_pred, y_pred_proba)
                 model_score = evaluation_scores[self.param_constants['SCORING']]
                 logging.info(f"Current Model: {model_name}, Best Current Model Trained Score: {model_score}")
                 logging.info(f"Best Current Model Params: {study.best_params}")
-                   
+
                 # Serialise the trained pipeline
-                all_trained_models[model_name] = trained_pipeline    
-            
+                all_trained_models[model_name] = trained_pipeline
+                if model_score >= best_training_score:
+                    best_training_score = model_score
+                    best_trained_model = model_name
+
+            logging.info(f"Overal Best Trained Model: {best_trained_model}, Best Trained Model Score: {best_training_score}")
+
             # Plotting boxplot for the training scores of each classifier
             sns.set(style="darkgrid")
             plt.figure(figsize=(12, 6))
-            sns.boxplot(data=[scores for scores in scores_dict.values()], 
-                        orient="v", 
+            sns.boxplot(data=[scores for scores in scores_dict.values()],
+                        orient="v",
                         palette="Set3")
             plt.xticks(ticks=range(len(scores_dict)), labels=scores_dict.keys())
             plt.title("Comparison of Training Scores for Each Classifier")
             plt.xlabel("Classifier")
             plt.ylabel("Optuna Hyperparameter Tunning Cross-validation F1 Score ")
-            
-            
+
+
             # Superimposing mean scores as scatter points with higher zorder
             mean_scores = [np.mean(scores) for scores in scores_dict.values()]
             for i, mean_score in enumerate(mean_scores):
                 plt.scatter(i, mean_score, color='red', marker='o', s=100, label='Mean Score' if i == 0 else "", zorder=10)
-            plt.legend()  
-                
-            file_path = f"Boxplot_training_score.png"
+            plt.legend()
+
+            file_path = os.path.join(self.metric_artefacts_dir, "Boxplot_training_score.png")
             plt.savefig(file_path, bbox_inches='tight')
             plt.close()
-                                  
-                
+            logging.info("Boxplot for training score saved")
+
             return  all_trained_models
         except Exception as e:
             self._handle_exception(e)
 
-        
+
     # This method is used to initialise model training
     def initiate_model_trainer(self) -> ModelTrainerArtefacts:
         """
@@ -920,33 +936,38 @@ class ModelTrainer:
         Returns:
             ModelTrainerArtefacts: The model training artefacts.
         """
-        
-        
+
+
         logging.info("Entered the initiate_model_trainer method of ModelTrainer class.")
-        
+
         try:
             # Creating Model Trainer artefacts directory
             os.makedirs(self.model_trainer_config.MODEL_TRAINER_ARTEFACTS_DIR, exist_ok=True)
             logging.info(f"Created the model trainer artefacts directory for {os.path.basename(self.model_trainer_config.MODEL_TRAINER_ARTEFACTS_DIR)}")
-            
-            
+
+
             # Create and run the study
             all_trained_models = self.run_optimization()
-            
-            
+
+
             for model_name in self.classifiers:
                 trained_model_filename = f'{model_name}_pipeline{MODEL_SAVE_FORMAT}'
                 trained_model_saved_path = os.path.join(self.model_trainer_artefacts_dir, trained_model_filename)
                 trained_pipeline = all_trained_models[model_name]
                 self.model_trainer_config.UTILS.save_object(trained_model_saved_path, trained_pipeline)
-                logging.info(f'Serialized {model_name} trained pipeline to {trained_model_saved_path}') 
-            
+                logging.info(f'Serialized {model_name} trained pipeline to {trained_model_saved_path}')
+
             # Savind the Model trainer artefacts
+            metric_artefacts_dir = self.metric_artefacts_dir
             model_file_path = self.model_trainer_artefacts_dir
             model_trainer_artefacts = ModelTrainerArtefacts(
-                trained_model_file_path=model_file_path
+                trained_model_file_path=model_file_path,
+                metric_artefacts_dir=metric_artefacts_dir
             )
+
+
             logging.info(f"Returned the model trainer artefacts directory: {model_file_path}")
+            logging.info(f"Returned the metric artefacts directory: {metric_artefacts_dir}")
             logging.info("Exited the initiate_model_trainer method of ModelTrainer class.")
             return model_trainer_artefacts
         except Exception as e:

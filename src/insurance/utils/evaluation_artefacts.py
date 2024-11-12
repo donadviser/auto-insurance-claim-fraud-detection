@@ -12,7 +12,12 @@ from insurance import logging
 
 
 class ModelDiagnosticsLogger:
-    def __init__(self, pipeline, X_test: pd.DataFrame, y_test: pd.Series, model_name: str, artefact_path: str=None):
+    def __init__(self, pipeline, X_test: pd.DataFrame,
+                 y_test: pd.Series,
+                 model_name: str,
+                 artefact_path: str=None,
+                 mlflow_tracking: bool = False
+                 ):
         self.pipeline = pipeline
         self.model = pipeline.named_steps['model']
         self.X_test = X_test
@@ -20,6 +25,7 @@ class ModelDiagnosticsLogger:
         self.model_name = model_name
         self.feature_names = self.get_feature_names()
         self.artefact_path = artefact_path if artefact_path else os.path.join(mlflow.get_artifact_uri(), "artefacts")
+        self.mlflow_tracking = mlflow_tracking
 
     def get_feature_names(self):
         """Extract feature names from a pipeline that may contain ColumnTransformer and PCA."""
@@ -59,19 +65,20 @@ class ModelDiagnosticsLogger:
         try:
             disp = ConfusionMatrixDisplay.from_estimator(self.pipeline, self.X_test, self.y_test)
             plt.title(f"{self.model_name} - Confusion Matrix")
-            artifact_path = f"{self.model_name}_confusion_matrix.png"
+            artifact_path = os.path.join(self.artefact_path, f"{self.model_name}_confusion_matrix.png")
             plt.savefig(artifact_path, bbox_inches='tight')
-            mlflow.log_artifact(artifact_path)
+            if self.mlflow_tracking:
+                mlflow.log_artifact(artifact_path)
             plt.close()
-            os.remove(artifact_path)
+            #os.remove(artifact_path)
         except Exception as e:
             logging.info(f"Error occurred while plot_confusion_matrix: {str(e)}")
-            
-            
+
+
     def display_feature_importance(self, n_top=10):
         """
         This function takes in a dictionary of models, the dataset X, y, and the feature names.
-        It fits each model, extracts feature importances (if available), 
+        It fits each model, extracts feature importances (if available),
         and plots the top n features.
 
         Parameters:
@@ -80,57 +87,58 @@ class ModelDiagnosticsLogger:
         y (pd.Series): Target variable.
         feature_names (list): List of feature names after transformations.
         n_top (int): Number of top features to display. Default is 10.
-        
+
         Returns:
         None
         """
-        
+
         print(f"Feature ranking for model: {self.model_name}")
         try:
             # Check if the model has the attribute `feature_importances_`
             if hasattr(self.model, 'feature_importances_'):
                 # Get feature importances
                 importance_scores = self.model.feature_importances_
-                
-            else:                 
+
+            else:
                 #print(f"{self.model_name} does not support feature importances.")
                 importance_scores = self.model.coef_[0]
-                
+
             # Create a DataFrame from feature names and importances
             data = {'Feature': self.feature_names, 'Score': importance_scores}
             df = pd.DataFrame(data)
-            
-            
+
+
             # Take the absolute value of the score
             df['Abs_Score'] = np.abs(df['Score'])
-            
+
             df_sorted = df.sort_values(by="Abs_Score", ascending=False)
             if n_top:
                 # Sort by absolute value of score in descending order (top 10)
                 df_sorted = df_sorted.head(n_top)
-            
+
             # Define a color palette based on score values (positive = green, negative = red)
             colors = ["green" if score > 0 else "red" for score in df_sorted["Score"]]
             plt.figure(figsize=(12, 8))
             # Create the bar chart with Seaborn
             sns.barplot(x="Feature", y="Score", hue="Feature", legend=False, data=df_sorted, palette=colors)
-            
+
             # Customize the plot for better visual appeal
             plt.xlabel("Feature")
             plt.ylabel("Feature Importance Score")
             plt.title(f"Feature Importance in {self.model_name} Classification")
-            plt.xticks(rotation=45, ha="right")   
-            plt.tight_layout()   
-        
-            artifact_path = f"{self.model_name}_feature_importance_score.png"
+            plt.xticks(rotation=45, ha="right")
+            plt.tight_layout()
+
+            artifact_path = os.path.join(self.artefact_path, f"{self.model_name}_feature_importance_score.png")
             plt.savefig(artifact_path, bbox_inches='tight')
-            mlflow.log_artifact(artifact_path)
+            if self.mlflow_tracking:
+                mlflow.log_artifact(artifact_path)
             plt.close()
-            os.remove(artifact_path)    
-            
+            #os.remove(artifact_path)
+
         except Exception as e:
             logging.info(f"Error occurred while extracting feature importances: {str(e)}")
-            
+
     def plot_roc_auc_curve_seaborn(self):
         """
         Plots the ROC curve and calculates the AUC score for a given model using Seaborn.
@@ -163,23 +171,24 @@ class ModelDiagnosticsLogger:
             plt.title(f"{self.model_name} - ROC-AUC Curve", fontsize=16)
             plt.legend(loc=4)
 
-            artifact_path = f"{self.model_name}_roc_auc_curve.png"
+            artifact_path = os.path.join(self.artefact_path, f"{self.model_name}_roc_auc_curve.png")
             plt.savefig(artifact_path, bbox_inches='tight')
-            mlflow.log_artifact(artifact_path)
+            if self.mlflow_tracking:
+                mlflow.log_artifact(artifact_path)
             plt.close()
-            os.remove(artifact_path)
+            #os.remove(artifact_path)
         except Exception as e:
             logging.info(f"Error occurred while plotting ROC curve: {str(e)}")
-         
+
 
     def log_model_diagnostics(self):
         """Log all diagnostics to MLflow, including confusion matrix, ROC-AUC, and feature importance."""
         self.plot_confusion_matrix()
-        self.display_feature_importance() 
+        self.display_feature_importance()
         self.plot_roc_auc_curve_seaborn()
         logging.info(f"All diagnostics for {self.model_name} logged to MLflow.")
 
 
 # Usage example
-# evaluator = ModelDiagnosticsLogger(trained_pipeline, X_test, y_test, "MyModel")
+# evaluator = ModelDiagnosticsLogger(trained_pipeline, X_test, y_test, "model")
 # evaluator.log_model_diagnostics()

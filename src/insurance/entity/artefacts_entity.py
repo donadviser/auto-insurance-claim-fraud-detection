@@ -24,14 +24,15 @@ class DataTransformationArtefacts:
 @dataclass
 class ModelTrainerArtefacts:
     trained_model_file_path: str
-    
+    metric_artefacts_dir: str
+
 
 @dataclass
 class ModelEvaluationArtefacts:
     is_model_accepted:bool
     changed_accuracy:float
     trained_model_path:str
-    
+
 
 @dataclass
 class ModelPusherArtefacts:

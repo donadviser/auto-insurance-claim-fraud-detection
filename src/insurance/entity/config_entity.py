@@ -40,7 +40,7 @@ class DataIngestionConfig:
         self.TEST_DATA_FILE_PATH: str = os.path.join(
             self.TEST_DATA_ARTEFACT_FILE_DIR, DATA_INGESTION_TEST_FILE_NAME
             )
-        
+
 @dataclass
 class DataValidationConfig:
     def __init__(self):
@@ -56,7 +56,7 @@ class DataValidationConfig:
         self.DATA_DRIFT_FILE_PATH: str = os.path.join(
             self.DATA_VALIDATION_ARTEFACTS_DIR, DATA_DRIFT_FILE_NAME
             )
-        
+
 
 
 @dataclass
@@ -96,9 +96,9 @@ class DataTransformationConfig:
 class ModelTrainerConfig:
     def __init__(self):
         self.UTILS = MainUtils()
-        
+
         self.SCHEMA_CONFIG = self.UTILS.read_yaml_file(filename=SCHEMA_FILE_PATH)
-        
+
         self.DATA_TRANSFORMATION_ARTEFACTS_DIR: str = os.path.join(
             from_root(), ARTEFACTS_DIR, DATA_TRANSFORMATION_ARTEFACTS_DIR
         )
@@ -107,12 +107,12 @@ class ModelTrainerConfig:
             )
         self.PREPROCESSOR_OBJECT_FILE_PATH: str = os.path.join(
             self.DATA_TRANSFORMATION_ARTEFACTS_DIR, PREPROCESSOR_OBJECT_FILE_NAME
-    
+
         )
-        self.TRAINED_MODEL_FILE_PATH: str = os.path.join(
-            from_root(), ARTEFACTS_DIR, MODEL_TRAINER_ARTEFACTS_DIR, MODEL_FILE_NAME
-            ) 
-        
+        self.METRIC_ARTEFACTS_DIR: str = os.path.join(
+            from_root(), ARTEFACTS_DIR, METRIC_ARTEFACTS_DIR
+            )
+
 @dataclass
 class ModelEvaluationConfig:
     def __init__(self):
@@ -120,25 +120,22 @@ class ModelEvaluationConfig:
         self.S3_OPERATIONS = S3Operations()
         self.SCHEMA_CONFIG = self.UTILS.read_yaml_file(filename=SCHEMA_FILE_PATH)
         self.BUCKET_NAME: str = MODEL_BUCKET_NAME
-        
+
         self.BEST_MODEL_ARTEFACTS_DIR: str = os.path.join(
             from_root(), ARTEFACTS_ROOT_DIR, BEST_MODEL_ARTEFACTS_DIR
             )
-        
+
         self.BEST_MODEL_PATH: str = os.path.join(
             from_root(), ARTEFACTS_ROOT_DIR, BEST_MODEL_ARTEFACTS_DIR, MODEL_FILE_NAME
         )
-        self.MODEL_EVALUATION_ARTEFACTS_DIR: str = os.path.join(
-            from_root(), ARTEFACTS_DIR, MODEL_EVALUATION_ARTEFACTS_DIR
-            )
-        
+
 
 # Model Pusher Configureations
 @dataclass
 class ModelPusherConfig:
     def __init__(self):
         self.BEST_MODEL_PATH: str = os.path.join(
-            from_root(), ARTEFACTS_DIR, MODEL_TRAINER_ARTEFACTS_DIR, MODEL_FILE_NAME
+            from_root(), ARTEFACTS_ROOT_DIR, MODEL_TRAINER_ARTEFACTS_DIR, MODEL_FILE_NAME
         )
         self.BUCKET_NAME: str = MODEL_BUCKET_NAME
         self.S3_MODEL_KEY_PATH: str = os.path.join(S3_MODEL_NAME)

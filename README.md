@@ -24,7 +24,7 @@ Insurance fraud detection is a critical problem faced by the Auto Insurance indu
 - **Source**: Proprietary dataset provided by the insurance company [or public repository if applicable].
 - **Size**: The dataset contains [number of instances] and 40 features.
 
-**Target Variable**: 
+**Target Variable**:
 - `fraud_reported`: A binary variable indicating whether the claim is fraudulent (Yes) or not (No).
 
 **Feature Overview**:
@@ -103,7 +103,7 @@ To ensure the reproducibility of this project, the following instructions are pr
 
 **Evaluation**:
 - Evaluate the models using the defined evaluation metrics. Store the results and compare them to ensure that the models generalise well to unseen data.
-  
+
 By following these steps, the project can be easily reproduced, and the models can be re-trained and fine-tuned for further experimentation.
 
 ## 9. **Conclusion**
@@ -141,7 +141,7 @@ pyenv virtualenv 3.11 venv311_insure
 ```bash
 pyenv activate venv311_insure
 ```
-OR 
+OR
 
 ```bash
 pyenv pyenv local venv311_insure
@@ -159,8 +159,16 @@ pip install -r requirements.txt
 4. Update the entity
 5. Update the configuration manager in src config
 6. Update the components
-7. Update the pipeline 
+7. Update the pipeline
 8. Update the main.py
+
+
+## MLflow
+
+```bash
+mlflow server --host 0.0.0.0 --port <PORT>
+# mlflow server --host 127.0.0.1 --port 5000
+```
 
 
 ## AWS-CICD-Deployment-with-Github-Actions
@@ -182,7 +190,7 @@ pip install -r requirements.txt
 
 	2. Push your docker image to ECR
 
-	3. Launch Your EC2 
+	3. Launch Your EC2
 
 	4. Pull Your image from ECR in EC2
 
@@ -194,22 +202,22 @@ pip install -r requirements.txt
 
 	2. AmazonEC2FullAccess
 
-	
+
 ### 3. Create ECR repo to store/save docker image
     - Save the URI: 31786XXX0347.dkr.ecr.us-east-1.amazonaws.com/insure
 
-	
-### 4. Create EC2 machine (Ubuntu) 
+
+### 4. Create EC2 machine (Ubuntu)
 
 ### 5. Open EC2 and Install docker in EC2 Machine:
-	
-	
+
+
 	#optinal
 
 	sudo apt-get update -y
 
 	sudo apt-get upgrade
-	
+
 	#required
 
 	curl -fsSL https://get.docker.com -o get-docker.sh
@@ -219,7 +227,7 @@ pip install -r requirements.txt
 	sudo usermod -aG docker ubuntu
 
 	newgrp docker
-	
+
 ### 6. Configure EC2 as self-hosted runner:
     setting>actions>runner>new self hosted runner> choose os> then run command one by one
 

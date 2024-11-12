@@ -43,8 +43,8 @@ class OutlierTransformer(BaseEstimator, TransformerMixin):
     def get_feature_names_out(self, input_features=None):
         # Simply return the input feature names since this transformer does not change them
         return input_features if input_features is not None else []
-    
-        
+
+
 class OutlierHandler(BaseEstimator, TransformerMixin):
     def __init__(self, th: float = 0.99, strategy: str = 'iqr_clip', fill_value: float = None):
         self.quantiles = None
@@ -115,16 +115,16 @@ class OutlierHandler(BaseEstimator, TransformerMixin):
     def get_feature_names_out(self, input_features=None):
         # Simply return the input feature names since this transformer does not change them
         return input_features if input_features is not None else []
-        
+
 class OutlierDetector(BaseEstimator, TransformerMixin):
     """
     A class to detect and handle outliers in numerical features based on specified strategies.
-    
+
     Attributes:
         method (str): The method to use for outlier detection ('z_score' or 'iqr').
         threshold (float): The threshold value for detecting outliers.
     """
-    
+
     def __init__(self, method='iqr'):
         self.method = method
 
@@ -133,13 +133,13 @@ class OutlierDetector(BaseEstimator, TransformerMixin):
         if self.method == 'iqr':
             if isinstance(X, np.ndarray):
                 X = pd.DataFrame(X)
-                
+
             self.q1 = X.quantile(0.25)
             self.q3 = X.quantile(0.75)
             self.iqr = self.q3 - self.q1
             self.lower_bound = self.q1 - 1.5 * self.iqr
             self.upper_bound = self.q3 + 1.5 * self.iqr
-            
+
         elif self.method == 'z-score':
             self.mean = X.mean()
             self.std = X.std()
@@ -149,7 +149,7 @@ class OutlierDetector(BaseEstimator, TransformerMixin):
     def transform(self, X):
         if isinstance(X, np.ndarray):
             X = pd.DataFrame(X)
-            
+
         if self.method == 'iqr':
             mask = (X >= self.lower_bound) & (X <= self.upper_bound)
             output = X[mask]
@@ -157,21 +157,21 @@ class OutlierDetector(BaseEstimator, TransformerMixin):
             z_scores = (X - self.mean) / self.std
             mask = abs(z_scores) <= self.threshold
             output = X[mask]
-        
+
         # Handle the case where output might be empty
         if output.shape[0] == 0:
-            return np.empty((0, 1))  
-        
+            return np.empty((0, 1))
+
         # Ensure output is 2D
-        output = output.values.reshape(-1, 1) 
+        output = output.values.reshape(-1, 1)
         return output
-    
-    
+
+
     def get_feature_names_out(self, input_features=None):
         # Simply return the input feature names since this transformer does not change them
         return input_features if input_features is not None else []
-        
-        
+
+
 class LogTransformer(BaseEstimator, TransformerMixin):
     """Custom log transformation that handles negative, zero, and positive values."""
 
@@ -182,18 +182,18 @@ class LogTransformer(BaseEstimator, TransformerMixin):
         # Shift negative values to avoid NaN; add a constant (1 + abs(min_value))
         min_value = np.min(X)
         shift_value = 1 - min_value if min_value < 0 else 1
-        
+
         # Apply the shift and log transformation
         adjusted_X = X + shift_value
         output = np.log1p(adjusted_X)
-        
+
         return output
-    
+
     def get_feature_names_out(self, input_features=None):
         # Simply return the input feature names since this transformer does not change them
         return input_features if input_features is not None else []
-    
- 
+
+
 class PowerTransformerWrapper(BaseEstimator, TransformerMixin):
     """Wrapper for PowerTransformer from sklearn."""
     def __init__(self):
@@ -205,8 +205,8 @@ class PowerTransformerWrapper(BaseEstimator, TransformerMixin):
 
     def transform(self, X):
         return self.transformer.transform(X)
-       
-    
+
+
 # Custom transformers
 class DropMissingThreshold(BaseEstimator, TransformerMixin):
     """
@@ -214,34 +214,38 @@ class DropMissingThreshold(BaseEstimator, TransformerMixin):
     """
     def __init__(self, threshold: float=0.5):
         self.threshold = threshold
-    
+
     def fit(self, X: pd.DataFrame, y: None = None) -> 'DropMissingThreshold':
         return self
-    
+
     def transform(self, X: pd.DataFrame) -> pd.DataFrame:
         try:
             return X.dropna(thresh=len(X) * self.threshold, axis=1)
         except Exception as e:
             print(e)
             #raise CustomException(e, f"Error in DropMissingThreshold")
-            
-            
+
+
 class DropRedundantColumns(BaseEstimator, TransformerMixin):
     """
     Transformer to drop redundant columns from the dataset.
     """
     def __init__(self, redundant_cols: list):
         self.redundant_cols = redundant_cols
-    
+
     def fit(self, X: pd.DataFrame, y: None = None) -> 'DropRedundantColumns':
         return self
-    
+
     def transform(self, X: pd.DataFrame) -> pd.DataFrame:
         try:
-            return X.drop(columns=self.redundant_cols)
+            # Filter redundant columns to include only those present in the DataFrame
+            cols_to_drop = [col for col in self.redundant_cols if col in X.columns]
+
+            # Drop the columns and return the modified DataFrame
+            return X.drop(columns=cols_to_drop)
         except Exception as e:
             raise CustomException(e, sys)
-            
+
 
 class CreateNewFeature(BaseEstimator, TransformerMixin):
     """
@@ -251,10 +255,10 @@ class CreateNewFeature(BaseEstimator, TransformerMixin):
         self.bins_hour = bins_hour
         self.names_period = names_period
         self.current_year = datetime.now().year
-        
+
     def fit(self, X: pd.DataFrame, y: None = None) -> 'CreateNewFeature':
         return self
-    
+
     def transform(self, X: pd.DataFrame) -> pd.DataFrame:
         x_copy = X.copy()
         try:
@@ -268,7 +272,7 @@ class CreateNewFeature(BaseEstimator, TransformerMixin):
             return X_updated
         except Exception as e:
             raise CustomException(e, sys)
-            
+
 
 class AlterCurrentFeature(BaseEstimator, TransformerMixin):
     """
@@ -278,10 +282,10 @@ class AlterCurrentFeature(BaseEstimator, TransformerMixin):
         self.bins_hour = bins_hour
         self.names_period = names_period
         self.current_year = datetime.now().year
-        
+
     def fit(self, X: pd.DataFrame, y: None = None) -> 'AlterCurrentFeature':
         return self
-    
+
     def transform(self, X: pd.DataFrame) -> pd.DataFrame:
         x_copy = X.copy()
         try:
@@ -295,12 +299,12 @@ class AlterCurrentFeature(BaseEstimator, TransformerMixin):
             return X_updated
         except Exception as e:
             raise CustomException(e, sys)
-            
+
 
 
 class ReplaceClassTransformer(BaseEstimator, TransformerMixin):
     """
-    A robust custom transformer to replace occurrences of a specified old value 
+    A robust custom transformer to replace occurrences of a specified old value
     (e.g., '?') with a new value (e.g., 'Unknown') in selected columns of a DataFrame.
 
     Parameters
@@ -310,10 +314,10 @@ class ReplaceClassTransformer(BaseEstimator, TransformerMixin):
     replacement_value : Union[str, int, float], default='Unknown'
         The value that will replace the target_value in the DataFrame.
     columns_to_replace : list or None, default=None
-        List of columns to apply the transformation on. 
+        List of columns to apply the transformation on.
         If None, it will apply to all columns of type object.
     """
-    
+
     def __init__(self, target_value: Union[str, int, float], replacement_value: Union[str, int, float] = 'Unknown', columns_to_replace: list = None):
         self.target_value = target_value  # The value that needs to be replaced
         self.replacement_value = replacement_value  # The value to replace the target value with
@@ -330,7 +334,7 @@ class ReplaceClassTransformer(BaseEstimator, TransformerMixin):
 
         y : ignored
             This parameter exists for pipeline compatibility.
-        
+
         Returns
         -------
         self
@@ -338,13 +342,13 @@ class ReplaceClassTransformer(BaseEstimator, TransformerMixin):
         # Validate input is a pandas DataFrame
         if not isinstance(X, pd.DataFrame):
             raise ValueError("Input must be a pandas DataFrame")
-        
+
         # If specific columns are provided, check that they exist in the DataFrame
         if self.columns_to_replace is not None:
             missing_columns = set(self.columns_to_replace) - set(X.columns)
             if missing_columns:
                 raise ValueError(f"Columns {missing_columns} are not found in the DataFrame")
-        
+
         return self
 
     def transform(self, X: pd.DataFrame, y=None) -> pd.DataFrame:
@@ -355,7 +359,7 @@ class ReplaceClassTransformer(BaseEstimator, TransformerMixin):
         ----------
         X : pandas.DataFrame
             The input DataFrame to be transformed.
-        
+
         Returns
         -------
         pandas.DataFrame
@@ -364,7 +368,7 @@ class ReplaceClassTransformer(BaseEstimator, TransformerMixin):
         # Ensure input is a pandas DataFrame
         if not isinstance(X, pd.DataFrame):
             raise ValueError("Input must be a pandas DataFrame")
-        
+
         # Create a copy to avoid mutating the original DataFrame
         X_copy = X.copy()
 
@@ -377,9 +381,9 @@ class ReplaceClassTransformer(BaseEstimator, TransformerMixin):
 
         # Replace the target_value with the replacement_value in the selected columns
         X_copy[columns_to_transform] = X_copy[columns_to_transform].replace(self.target_value, self.replacement_value)
-        
+
         return X_copy
-    
+
 
 
 class ReplaceValueTransformer(BaseEstimator, TransformerMixin):

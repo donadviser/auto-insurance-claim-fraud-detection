@@ -5,7 +5,7 @@ from insurance  import CustomException
 from insurance.configuration.s3_operations import S3Operations
 from insurance.entity.artefacts_entity import (
     DataTransformationArtefacts,
-    ModelTrainerArtefacts,
+    ModelEvaluationArtefacts,
     ModelPusherArtefacts,
 )
 from insurance.entity.config_entity import ModelPusherConfig
@@ -16,12 +16,12 @@ class ModelPusher:
     def __init__(
             self,
             model_pusher_config: ModelPusherConfig,
-            model_trainer_artefacts: ModelTrainerArtefacts,
+            model_evaluation_artefact: ModelEvaluationArtefacts,
             data_transformation_artefacts: DataTransformationArtefacts,
             s3: S3Operations,
     ):
         self.model_pusher_config = model_pusher_config
-        self.model_trainer_artefacts = model_trainer_artefacts
+        self.model_evaluation_artefact = model_evaluation_artefact
         self.data_transformation_artefacts = data_transformation_artefacts
         self.s3 = s3
 
@@ -37,7 +37,7 @@ class ModelPusher:
         try:
             # Uploading the best model to S3 bucket
             self.s3.upload_file(
-                self.model_trainer_artefacts.trained_model_file_path,
+                self.model_evaluation_artefact.trained_model_path,
                 self.model_pusher_config.S3_MODEL_KEY_PATH,
                 self.model_pusher_config.BUCKET_NAME,
                 remove=False,

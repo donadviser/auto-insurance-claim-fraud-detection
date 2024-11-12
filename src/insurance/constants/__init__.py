@@ -47,7 +47,7 @@ BEST_MODEL_ARTEFACTS_DIR = "BestModelArtefacts"
 """
 MODEL EVALUATION related constant #S3 BUCKET
 """
-MODEL_EVALUATION_ARTEFACTS_DIR = "ModelEvaluationArtefacts"
+METRIC_ARTEFACTS_DIR = "MetricArtefacts"
 MODEL_EVALUATION_CHANGED_THRESHOLD_SCORE: float = 0.02
 MODEL_BUCKET_NAME:str = "insurance-claim-fraud-model"
 MODEL_PUSHER_S3_KEY = "model-registry"
