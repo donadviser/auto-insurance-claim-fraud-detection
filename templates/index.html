@@ -1,178 +1,191 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
+  <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Auto Insurance Claim Fraud Detection</title>
-    <link rel="stylesheet" href="{{ url_for('static', path='/css/style.css')}}">
+    <title>Auto Insurance Claim Fraud Detection Prediction</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='./css/style.css')}}">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-iYQeCzEYFbKjA/T2uDLTpkwGzCiq6soy8tYaI1GyVh/UjpbCx/TYkiZhlZB6+fzT" crossorigin="anonymous">
-</head>
-<body>
-    <nav class="navbar navbar-light bg-light static-top">
-        <div class="container-fluid"></div>
-    </nav>
+  </head>
+  <body>
+    <nav class="navbar navbar-light bg-warning static-top">
+        <div class="container-fluid">
+          <a class = "navbar-brand" href="https://github.com/donadviser/auto-insurance-claim-fraud-detection" class="top-left-link" target="_blank">Github Repository Link</a>
+          <h2>&nbsp;&nbsp;&nbsp;&nbsp;Auto Insurance Claim Fraud Detection Prediction &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</h2>
+          <h5>Derrick Njobuenwu&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</h5>
+          <!--<a class = "navbar-brand" href="https://github.com/therealabhishek/shipment_price_prediction_endtoend" target="_blank">Github Repository Link</a>-->
+          <!--<a class="navbar-brand" href="https://ineuron.ai"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIkAAAAlCAMAAABBJDpuAAAAVFBMVEX/fgD/iQA7NzIyMjMnNYInNYEnNYInNYEzMzInNYQnNYETJzsnNYIwN1wxMjNoTis4O1YrNm0xOF47PE9DP0dEQEVpTVkAJJ4nNYEOLJHJbiAzMzOmmmHRAAAAFnRSTlOh/vu+986oen9fP2UqEzQkFAIDAAEEILVBJQAAA3FJREFUWMPNmO2WoyAMQG0VBARtdVRs3/89NwkgaF1rd2aOm18tIrnkgwSz7n+R7LcV1ELkeS7E7VySRlyfQXJhTiO55c+liP4cEuH1X8E7gaV+S3Jv2zYZ/Vr+/Sdx2vP6doc/fSPcf/GOpLSFVXFUW8t+giRP47TOd60yk1hbxIhSP0ACKPWrvw7YBIT/lcQY84G3Wk17ugWQfg5UsQJpjflKSLQi7xTWyk0SXTJ4VnB5D1yccxmp4Z+mX5KGNS+SPXVNll0ulyxL0wYmloBB6zL/MpCoAgjAJiUM6w0SboMwPUdRogvNKcNM3smFdRvEcJJkKcflQa+X0pNIfBGW0zKqjyQtw4VLKQlI7ZLgdrRNSZDjMQx2GB4pCkxkCrfGWUTJ0Egan6muCHgJCUwtnCk0mrJ9Q8K5LUqtdSfynkAedhynaRqngVDaXLiJEAzkFkM71IuIlWRYtSQpbXSZDvQ7JPCei9brs+oaABkn74LRIkpFaVxGnzjvIxTYREOoEwn5r01JTDRTcO87Eu3zNUeTPKZpjrIRrNIDCjzALbPk7LJMIokOEQu2K7yKQAKvFDF9pVe0R+LGb7h1MMkw2ijjA/1zhSfSphvEAChXJEhAqwYStIJWXnTpvbdH4hTUwSQ2JRmQpILDLYbB7J41SYiLcNozu5Z3JMo7RxBJahI7WSRByCMkqJt9hySESbVJcvmARJGFExJmdBSl2oM2+T4JLWfgaGFptizlPUm1FydHSdyZ7UnS4ySph2kS0kJrkvr5NJg7dnrJnfxgxPozRPGtkyPNOxtaiDvbIAF9L+5B5zTI2BwlwXmM+U3zReav3o0F8oUEFFZ42McDZYomOUziFmezgWyo251Uc1nyKJol7URCEvIYUEbHYaEGQi9C9egwCdVfHwiaajfjKMUcHcRacCylhWJbJDfq47EEDhYqoIWjHnwDXZPpPiChPQelLU+Cbm4w50FmYgkvFwpiWwCC/Um/SLcNElOC9RVj6qWpCiEMvRUK4zLpdKmPw8rVldy/qxjn60wLrVLWJIPLiZJRr3fsvnOHPvare+lB93tb37T20D82jqOt+zNuXhuNvNhp7X+PpHb3rvV9R5xjE2SpyCN9ffQO+GtWIZr5Xnytz4gTMIRYfys47/uJEXny/aQ/95tSUwmU+uRvSp/IHzQqZYpYrQmxAAAAAElFTkSuQmCC" /></a>-->
+
+
+        </div>
+     </nav>
+
     <section>
         <div class="container-fluid">
             <div class="container">
-                <form action="/" method="post">
-                    <legend>Auto Insurance Claim Fraud Detection Form</legend>
+                <form action="/predict" method="post">
+                    <br>
+                    <!--<legend>Enter the below details to get your shipment price:</legend> -->
 
-                    <!-- Categorical Features Section -->
-                    <h4>Categorical Features</h4>
+                    <h5>Auto Insurance Claim Fraud Detection Form</h5>
+                    <br>
+
+                    <!-- Numerical Data Section -->
+                    <h4>Text Data</h4>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="policy_state">Policy State</label>
+                            <select class="form-control" id="policy_state" name="policy_state" placeholder="policy_state" required="required">
+                            <option value="" disabled selected>Select Policy State</option>
+                            <option>OH</option>
+                            <option>IN</option>
+                            <option>IL</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label for="insured_sex">Insured Sex</label>
+                            <select class="form-control" id="insured_sex" name="insured_sex" placeholder="policy_state" required="required">
+                            <option value="" disabled selected>Select Insured Sex</option>
+                            <option>MALE</option>
+                            <option>FEMALE</option>
+                            </select>
+                        </div>
+                    </div>
+
 
                     <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label for="policy_state">Policy State</label>
-                        <select class="form-control" id="policy_state" name="policy_state" required>
-                        <option value="" disabled selected>Select Policy State</option>
-                        <option>OH</option>
-                        <option>IN</option>
-                        <option>IL</option>
-                        </select>
-                    </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="insured_education_level">Insured Education Level</label>
+                            <select class="form-control" id="insured_education_level" name="insured_education_level" placeholder="insured_education_level" required="required">
+                            <option value="" disabled selected>Select Insured Education Level</option>
+                            <option>MD</option>
+                            <option>PhD</option>
+                            <option>Associate</option>
+                            <option>Masters</option>
+                            <option>High School</option>
+                            <option>College</option>
+                            <option>JD</option>
+                            </select>
+                        </div>
 
-
-                    <div class="col-md-6 mb-3">
-                        <label for="insured_sex">Insured Sex</label>
-                        <select class="form-control" id="insured_sex" name="insured_sex" required>
-                        <option value="" disabled selected>Select Insured Sex</option>
-                        <option>MALE</option>
-                        <option>FEMALE</option>
-                        </select>
-                    </div>
-                    </div>
-
-                    <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label for="insured_education_level">Insured Education Level</label>
-                        <select class="form-control" id="insured_education_level" name="insured_education_level" required>
-                        <option value="" disabled selected>Select Insured Education Level</option>
-                        <option>MD</option>
-                        <option>PhD</option>
-                        <option>Associate</option>
-                        <option>Masters</option>
-                        <option>High School</option>
-                        <option>College</option>
-                        <option>JD</option>
-                        </select>
-                    </div>
-
-                    <div class="col-md-6 mb-3">
-                        <label for="insured_occupation">Insured Occupation</label>
-                        <select class="form-control" id="insured_occupation" name="insured_occupation" required>
-                        <option value="" disabled selected>Select Occupation</option>
-                        <option>craft-repair</option>
-                        <option>machine-op-inspct</option>
-                        <option>sales</option>
-                        <option>armed-forces</option>
-                        <option>tech-support</option>
-                        <option>prof-specialty</option>
-                        <option>other-service</option>
-                        <option>priv-house-serv</option>
-                        <option>exec-managerial</option>
-                        <option>protective-serv</option>
-                        <option>transport-moving</option>
-                        <option>handlers-cleaners</option>
-                        <option>adm-clerical</option>
-                        <option>farming-fishing</option>
-                        </select>
-                    </div>
-                    </div>
-
-                    <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label for="insured_hobbies"Insured Hobbies</label>
-                        <select class="form-control" id="insured_hobbies" name="insured_hobbies" required>
-                        <option value="" disabled selected>Select Hobby</option>
-                        <option>sleeping</option>
-                        <option>reading</option>
-                        <option>board-games</option>
-                        <option>bungie-jumping</option>
-                        <option>base-jumping</option>
-                        <option>golf</option>
-                        <option>camping</option>
-                        <option>dancing</option>
-                        <option>skydiving</option>
-                        <option>movies</option>
-                        <option>hiking</option>
-                        <option>yachting</option>
-                        <option>paintball</option>
-                        <option>chess</option>
-                        <option>kayaking</option>
-                        <option>polo</option>
-                        <option>basketball</option>
-                        <option>video-games</option>
-                        <option>cross-fit</option>
-                        <option>exercise</option>
-                        </select>
-                    </div>
-
-                    <div class="col-md-6 mb-3">
-                        <label for="insured_relationship">Insured Relationship</label>
-                        <select class="form-control" id="insured_relationship" name="insured_relationship" required>
-                        <option value="" disabled selected>Select Insured Relationship</option>
-                        <option>husband</option>
-                        <option>other-relative</option>
-                        <option>own-child</option>
-                        <option>unmarried</option>
-                        <option>wife</option>
-                        <option>not-in-family</option>
-                        </select>
-                    </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="insured_occupation">Insured Occupation</label>
+                            <select class="form-control" id="insured_occupation" name="insured_occupation" placeholder="insured_occupation" required="required">
+                            <option value="" disabled selected>Select Occupation</option>
+                            <option>craft-repair</option>
+                            <option>machine-op-inspct</option>
+                            <option>sales</option>
+                            <option>armed-forces</option>
+                            <option>tech-support</option>
+                            <option>prof-specialty</option>
+                            <option>other-service</option>
+                            <option>priv-house-serv</option>
+                            <option>exec-managerial</option>
+                            <option>protective-serv</option>
+                            <option>transport-moving</option>
+                            <option>handlers-cleaners</option>
+                            <option>adm-clerical</option>
+                            <option>farming-fishing</option>
+                            </select>
+                        </div>
                     </div>
 
                     <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label for="incident_type">Incident Type</label>
-                        <select class="form-control" id="incident_type" name="incident_type" required>
-                        <option value="" disabled selected>Select Incident Type</option>
-                        <option>Single Vehicle Collision</option>
-                        <option>Vehicle Theft</option>
-                        <option>Multi-vehicle Collision</option>
-                        <option>Parked Car</option>
-                        </select>
-                    </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="insured_hobbies">Insured Hobbies</label>
+                            <select class="form-control" id="insured_hobbies" name="insured_hobbies" placeholder="insured_hobbies" required="required">
+                            <option value="" disabled selected>Select Insured Hobbies</option>
+                            <option>sleeping</option>
+                            <option>reading</option>
+                            <option>board-games</option>
+                            <option>bungie-jumping</option>
+                            <option>base-jumping</option>
+                            <option>golf</option>
+                            <option>camping</option>
+                            <option>dancing</option>
+                            <option>skydiving</option>
+                            <option>movies</option>
+                            <option>hiking</option>
+                            <option>yachting</option>
+                            <option>paintball</option>
+                            <option>chess</option>
+                            <option>kayaking</option>
+                            <option>polo</option>
+                            <option>basketball</option>
+                            <option>video-games</option>
+                            <option>cross-fit</option>
+                            <option>exercise</option>
+                            </select>
+                        </div>
 
-                    <div class="col-md-6 mb-3">
-                        <label for="collision_type">Collision Type</label>
-                        <select class="form-control" id="collision_type" name="collision_type" required>
-                        <option value="" disabled selected>Select Collision Type</option>
-                        <option>Side Collision</option>
-                        <option>?</option>
-                        <option>Rear Collision</option>
-                        <option>Front Collision</option>
-                        </select>
-                    </div>
-                    </div>
 
-                    <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label for="incident_severity">Incident Severity</label>
-                        <select class="form-control" id="incident_severity" name="incident_severity" required>
-                        <option value="" disabled selected>Select Incident Severity</option>
-                        <option>Major Damage</option>
-                        <option>Minor Damage</option>
-                        <option>Total Loss</option>
-                        <option>Trivial Damage</option>
-                        </select>
-                    </div>
-
-                    <div class="col-md-6 mb-3">
-                        <label for="authorities_contacted">Authorities Contacted</label>
-                        <select class="form-control" id="authorities_contacted" name="authorities_contacted" required>
-                        <option value="" disabled selected>Select Authorities Contacted</option>
-                        <option>Police</option>
-                        <option>Fire</option>
-                        <option>Other</option>
-                        <option>Ambulance</option>
-                        </select>
-                    </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="insured_relationship">Insured Relationship</label>
+                            <select class="form-control" id="insured_relationship" name="insured_relationship" placeholder="insured_relationship" required="required">
+                            <option value="" disabled selected>Select Insured Relationship</option>
+                            <option>husband</option>
+                            <option>other-relative</option>
+                            <option>own-child</option>
+                            <option>unmarried</option>
+                            <option>wife</option>
+                            <option>not-in-family</option>
+                            </select>
+                        </div>
                     </div>
 
                     <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="incident_type">Incident Type</label>
+                            <select class="form-control" id="incident_type" name="incident_type" placeholder="incident_type" required="required">
+                            <option value="" disabled selected>Select Incident Type</option>
+                            <option>Single Vehicle Collision</option>
+                            <option>Vehicle Theft</option>
+                            <option>Multi-vehicle Collision</option>
+                            <option>Parked Car</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label for="collision_type">Collision Type</label>
+                            <select class="form-control" id="collision_type" name="collision_type" placeholder="collision_type" required="required">
+                            <option value="" disabled selected>Select Collision Type</option>
+                            <option>Side Collision</option>
+                            <option>?</option>
+                            <option>Rear Collision</option>
+                            <option>Front Collision</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="incident_severity">Incident Severity</label>
+                            <select class="form-control" id="incident_severity" name="incident_severity" placeholder="incident_severity" required="required">
+                            <option value="" disabled selected>Select Incident Severity</option>
+                            <option>Major Damage</option>
+                            <option>Minor Damage</option>
+                            <option>Total Loss</option>
+                            <option>Trivial Damage</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label for="authorities_contacted">Authorities Contacted</label>
+                            <select class="form-control" id="authorities_contacted" name="authorities_contacted" placeholder="authorities_contacted" required="required">
+                            <option value="" disabled selected>Select Authorities Contacted</option>
+                            <option>Police</option>
+                            <option>Fire</option>
+                            <option>Other</option>
+                            <option>Ambulance</option>
+                            </select>
+                        </div>
+                    </div>
+
+                <div class="row">
                     <div class="col-md-6 mb-3">
                         <label for="incident_state">Incident State</label>
-                        <select class="form-control" id="incident_state" name="incident_state" required>
+                        <select class="form-control" id="incident_state" name="incident_state" placeholder="incident_state" required="required">
                         <option value="" disabled selected>Select Incident State</option>
                         <option>SC</option>
                         <option>VA</option>
@@ -186,7 +199,7 @@
 
                     <div class="col-md-6 mb-3">
                         <label for="incident_city">Incident City</label>
-                        <select class="form-control" id="incident_city" name="incident_city" required>
+                        <select class="form-control" id="incident_city" name="incident_city" placeholder="incident_city" required="required">
                         <option value="" disabled selected>Select Incident City</option>
                         <option>Columbus</option>
                         <option>Riverwood</option>
@@ -197,129 +210,176 @@
                         <option>Northbrook</option>
                         </select>
                     </div>
+                </div>
+
+
+                <div class="row">
+                    <!-- police_report_available -->
+                    <div class="col-md-6 mb-3">
+                        <label for="police_report_available">Police Report Available</label>
+                        <select class="form-control" id="police_report_available" name="police_report_available" placeholder="police_report_available" required="required">
+                        <option value="" disabled selected>Select Police Report Available</option>
+                        <option value="YES">YES</option>
+                        <option value="?">?</option>
+                        <option value="NO">NO</option>
+                        </select>
                     </div>
 
-                    <div class="row">
-                        <!-- policy_csl -->
-                        <div class="col-md-6 mb-3">
-                            <label for="policy_csl">Policy CSL</label>
-                            <select class="form-control" id="policy_csl" name="policy_csl" required>
-                            <option value="" disabled selected>Select policy CSL</option>
-                            <option value="250/500">250/500</option>
-                            <option value="100/300">100/300</option>
-                            <option value="500/1000">500/1000</option>
-                            </select>
-                        </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="auto_make">Auto Make</label>
+                        <select class="form-control" id="auto_make" name="auto_make" placeholder="auto_make" required="required">
+                        <option value="" disabled selected>Select Auto Make</option>
+                        <option>Saab</option>
+                        <option>Mercedes</option>
+                        <option>Dodge</option>
+                        <option>Chevrolet</option>
+                        <option>Accura</option>
+                        <option>Nissan</option>
+                        <option>Audi</option>
+                        <option>Toyota</option>
+                        <option>Ford</option>
+                        <option>Suburu</option>
+                        <option>BMW</option>
+                        <option>Jeep</option>
+                        <option>Honda</option>
+                        <option>Volkswagen</option>
+                        <option>Kia</option>
+                        <option>polo</option>
+                        <option>Hyundai</option>
+                        </select>
+                    </div>
+                </div>
 
-                        <!-- property_damage -->
-                        <div class="col-md-6 mb-3">
-                            <label for="property_damage">Property Damage</label>
-                            <select class="form-control" id="property_damage" name="property_damage" required>
-                            <option value="" disabled selected>Select Property Damage</option>
-                            <option value="YES">YES</option>
-                            <option value="?">?</option>
-                            <option value="NO">NO</option>
-                            </select>
-                        </div>
+                <div class="row">
+                    <!-- witnesses -->
+                    <div class="col-md-6 mb-3">
+                        <label for="witnesses">Witnesses</label>
+                        <select class="form-control" id="witnesses" name="witnesses" placeholder="witnesses" required="required">
+                            <option value="" disabled selected>Witnesses</option>
+                            <option>0</option>
+                            <option>1</option>
+                            <option>2</option>
+                            <option>3</option>
+                            <option>4</option>
+                        </select>
+                      </div>
+
+                    <!-- policy_deductable -->
+                    <div class="col-md-6 mb-3">
+                        <label for="policy_deductable">Policy Deductable</label>
+                        <select class="form-control" id="policy_deductable" name="policy_deductable" placeholder="policy_deductable" required="required">
+                        <option value="" disabled selected>Policy Deductable</option>
+                        <option value=1000>1000</option>
+                        <option value=2000>2000</option>
+                        <option value=5000>5000</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <!-- property_damage -->
+                    <div class="col-md-6 mb-3">
+                        <label for="property_damage">Property Damage</label>
+                        <select class="form-control" id="property_damage" name="property_damage" placeholder="property_damage" required="required">
+                        <option value="" disabled selected>Select Property Damage</option>
+                        <option value="YES">YES</option>
+                        <option value="?">?</option>
+                        <option value="NO">NO</option>
+                        </select>
                     </div>
 
-                    <div class="row">
-                        <!-- police_report_available -->
-                        <div class="col-md-6 mb-3">
-                            <label for="police_report_available">Police Report Available</label>
-                            <select class="form-control" id="police_report_available" name="police_report_available" required>
-                            <option value="" disabled selected>Select Police Report Available</option>
-                            <option value="YES">YES</option>
-                            <option value="?">?</option>
-                            <option value="NO">NO</option>
-                            </select>
-                        </div>
-
-                        <!-- policy_deductable -->
-                        <div class="col-md-6 mb-3">
-                            <label for="policy_deductable">Policy Deductable</label>
-                            <select class="form-control" id="policy_deductable" name="policy_deductable" required>
-                            <option value="" disabled selected>Policy Deductable</option>
-                            <option value=1000>1000</option>
-                            <option value=2000>2000</option>
-                            <option value=5000>5000</option>
-                            </select>
-                        </div>
+                    <div class="col-md-6 mb-3">
+                      <label for="incident_hour_of_the_day">Incident Hour of the Day</label>
+                      <select class="form-control" id="incident_hour_of_the_day" name="incident_hour_of_the_day" placeholder="incident_hour_of_the_day" required="required">
+                          <option value="" disabled selected>Incident Hour of the Day</option>
+                          <option value=1>1</option>
+                          <option value=2>2</option>
+                          <option value=3>3</option>
+                          <option value=4>4</option>
+                          <option value=5>5</option>
+                          <option value=6>6</option>
+                          <option value=7>7</option>
+                          <option value=8>8</option>
+                          <option value=9>9</option>
+                          <option value=10>10</option>
+                          <option value=11>11</option>
+                          <option value=12>12</option>
+                          <option value=13>13</option>
+                          <option value=14>14</option>
+                          <option value=15>15</option>
+                          <option value=16>16</option>
+                          <option value=17>17</option>
+                          <option value=18>18</option>
+                          <option value=19>19</option>
+                          <option value=20>20</option>
+                          <option value=21>21</option>
+                          <option value=22>22</option>
+                          <option value=23>23</option>
+                          <option value=24>24</option>
+                      </select>
                     </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="number_of_vehicles_involved">Number of Vehicles Involved</label>
+                        <select class="form-control" id="number_of_vehicles_involved" name="number_of_vehicles_involved" placeholder="number_of_vehicles_involved" required="required">
+                            <option value="" disabled selected>Number of Vehicles Involved</option>
+                            <option>1</option>
+                            <option>2</option>
+                            <option>3</option>
+                            <option>4</option>
+                            <option>5</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="bodily_injuries">Bodily Injuries</label>
+                        <select class="form-control" id="bodily_injuries" name="bodily_injuries" placeholder="bodily_injuries" required="required">
+                            <option value="" disabled selected>Bodily Injuries</option>
+                            <option>0</option>
+                            <option>1</option>
+                            <option>2</option>
+                            <option>3</option>
+                            <option>4</option>
+                            <option>5</option>
+                        </select>
+                    </div>
+                </div>
 
 
-                    <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="auto_make"Insured Hobbies</label>
-                                <select class="form-control" id="auto_make" name="auto_make" required>
-                                <option value="" disabled selected>Select Auto Make</option>
-                                <option>Saab</option>
-                                <option>Mercedes</option>
-                                <option>Dodge</option>
-                                <option>Chevrolet</option>
-                                <option>Accura</option>
-                                <option>Nissan</option>
-                                <option>Audi</option>
-                                <option>Toyota</option>
-                                <option>Ford</option>
-                                <option>Suburu</option>
-                                <option>BMW</option>
-                                <option>Jeep</option>
-                                <option>Honda</option>
-                                <option>Volkswagen</option>
-                                <option>Kia</option>
-                                <option>polo</option>
-                                <option>Hyundai</option>
-                                </select>
-                            </div>
+                <br>
+                <!-- Numerical Data Section -->
+                <h4>Numerical Data</h4>
 
-                            <div class="col-md-6 mb-3">
-                                <label for="insured_relationship">Relationship</label>
-                                <select class="form-control" id="insured_relationship" name="insured_relationship" required>
-                                <option value="" disabled selected>Select Relationship</option>
-                                <option>husband</option>
-                                <option>other-relative</option>
-                                <option>own-child</option>
-                                <option>unmarried</option>
-                                <option>wife</option>
-                                <option>not-in-family</option>
-                                </select>
-                            </div>
-                        </div>
-
-
-                    <!-- Numerical Features Section -->
-                    <h4>Numerical Features</h4>
-
-                    <div class="row">
+                <div class="row">
                     <div class="col-md-6 mb-3">
                         <label for="months_as_customer">Months as Customer</label>
                         <input type="number" class="form-control" id="months_as_customer" name="months_as_customer"
-                            min="0" max="479" placeholder="0 - 479" required>
+                            min="0" max="479" placeholder="0 - 479" required="required">
                     </div>
 
                     <div class="col-md-6 mb-3">
                         <label for="age">Age</label>
                         <input type="number" class="form-control" id="age" name="age"
-                            min="19" max="64" placeholder="19 - 64" required>
+                            min="19" max="64" placeholder="19 - 64" required="required">
                     </div>
-                    </div>
+                </div>
 
-                    <div class="row">
+                <div class="row">
                     <div class="col-md-6 mb-3">
                         <label for="policy_annual_premium">Policy Annual Premium</label>
                         <input type="number" class="form-control" id="policy_annual_premium" name="policy_annual_premium"
-                            min="433.33" max="2047.59" step="0.01" placeholder="433.33 - 2047.59" required>
+                            min="430" max="2048" step="0.10" placeholder="430.00 - 2048.00" required="required">
                     </div>
 
                     <div class="col-md-6 mb-3">
                         <label for="umbrella_limit">Umbrella Limit</label>
                         <input type="number" class="form-control" id="umbrella_limit" name="umbrella_limit"
-                            min="-1000000" max="10000000" placeholder="-1000000 - 10000000" required>
+                            min="-1000000" max="10000000" placeholder="-1000000 - 10000000" required="required">
                     </div>
-                    </div>
+                </div>
 
-                    <div class="row">
+                <div class="row">
                     <div class="col-md-6 mb-3">
                         <label for="capital_gains">Capital Gains</label>
                         <input type="number" class="form-control" id="capital_gains" name="capital_gains"
@@ -331,9 +391,9 @@
                         <input type="number" class="form-control" id="capital_loss" name="capital_loss"
                             min="-111100" max="0" placeholder="-111100 - 0" required>
                     </div>
-                    </div>
+                </div>
 
-                    <div class="row">
+                <div class="row">
                     <div class="col-md-6 mb-3">
                         <label for="total_claim_amount">Total Claim Amount</label>
                         <input type="number" class="form-control" id="total_claim_amount" name="total_claim_amount"
@@ -345,122 +405,38 @@
                         <input type="number" class="form-control" id="injury_claim" name="injury_claim"
                             min="0" max="21450" placeholder="0 - 21450" required>
                     </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="property_claim">Property Claim</label>
+                        <input type="number" class="form-control" id="property_claim" name="property_claim"
+                            min="0" max="23670" placeholder="0 - 23670" required>
                     </div>
 
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label for="property_claim">Property Claim</label>
-                            <input type="number" class="form-control" id="property_claim" name="property_claim"
-                                min="0" max="23670" placeholder="0 - 23670" required>
-                        </div>
-
-                        <div class="col-md-6 mb-3">
-                            <label for="vehicle_claim">Vehicle Claim</label>
-                            <input type="number" class="form-control" id="vehicle_claim" name="vehicle_claim"
-                                min="70" max="79560" placeholder="70 - 79560" required>
-                        </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="vehicle_claim">Vehicle Claim</label>
+                        <input type="number" class="form-control" id="vehicle_claim" name="vehicle_claim"
+                            min="70" max="79560" placeholder="70 - 79560" required>
                     </div>
+                </div>
 
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label for="auto_year">Auto Year</label>
-                            <input type="number" class="form-control" id="auto_year" name="auto_year"
-                                min="0" max="23670" placeholder="1900 - 2025" required>
-                        </div>
-
-                        <div class="col-md-6 mb-3">
-                            <label for="total_claim_amount">Total Claim Amount</label>
-                            <input type="number" class="form-control" id="total_claim_amount" name="total_claim_amount"
-                                min="70" max="79560" placeholder="70 - 79560" required>
-                        </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="auto_year">Auto Year</label>
+                        <input type="number" class="form-control" id="auto_year" name="auto_year"
+                            min="0" max="23670" placeholder="1900 - 2025" required>
                     </div>
-
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label for="incident_hour_of_the_day">Incident Hour of the Day</label>
-                            <input type="number" class="form-control" id="incident_hour_of_the_day" name="incident_hour_of_the_day"
-                                min="0" max="23670" placeholder="0 - 24" required>
-                        </div>
+                </div>
 
 
-                    </div>
-
-
-                    <!-- Ordinal Features Section -->
-                    <h4>Ordinal Features</h4>
-                    <div class="row">
-                      <div class="col-md-6 mb-3">
-                        <label for="unit_of_wage">Contract Tenure</label>
-                        <select class="form-control" id="unit_of_wage" name="unit_of_wage" required>
-                            <option value="" disabled selected>Contract Tenure</option>
-                            <option>Hour</option>
-                            <option>Year</option>
-                            <option>Week</option>
-                            <option>Month</option>
-                        </select>
-                      </div>
-                      <div class="col-md-6 mb-3">
-                        <label for="full_time_position">Full or Part Time</label>
-                        <select class="form-control" id="full_time_position" name="full_time_position" required>
-                            <option value="" disabled selected>Full Time</option>
-                            <option>Y</option>
-                            <option>N</option>
-                        </select>
-                      </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                          <label for="number_of_vehicles_involved">Number of Vehicles Involved</label>
-                          <select class="form-control" id="number_of_vehicles_involved" name="number_of_vehicles_involved" required>
-                              <option value="" disabled selected>Number of Vehicles Involved</option>
-                              <option>1</option>
-                              <option>2</option>
-                              <option>3</option>
-                              <option>4</option>
-                              <option>5</option>
-                          </select>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                          <label for="bodily_injuries">Bodily Injuries</label>
-                          <select class="form-control" id="bodily_injuries" name="bodily_injuries" required>
-                              <option value="" disabled selected>Bodily Injuries</option>
-                              <option>0</option>
-                              <option>1</option>
-                              <option>2</option>
-                              <option>3</option>
-                              <option>4</option>
-                              <option>5</option>
-                          </select>
-                        </div>
-                      </div>
-
-                      <div class="row">
-                        <div class="col-md-6 mb-3">
-                          <label for="witnesses">Witnesses</label>
-                          <select class="form-control" id="witnesses" name="witnesses" required>
-                              <option value="" disabled selected>Witnesses</option>
-                              <option>0</option>
-                              <option>1</option>
-                              <option>2</option>
-                              <option>3</option>
-                              <option>4</option>
-                          </select>
-                        </div>
-
-                      </div>
-
-                    <!-- Submit Button -->
-                    <div class="row">
-                      <div class="col-12">
-                        <input class="btn btn-primary w-100" type="submit" value="Predict Fraud Detection" required />
-                      </div>
+                        <input class="btn btn-primary" type="submit" value="Predict" required />
                     </div>
 
                 </form>
             </div>
             <div class="text-center text-black">
-                <h2 class="display-4 fw-bolder">Auto Insurance Claim Fraud Detection Status: {{context}}</h2>
+                <h2 class="display-4 fw-bolder">Auto Insurance Claim Fraud Dedected:  {{context}} </h2>
             </div>
         </div>
     </section>
@@ -472,7 +448,7 @@
             if($(this).val() === ''){
                 $(this).parent().removeClass("focus");
             }
-        });
+        })
     </script>
-</body>
+  </body>
 </html>

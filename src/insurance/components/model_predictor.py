@@ -5,6 +5,7 @@ from insurance import logging
 from insurance import CustomException
 from insurance.constants import *
 from insurance.configuration.s3_operations import S3Operations
+import joblib
 
 
 class InsuranceData:
@@ -38,6 +39,7 @@ class InsuranceData:
                 umbrella_limit,
                 capital_gains,
                 capital_loss,
+                auto_year,
                 total_claim_amount,
                 ):
         self.policy_state = policy_state
@@ -69,6 +71,7 @@ class InsuranceData:
         self.umbrella_limit = umbrella_limit
         self.capital_gains = capital_gains
         self.capital_loss = capital_loss
+        self.auto_year = auto_year
         self.total_claim_amount = total_claim_amount
 
 
@@ -83,36 +86,37 @@ class InsuranceData:
 
         try:
             input_data = {
-                "Policy State": [self.policy_state],
-                "Collision Type": [self.collision_type],
-                "Property Damage": [self.property_damage],
-                "Police Report Available": [self.police_report_available],
-                "Insured Sex": [self.insured_sex],
-                "Insured Education Level": [self.insured_education_level],
-                "Insured Relationship": [self.insured_relationship],
-                "Incident Type": [self.incident_type],
-                "Incident Severity": [self.incident_severity],
-                "Authorities Contacted": [self.authorities_contacted],
-                "Incident State": [self.incident_state],
-                "Incident City": [self.incident_city],
-                "Policy Deductable": [self.policy_deductable],
-                "Number of Vehicles Involved": [self.number_of_vehicles_involved],
-                "Bodily Injuries": [self.bodily_injuries],
-                "Witnesses": [self.witnesses],
-                "Incident Hour of the Day": [self.incident_hour_of_the_day],
-                "Months as Customer": [self.months_as_customer],
-                "Age": [self.age],
-                "Policy Annual Premium": [self.policy_annual_premium],
-                "Injury Claim": [self.injury_claim],
-                "Property Claim": [self.property_claim],
-                "Vehicle Claim": [self.vehicle_claim],
-                "Insured Occupation": [self.insured_occupation],
-                "Insured Hobbies": [self.insured_hobbies],
-                "Auto Make": [self.auto_make],
-                "Umbrella Limit": [self.umbrella_limit],
-                "Capital Gains": [self.capital_gains],
-                "Capital Loss": [self.capital_loss],
-                "Total Claim Amount": [self.total_claim_amount]
+                "policy_state": [self.policy_state],
+                "collision_type": [self.collision_type],
+                "property_damage": [self.property_damage],
+                "police_report_available": [self.police_report_available],
+                "insured_sex": [self.insured_sex],
+                "insured_education_level": [self.insured_education_level],
+                "insured_relationship": [self.insured_relationship],
+                "incident_type": [self.incident_type],
+                "incident_severity": [self.incident_severity],
+                "authorities_contacted": [self.authorities_contacted],
+                "incident_state": [self.incident_state],
+                "incident_city": [self.incident_city],
+                "policy_deductable": int([self.policy_deductable][0]),
+                "number_of_vehicles_involved": int([self.number_of_vehicles_involved][0]),
+                "bodily_injuries": int([self.bodily_injuries][0]),
+                "witnesses": int([self.witnesses][0]),
+                "incident_hour_of_the_day": int([self.incident_hour_of_the_day][0]),
+                "months_as_customer": int([self.months_as_customer][0]),
+                "age": int([self.age][0]),
+                "policy_annual_premium": float([self.policy_annual_premium][0]),
+                "injury_claim": float([self.injury_claim][0]),
+                "property_claim": float([self.property_claim][0]),
+                "vehicle_claim": float([self.vehicle_claim][0]),
+                "insured_occupation": [self.insured_occupation],
+                "insured_hobbies": [self.insured_hobbies],
+                "auto_make": [self.auto_make],
+                "umbrella_limit": float([self.umbrella_limit][0]),
+                "capital_gains": float([self.capital_gains][0]),
+                "capital_loss": float([self.capital_loss][0]),
+                "auto_year": int([self.auto_year][0]),
+                "total_claim_amount": float([self.total_claim_amount][0])
             }
             logging.info("Exited the get_data method of the ShippingData class")
             return input_data
@@ -127,46 +131,54 @@ class InsuranceData:
             pd.DataFrame: The data
         """
 
-        logging.info("Entered the get_input_data_frame method of the ShippingData class")
+        logging.info("Entered the get_input_data_frame method of the InsuranceData class")
 
         try:
             input_data = self.get_data()
             data_frame = pd.DataFrame(input_data)
             logging.info("Obtained the input data in Python dictionary format")
-            logging.info("Exited the get_input_data_frame method of the ShippingData class")
+            logging.info("Exited the get_input_data_frame method of the InsuranceData class")
             return data_frame
         except Exception as e:
             raise CustomException(e, sys)
 
 
 
-    class CostPredictor:
-        def __init__(self):
-            self.s3_operations = S3Operations()
-            self.bucket_name = MODEL_BUCKET_NAME
+class CostPredictor:
+    def __init__(self):
+        #self.s3_operations = S3Operations()
+        #self.bucket_name = MODEL_BUCKET_NAME
+        self.model_path = "/Users/donadviser/github-projects/auto-insurance-claim-fraud-detection/artefacts/BestModelArtefacts/best_model_insurance_claim_fraud.pkl"
 
-        def predict(self, X) -> float:
-            """Predict the cost using the trained model
+    def predict(self, X) -> float:
+        """Predict the cost using the trained model
 
-            Args:
-                X (pd.DataFrame): The input data
+        Args:
+            X (pd.DataFrame): The input data
 
-            Returns:
-                float: The predicted cost
-            """
+        Returns:
+            float: The predicted cost
+        """
 
-            logging.info("Entered the predict method of the CostPredictor class")
+        logging.info("Entered the predict method of the CostPredictor class")
 
-            try:
-                # Load the trained model from S3 Bucket
-                best_model = self.s3_operations.load_model(S3_MODEL_NAME, self.bucket_name)
-                logging.info(f"Loaded best mode from s3 bucket: {best_model}")
+        try:
+            # Load the trained model from S3 Bucket
+            #best_model = self.s3_operations.load_model(S3_MODEL_NAME, self.bucket_name)
+            best_model = joblib.load(self.model_path)
 
-                # Make predictions using the loaded model
-                prediction = best_model.predict(X)
+            # Check if the model is loaded successfully
+            if not best_model:
+                raise ValueError("Failed to load the best model")
+            logging.info(f"Loaded best mode from s3 bucket: {self.model_path}")
 
-                logging.info("Exited the predict method of the CostPredictor class")
-                return prediction
-            except Exception as e:
-                raise CustomException(e, sys)
+            logging.info(f"X.columns: {X.columns}")
+
+            # Make predictions using the loaded model
+            prediction = best_model.predict(X)
+
+            logging.info("Exited the predict method of the CostPredictor class")
+            return prediction
+        except Exception as e:
+            raise CustomException(e, sys)
 

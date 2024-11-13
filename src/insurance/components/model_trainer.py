@@ -143,7 +143,7 @@ class CostModel:
 
             y_pred = self.pipeline_model.predict(X_test)
             y_pred_proba = self.pipeline_model.predict_proba(X_test)[:, 1]
-            logging.info("Predicted y_pred and y_pred_proba")
+            logging.info(f"Predicted y_pred: {y_pred} and y_pred_proba: {y_pred_proba}")
 
             return y_pred, y_pred_proba
         except Exception as e:

@@ -27,4 +27,5 @@ mypy-boto3-s3
 mlflow
 shap
 fastapi
+python-multipart
 -e .

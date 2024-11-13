@@ -8,5 +8,5 @@ classifiers:
 - CatBoostClassifier
 - GradientBoostingClassifier
 - KNeighborsClassifier
-base_model_name: AdaBoostClassifier
+base_model_name: DecisionTreeClassifier
 base_model_score: '0.8312638804764789'
