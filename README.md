@@ -205,7 +205,7 @@ mlflow.set_tracking_uri("http://127.0.0.1:5001")
 
 
 ### 3. Create ECR repo to store/save docker image
-    - Save the URI: 31786XXX0347.dkr.ecr.us-east-1.amazonaws.com/insure
+    - Save the URI: 439197624230.dkr.ecr.us-east-1.amazonaws.com/insurance
 
 
 ### 4. Create EC2 machine (Ubuntu)
@@ -237,5 +237,6 @@ mlflow.set_tracking_uri("http://127.0.0.1:5001")
 
    - AWS_ACCESS_KEY_ID
    - AWS_SECRET_ACCESS_KEY
-   - AWS_DEFAULT_REGION
-   - ECR_REPO
+   - AWS_REGION: us-east-1
+   - AWS_ECR_LOGIN_URI
+   - ECR_REPOSITORY_NAME: insurance
