@@ -164,15 +164,15 @@ class CostPredictor:
 
         try:
             # Load the trained model from S3 Bucket
-            #best_model = self.s3_operations.load_model(S3_MODEL_NAME, self.bucket_name)
-            best_model = joblib.load(self.model_path)
+            best_model = self.s3_operations.load_model(S3_MODEL_NAME, self.bucket_name)
+            #best_model = joblib.load(self.model_path)
 
             # Check if the model is loaded successfully
             if not best_model:
                 raise ValueError("Failed to load the best model")
-            logging.info(f"Loaded best mode from s3 bucket: {self.model_path}")
+            logging.info(f"Loaded best mode from s3 bucket")
 
-            logging.info(f"X.columns: {X.columns}")
+            #logging.info(f"X.columns: {X.columns}")
 
             # Make predictions using the loaded model
             prediction = best_model.predict(X)

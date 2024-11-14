@@ -59,7 +59,7 @@ class ModelEvaluation:
         self.best_model_artefacts_dir = self.model_evaluation_config.BEST_MODEL_ARTEFACTS_DIR
         os.makedirs(self.best_model_artefacts_dir, exist_ok=True)
 
-        mlflow.set_tracking_uri("http://127.0.0.1:5001")
+        #mlflow.set_tracking_uri("http://127.0.0.1:5001")
         #logging.info(f"mflow: {mlflow.get_tracking_uri()} set")
 
     @staticmethod
@@ -159,7 +159,7 @@ class ModelEvaluation:
                         best_model_pipeline=pipeline
 
 
-                """# Evaluation Artefacts
+                # Evaluation Artefacts
                 logging.info(f"Entres ModelDiagonisticsLogger for evaluation metrics plots for {model_name}")
                 logging.info(f"metric_artefacts_dir: {metric_artefacts_dir}")
                 evaluator = ModelDiagnosticsLogger(trained_pipeline,
@@ -176,11 +176,11 @@ class ModelEvaluation:
                                          artefact_dir_path=metric_artefacts_dir,
                                          mlflow_tracking=False
                                          )
-                shap_logger.log_all()"""
+                shap_logger.log_all()
 
 
 
-                #Ensure any active run is ended
+                """#Ensure any active run is ended
                 if mlflow.active_run():
                     mlflow.end_run()
                 # Start an MLflow run for each model
@@ -229,7 +229,7 @@ class ModelEvaluation:
                                              artefact_dir_path=metric_artefacts_dir,
                                              mlflow_tracking=True
                                             )
-                    shap_logger.log_all()
+                    shap_logger.log_all()"""
 
 
 
@@ -267,8 +267,8 @@ class ModelEvaluation:
                 #cost_model = CostModel(preprocessing_obj, best_model_pipeline)
 
                 # Evaluate S3 model if available
-                #s3_model = self.get_s3_model()
-                s3_model = None
+                s3_model = self.get_s3_model()
+                #s3_model = None # Uncommet to prevent aws S3 access
                 if s3_model:
                     y_pred, y_pred_proba = s3_model.predict(self.X_test)
                     evaluation_scores = pipeline.evaluate(self.y_test, y_pred, y_pred_proba)
