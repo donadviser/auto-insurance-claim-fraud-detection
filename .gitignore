@@ -170,3 +170,4 @@ research/catboost_info/
 
 #mlflow
 mlruns/
+mlartifacts/
