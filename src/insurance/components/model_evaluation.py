@@ -21,7 +21,7 @@ from insurance.utils.shap_visualization_logger import SHAPLogger
 
 import mlflow
 import mlflow.sklearn
-from mlflow.models import infer_signature
+#from mlflow.models import infer_signature
 
 
 @dataclass
@@ -59,7 +59,7 @@ class ModelEvaluation:
         self.best_model_artefacts_dir = self.model_evaluation_config.BEST_MODEL_ARTEFACTS_DIR
         os.makedirs(self.best_model_artefacts_dir, exist_ok=True)
 
-        #mlflow.set_tracking_uri("http://localhost:5000")
+        mlflow.set_tracking_uri("http://127.0.0.1:5001")
         #logging.info(f"mflow: {mlflow.get_tracking_uri()} set")
 
     @staticmethod
@@ -159,7 +159,7 @@ class ModelEvaluation:
                         best_model_pipeline=pipeline
 
 
-                # Evaluation Artefacts
+                """# Evaluation Artefacts
                 logging.info(f"Entres ModelDiagonisticsLogger for evaluation metrics plots for {model_name}")
                 logging.info(f"metric_artefacts_dir: {metric_artefacts_dir}")
                 evaluator = ModelDiagnosticsLogger(trained_pipeline,
@@ -176,15 +176,15 @@ class ModelEvaluation:
                                          artefact_dir_path=metric_artefacts_dir,
                                          mlflow_tracking=False
                                          )
-                shap_logger.log_all()
+                shap_logger.log_all()"""
 
 
-                """
-                # Ensure any active run is ended
-                #if mlflow.active_run():
-                #    mlflow.end_run()
+
+                #Ensure any active run is ended
+                if mlflow.active_run():
+                    mlflow.end_run()
                 # Start an MLflow run for each model
-                #mlflow.set_experiment("good_insurance")
+                mlflow.set_experiment("auto_insurance")
                 with mlflow.start_run(run_name=model_name):
 
                     mlflow.set_tag("version","1.0.0")
@@ -218,15 +218,18 @@ class ModelEvaluation:
                     evaluator = ModelDiagnosticsLogger(trained_pipeline,
                                                        self.X_test, self.y_test,
                                                        model_name,
-                                                       artefact_path=metric_artefacts_dir)
+                                                       artefact_path=metric_artefacts_dir,
+                                                       mlflow_tracking=True)
                     evaluator.log_model_diagnostics()
 
                     shap_logger = SHAPLogger(pipeline=trained_pipeline,
-                                     X_test=self.X_test,
-                                     model_name=model_name,
-                                     artefact_dir_path=metric_artefacts_dir
-                                     )
-                    shap_logger.log_all()"""
+                                             X_train=self.X_train,
+                                             X_test=self.X_test,
+                                             model_name=model_name,
+                                             artefact_dir_path=metric_artefacts_dir,
+                                             mlflow_tracking=True
+                                            )
+                    shap_logger.log_all()
 
 
 

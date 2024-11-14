@@ -6,7 +6,6 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 
 import optuna
-from tqdm.auto import tqdm
 from typing import Union, Dict, Tuple
 from typing_extensions import Annotated
 from optuna.samplers import TPESampler
@@ -45,7 +44,7 @@ from lightgbm import LGBMClassifier
 from catboost import CatBoostClassifier
 
 from sklearn.metrics import (accuracy_score, precision_score, recall_score,
-                             f1_score, roc_auc_score, classification_report)
+                             f1_score, roc_auc_score)
 
 from sklearn.decomposition import PCA
 from imblearn.over_sampling import (
@@ -72,7 +71,8 @@ from insurance.utils.custom_transformers import (
 
 import mlflow
 import mlflow.sklearn
-from insurance.utils.shap_visualization_logger import SHAPLogger
+
+
 
 
 @dataclass
@@ -142,7 +142,6 @@ class CostModel:
 
             y_pred = self.pipeline_model.predict(X_test)
             y_pred_proba = self.pipeline_model.predict_proba(X_test)[:, 1]
-            logging.info(f"Predicted y_pred: {y_pred} and y_pred_proba: {y_pred_proba}")
 
             return y_pred, y_pred_proba
         except Exception as e:
@@ -156,7 +155,7 @@ class CostModel:
             precision = precision_score(y_test, y_pred, average='weighted')  # Calculate Precision
             recall = recall_score(y_test, y_pred, average='weighted')  # Calculate Recall
             roc_auc = roc_auc_score(y_test, y_pred_proba, average='weighted') if y_pred_proba is not None else roc_auc_score(y_test, y_pred, average='weighted')  # Calculate Roc
-            detailed_report = classification_report(y_test, y_pred, output_dict=True)  # Detailed report
+            #detailed_report = classification_report(y_test, y_pred, output_dict=True)  # Detailed report
 
             return {
                 'f1': f1,
@@ -509,9 +508,9 @@ class PreprocessingPipeline:
 
         if step_name == 'column_transformer':
 
-            numerical_strategy = column_transformer_strategy.get('numerical_strategy', 'mean')
-            categorical_strategy = column_transformer_strategy.get('categorical_strategy','most_frequent')
-            outlier_strategy = column_transformer_strategy.get('outlier_strategy', 'power_transform')
+            numerical_strategy = column_transformer_strategy.get('numerical_strategy', None)
+            categorical_strategy = column_transformer_strategy.get('categorical_strategy',None)
+            outlier_strategy = column_transformer_strategy.get('outlier_strategy', None)
 
             return ColumnTransformer(
                 transformers=[
@@ -575,14 +574,14 @@ class ResamplerSelector:
             resampler_obj (object): The resampling instance based on the selected method.
         """
         if resampler is None and self.trial:
-            """resampler = self.trial.suggest_categorical(
+            resampler = self.trial.suggest_categorical(
                 'resampler', ['RandomOverSampler', 'ADASYN', 'RandomUnderSampler', 'NearMiss',
                               'SMOTEENN', 'SMOTETomek']
-            )"""
-
-            resampler = self.trial.suggest_categorical(
-                'resampler', ['RandomOverSampler',]
             )
+
+            """resampler = self.trial.suggest_categorical(
+                'resampler', ['SMOTEENN',]
+            )"""
 
         if resampler == 'RandomOverSampler':
             return RandomOverSampler(random_state=self.random_state)
@@ -633,8 +632,8 @@ class ScalerSelector:
 
         # -- Instantiate scaler (skip scaler for CatBoostClassifier as it handles categorical features internally)
         if scaler_name is None and self.trial:
-            #scaler_name = self.trial.suggest_categorical("scaler", ['minmax', 'standard', 'robust'])
-            scaler_name = self.trial.suggest_categorical("scaler", ['minmax'])
+            scaler_name = self.trial.suggest_categorical("scaler", ['minmax', 'standard', 'robust'])
+            #scaler_name = self.trial.suggest_categorical("scaler", ['robust'])
 
         if scaler_name == "minmax":
             return MinMaxScaler()
@@ -854,7 +853,7 @@ class ModelTrainer:
             best_training_score = 0
             best_trained_model = None
 
-            for model_name in tqdm(self.classifiers):
+            for model_name in self.classifiers:
                 logging.info(f"Starting tuning and training for {model_name}")
                 # Initialize scores list for the current model
                 model_short_name = classifier_short_names.get(model_name, model_name)
@@ -915,6 +914,7 @@ class ModelTrainer:
             mean_scores = [np.mean(scores) for scores in scores_dict.values()]
             for i, mean_score in enumerate(mean_scores):
                 plt.scatter(i, mean_score, color='red', marker='o', s=100, label='Mean Score' if i == 0 else "", zorder=10)
+            plt.xticks(rotation=45, ha="right")
             plt.legend()
 
             file_path = os.path.join(self.metric_artefacts_dir, "Boxplot_training_score.png")

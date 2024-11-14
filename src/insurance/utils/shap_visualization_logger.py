@@ -101,7 +101,7 @@ class SHAPLogger:
             plt.savefig(file_path, bbox_inches='tight')
             if self.mlflow_tracking:
                 mlflow.log_artifact(file_path)
-                os.remove(file_path)
+                #os.remove(file_path)
             plt.close()
 
             logging.info(f"{self.model_name}_shap_summary_plot saved")
@@ -120,7 +120,7 @@ class SHAPLogger:
                 plt.savefig(file_path, bbox_inches='tight')
                 if self.mlflow_tracking:
                     mlflow.log_artifact(file_path)
-                    os.remove(file_path)
+                    #os.remove(file_path)
                 plt.close()
                 logging.info(f"{self.model_name}_waterfall_plot saved")
         except Exception as e:
@@ -139,7 +139,7 @@ class SHAPLogger:
             plt.savefig(file_path, bbox_inches='tight')
             if self.mlflow_tracking:
                 mlflow.log_artifact(file_path)
-                os.remove(file_path)
+                #os.remove(file_path)
             plt.close()
             logging.info(f"{self.model_name}_shap_beeswarm_plot saved")
 

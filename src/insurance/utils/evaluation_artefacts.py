@@ -4,7 +4,7 @@ import os
 import pandas as pd
 import numpy as np
 import seaborn as sns
-from sklearn.metrics import ConfusionMatrixDisplay, RocCurveDisplay, roc_curve, roc_auc_score
+from sklearn.metrics import ConfusionMatrixDisplay, roc_curve, roc_auc_score
 from sklearn.decomposition import PCA
 from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
@@ -12,7 +12,7 @@ from insurance import logging
 
 
 class ModelDiagnosticsLogger:
-    def __init__(self, pipeline, X_test: pd.DataFrame,
+    def __init__(self, pipeline: Pipeline, X_test: pd.DataFrame,
                  y_test: pd.Series,
                  model_name: str,
                  artefact_path: str=None,
@@ -63,7 +63,7 @@ class ModelDiagnosticsLogger:
     def plot_confusion_matrix(self):
         """Plot and log confusion matrix as an MLflow artifact."""
         try:
-            disp = ConfusionMatrixDisplay.from_estimator(self.pipeline, self.X_test, self.y_test)
+            ConfusionMatrixDisplay.from_estimator(self.pipeline, self.X_test, self.y_test)
             plt.title(f"{self.model_name} - Confusion Matrix")
             artifact_path = os.path.join(self.artefact_path, f"{self.model_name}_confusion_matrix.png")
             plt.savefig(artifact_path, bbox_inches='tight')

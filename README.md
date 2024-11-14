@@ -167,7 +167,8 @@ pip install -r requirements.txt
 
 ```bash
 mlflow server --host 0.0.0.0 --port <PORT>
-# mlflow server --host 127.0.0.1 --port 5000
+# mlflow server --host 127.0.0.1 --port 5001 # to be actively runing on another terminal
+mlflow.set_tracking_uri("http://127.0.0.1:5001")
 ```
 
 

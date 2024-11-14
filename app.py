@@ -6,7 +6,6 @@ from fastapi.responses import Response
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
-from insurance.utils.main_utils import MainUtils
 from insurance import logging
 from insurance.pipeline.training_pipeling import TrainPipeline
 from insurance.components.model_predictor import CostPredictor, InsuranceData

@@ -146,9 +146,9 @@ class InsuranceData:
 
 class CostPredictor:
     def __init__(self):
-        #self.s3_operations = S3Operations()
-        #self.bucket_name = MODEL_BUCKET_NAME
-        self.model_path = "/Users/donadviser/github-projects/auto-insurance-claim-fraud-detection/artefacts/BestModelArtefacts/best_model_insurance_claim_fraud.pkl"
+        self.s3_operations = S3Operations()
+        self.bucket_name = MODEL_BUCKET_NAME
+        #self.model_path = "/Users/donadviser/github-projects/auto-insurance-claim-fraud-detection/artefacts/BestModelArtefacts/best_model_insurance_claim_fraud.pkl"
 
     def predict(self, X) -> float:
         """Predict the cost using the trained model

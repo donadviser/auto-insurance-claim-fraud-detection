@@ -1,7 +1,7 @@
 import shutil
 import re
 import sys
-from typing import Dict, Tuple, List
+from typing import Dict, Tuple
 from typing_extensions import Annotated
 import dill
 import pandas as pd
@@ -21,15 +21,10 @@ from insurance import logging, CustomException
 from insurance.constants import *
 
 import os
-from box.exceptions import BoxValueError
-import yaml
-import json
 import joblib
-from ensure import ensure_annotations
-from box import ConfigBox
 from pathlib import Path
 from typing import Any
- 
+
 
 class MainUtils:
     def read_yaml_file(self, filename: str) -> Dict:
@@ -41,7 +36,7 @@ class MainUtils:
             return data
         except Exception as e:
             raise CustomException(e, sys)
-        
+
     def write_json_to_yaml(self, json_file: Dict,  yaml_file_path: str) -> yaml:
         logging.info("Entered the write_json_to_yaml method of MainUtils class.")
         try:
@@ -50,7 +45,7 @@ class MainUtils:
             logging.info(f"Successfully saved the json data to {yaml_file_path}")
         except Exception as e:
             raise CustomException(e, sys)
-        
+
     def save_numpy_array_data(self, file_path: str, array: np.array) -> None:
         logging.info("Entered the save_numpy_array_data method of MainUtils class.")
         try:
@@ -60,7 +55,7 @@ class MainUtils:
             return file_path
         except Exception as e:
             raise CustomException(e, sys)
-        
+
     def load_numpy_array_data(self, file_path: str) -> np.array:
         logging.info("Entered the load_numpy_array_data method of MainUtils class.")
         try:
@@ -70,22 +65,22 @@ class MainUtils:
             return array
         except Exception as e:
             raise CustomException(e, sys)
-        
+
     # Separate X and y
     @staticmethod
     def separate_data(data: pd.DataFrame, target_col: str, yes_no_map=None) -> Tuple[
-        Annotated[pd.DataFrame, "Features"], 
+        Annotated[pd.DataFrame, "Features"],
         Annotated[pd.Series, "Target"]
         ]:
         try:
             X = data.drop(columns=[target_col])
             y = data[target_col]
             if yes_no_map is not None:
-                y = y.map(yes_no_map)   
+                y = y.map(yes_no_map)
             return X, y
         except Exception as e:
                 raise CustomException(e, sys)
-        
+
     def get_tuned_model(
             self,
             model_name: str,
@@ -106,7 +101,7 @@ class MainUtils:
             return model_score, model, model.__class__.__name__
         except Exception as e:
             raise CustomException(e, sys)
-    
+
     @staticmethod
     def get_model_score(test_y: pd.DataFrame, preds: pd.DataFrame) -> float:
         logging.info("Entered the get_model_score method of MainUtils class")
@@ -117,7 +112,7 @@ class MainUtils:
             return model_score
         except Exception as e:
             raise CustomException(e, sys)
-        
+
     @staticmethod
     def get_base_model(model_name: str) -> object:
         logging.info("Entered the get_base_model method of MainUtils class")
@@ -136,8 +131,8 @@ class MainUtils:
             return model
         except Exception as e:
             raise CustomException(e, sys)
-        
-    
+
+
     def get_model_params(self, model: object, X_train: pd.DataFrame, y_train: pd.DataFrame) -> Dict:
         logging.info("Entered the get_model_params method of MainUtils class")
         try:
@@ -152,7 +147,7 @@ class MainUtils:
                 model,
                 model_param_grid,
                 verbose=VERBOSE,
-                cv=CV,                
+                cv=CV,
                 n_jobs=N_JOBD,
             )
             model_grid.fit(X_train, y_train)
@@ -161,8 +156,8 @@ class MainUtils:
             return model_grid.best_params_
         except Exception as e:
             raise CustomException(e, sys)
-        
-    
+
+
     @staticmethod
     def save_object(file_path: str, obj: object) -> None:
         logging.info("Entered the save_object method of MainUtils class")
@@ -174,7 +169,7 @@ class MainUtils:
             return file_path
         except Exception as e:
             raise CustomException(e, sys)
-        
+
 
     @staticmethod
     def load_object(file_path: str) -> object:
@@ -187,7 +182,7 @@ class MainUtils:
             return obj
         except Exception as e:
             raise CustomException(e, sys)
-        
+
     @staticmethod
     def get_best_model_with_name_and_score(model_list: list) -> Tuple[object, float]:
         logging.info("Entered the get_best_model_with_name_and_score method of MainUtils class")
@@ -198,7 +193,7 @@ class MainUtils:
             return best_model, best_score
         except Exception as e:
             raise CustomException(e, sys)
-        
+
     @staticmethod
     def create_artefacts_zip(file_name: str, folder_name: str) -> None:
         logging.info("Entered the create_artefacts_zip method of MainUtils class")
@@ -207,7 +202,7 @@ class MainUtils:
             logging.info("Exited the create_artefacts_zip method of MainUtils class")
         except Exception as e:
             raise CustomException(e, sys)
-        
+
     @staticmethod
     def unzip_file(file_name: str, folder_name: str) -> None:
         logging.info("Entered the unzip_file method of MainUtils class")
@@ -216,14 +211,14 @@ class MainUtils:
             logging.info("Exited the unzip_file method of MainUtils class")
         except Exception as e:
             raise CustomException(e, sys)
-        
+
     def update_model_score(self, best_model_info: Dict) -> None:
         logging.info("Entered the update_model_score method of MainUtils class")
         try:
             model_config = self.read_yaml_file(filename=MODEL_CONFIG_FILE)
             best_model_score = best_model_info['best_model_score']
             best_model_name = best_model_info['best_model_name']
-            
+
             model_config["base_model_score"] = str(best_model_score)
             model_config["base_model_name"] = str(best_model_name)
             with open(MODEL_CONFIG_FILE, "w+") as file_obj:
@@ -231,16 +226,16 @@ class MainUtils:
             logging.info("Exited the update_model_score method of MainUtils class")
         except Exception as e:
             raise CustomException(e, sys)
-        
+
     @staticmethod
     def rename_columns_to_snake_case(df: pd.DataFrame) -> pd.DataFrame:
         """
-        Renames the columns of a DataFrame to snake_case, handling camel case, acronyms, Pascal case, hyphens, 
+        Renames the columns of a DataFrame to snake_case, handling camel case, acronyms, Pascal case, hyphens,
         multiple spaces, and already snake_case columns.
-        
+
         Args:
             df: The DataFrame to rename.
-        
+
         Returns:
             A new DataFrame with the columns renamed to snake_case.
         """
@@ -257,7 +252,7 @@ class MainUtils:
             return df.rename(columns=lambda col: to_snake_case(col))
         except Exception as e:
             raise CustomException(e, sys)
-        
+
     @staticmethod
     def save_bin(data: Any, path: Path):
         """save binary file
@@ -267,7 +262,7 @@ class MainUtils:
             path (Path): path to binary file
         """
         joblib.dump(value=data, filename=path)
-        logger.info(f"binary file saved at: {path}")
+        logging.info(f"binary file saved at: {path}")
 
 
     @staticmethod
@@ -281,7 +276,7 @@ class MainUtils:
             Any: object stored in the file
         """
         data = joblib.load(path)
-        logger.info(f"binary file loaded from: {path}")
+        logging.info(f"binary file loaded from: {path}")
         return data
 
 
