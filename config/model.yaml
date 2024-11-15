@@ -1,4 +1,128 @@
 classifiers:
-- AdaBoostClassifier
-base_model_name: AdaBoostClassifier
-base_model_score: '0.8312638804764789'
+- AdaBoostClassifier:
+    n_estimators:
+      type: int
+      min: 50
+      max: 1000
+    learning_rate:
+      type: float
+      min: 0.01
+      max: 1.0
+      log: true
+    algorithm: SAMME
+- RandomForestClassifier:
+    n_jobs: -1
+    n_estimators:
+      type: int
+      min: 50
+      max: 300
+    max_depth:
+      type: int
+      min: 2
+      max: 30
+    min_samples_split:
+      type: int
+      min: 2
+      max: 20
+    min_samples_leaf:
+      type: int
+      min: 1
+      max: 20
+- DecisionTreeClassifier:
+    max_depth:
+      type: int
+      min: 2
+      max: 30
+    min_samples_split:
+      type: int
+      min: 2
+      max: 20
+    min_samples_leaf:
+      type: int
+      min: 1
+      max: 20
+- LGBMClassifier:
+    objective: binary
+    metric: binary_logloss
+    verbosity: -1
+    boosting_type: gbdt
+    lambda_l1:
+      type: float
+      min: 1.0e-08
+      max: 10.0
+      log: true
+    lambda_l2:
+      type: float
+      min: 1.0e-08
+      max: 10.0
+      log: true
+    num_leaves:
+      type: int
+      min: 2
+      max: 256
+    feature_fraction:
+      type: float
+      min: 0.4
+      max: 1.0
+    bagging_fraction:
+      type: float
+      min: 0.4
+      max: 1.0
+    bagging_freq:
+      type: int
+      min: 1
+      max: 7
+    min_child_samples:
+      type: int
+      min: 5
+      max: 100
+- XGBClassifier:
+    verbosity: 0
+    objective:
+      type: categorical
+      choices: ["binary:logistic"]
+    eval_metric:
+      type: categorical
+      choices: ["auc"]
+    booster:
+      type: categorical
+      choices: ["gbtree", "gblinear", "dart"]
+    lambda:
+      type: float
+      min: 1.0e-8
+      max: 1.0
+      log: true
+    alpha:
+      type: float
+      min: 1.0e-8
+      max: 1.0
+      log: true
+    subsample:
+      type: float
+      min: 0.2
+      max: 1.0
+    colsample_bytree:
+      type: float
+      min: 0.2
+      max: 1.0
+- CatBoostClassifier:
+    verbose: 0
+    objective:
+      type: categorical
+      choices: ["Logloss", "CrossEntropy"]
+    colsample_bylevel:
+      type: float
+      min: 0.01
+      max: 0.1
+    depth:
+      type: int
+      min: 1
+      max: 12
+    boosting_type:
+      type: categorical
+      choices: ["Ordered", "Plain"]
+    bootstrap_type:
+      type: categorical
+      choices: ["Bayesian", "Bernoulli", "MVS"]
+base_model_name: LGBMClassifier
+base_model_score: '0.8326007770762507'

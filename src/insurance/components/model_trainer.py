@@ -6,7 +6,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 
 import optuna
-from typing import Union, Dict, Tuple
+from typing import Union, Dict, Tuple, List
 from typing_extensions import Annotated
 from optuna.samplers import TPESampler
 from dataclasses import dataclass
@@ -181,112 +181,47 @@ class HyperparameterTuner:
     """
     HyperparameterTuner to return hyperparameters for each classifier.
     """
-    def get_params(self, trial: optuna.Trial, model_name: str):
-        if model_name == "RandomForestClassifier":
-            return {
-                "n_estimators": trial.suggest_int("n_estimators", 50, 300),
-                "max_depth": trial.suggest_int("max_depth", 2, 30),
-                "min_samples_split": trial.suggest_int("min_samples_split", 2, 20),
-                "min_samples_leaf": trial.suggest_int("min_samples_leaf", 1, 20),
-            }
-        elif model_name == "DecisionTreeClassifier":
-            return {
-                "max_depth": trial.suggest_int("max_depth", 2, 30),
-                "min_samples_split": trial.suggest_int("min_samples_split", 2, 20),
-                "min_samples_leaf": trial.suggest_int("min_samples_leaf", 1, 20),
-            }
-        elif model_name == "LGBMClassifier":
-            return {
-                "objective": "binary",
-                "metric": "binary_logloss",
-                "verbosity": -1,
-                "boosting_type": "gbdt",
-                "lambda_l1": trial.suggest_float("lambda_l1", 1e-8, 10.0, log=True),
-                "lambda_l2": trial.suggest_float("lambda_l2", 1e-8, 10.0, log=True),
-                "num_leaves": trial.suggest_int("num_leaves", 2, 256),
-                "feature_fraction": trial.suggest_float("feature_fraction", 0.4, 1.0),
-                "bagging_fraction": trial.suggest_float("bagging_fraction", 0.4, 1.0),
-                "bagging_freq": trial.suggest_int("bagging_freq", 1, 7),
-                "min_child_samples": trial.suggest_int("min_child_samples", 5, 100),
-            }
-        elif model_name == "XGBClassifier":
-            return {
-                "verbosity": 0,
-                "objective": "binary:logistic",
-                "eval_metric": "auc",
-                "booster": trial.suggest_categorical("booster", ["gbtree", "gblinear", "dart"]),
-                "lambda": trial.suggest_float("lambda", 1e-8, 1.0, log=True),
-                "alpha": trial.suggest_float("alpha", 1e-8, 1.0, log=True),
-                "subsample": trial.suggest_float("subsample", 0.2, 1.0),
-                "colsample_bytree": trial.suggest_float("colsample_bytree", 0.2, 1.0),
-            }
-        elif model_name == "CatBoostClassifier":
-            return {
-                "objective": trial.suggest_categorical("objective", ["Logloss", "CrossEntropy"]),
-                "colsample_bylevel": trial.suggest_float("colsample_bylevel", 0.01, 0.1),
-                "depth": trial.suggest_int("depth", 1, 12),
-                "boosting_type": trial.suggest_categorical("boosting_type", ["Ordered", "Plain"]),
-                "bootstrap_type": trial.suggest_categorical("bootstrap_type", ["Bayesian", "Bernoulli", "MVS"]),
-            }
-        elif model_name == "LogisticRegression":
-            # Basic hyperparameters
-            params = {
-                "solver": trial.suggest_categorical('solver', ['newton-cholesky', 'lbfgs', 'liblinear', 'sag', 'saga']),
-                "max_iter": trial.suggest_int('max_iter', 10000, 50000),  # Increased max_iter to allow for better convergence
-            }
 
-            # Suggest penalty from a unified set
-            all_penalties = ['l1', 'l2', 'elasticnet', None]  # Unified penalties
-            params['penalty'] = trial.suggest_categorical('penalty', all_penalties)
+    def __init__(self):
+        pass
 
-            # Only suggest C if penalty is not None
-            if params['penalty'] is not None:
-                params["C"] = trial.suggest_float('C', 1e-10, 1000, log=True)
+    def get_params(self, trial: optuna.trial.Trial, model_name: str, classifier_params):
+        """
+        Get hyperparameters for a specified classifier.
 
-            # Only suggest l1_ratio if penalty is 'elasticnet'
-            if params['penalty'] == 'elasticnet':
-                params['l1_ratio'] = trial.suggest_float('l1_ratio', 0, 1)
+        Args:
+            trial (optuna.Trial): Optuna trial instance for hyperparameter suggestions.
+            model_name (str): Name of the classifier.
 
-            # Prune invalid combinations:
-            if (
-                (params['solver'] == 'lbfgs' and params['penalty'] not in ['l2', None]) or
-                (params['solver'] == 'liblinear' and params['penalty'] not in ['l1', 'l2']) or
-                (params['solver'] == 'sag' and params['penalty'] not in ['l2', None]) or
-                (params['solver'] == 'newton-cholesky' and params['penalty'] not in ['l2', None]) or
-                (params['solver'] == 'saga' and params['penalty'] not in ['elasticnet', 'l1', 'l2', None])
-            ):
-                raise optuna.TrialPruned()  # Invalid combination of solver and penalty
+        Returns:
+            dict: A dictionary of hyperparameters.
+        """
+        logging.info(f"Entered get_params, model_name: {model_name}")
 
-            return params
+        # Fetch classifier-specific parameters
+        model_params = classifier_params.get(model_name, {})
+        params = {}
 
 
-        elif model_name == "GradientBoostingClassifier":
-            return {
-                "learning_rate" : trial.suggest_float('learning_rate', 0.001, 0.3, log=True),
-                "n_estimators" : trial.suggest_int('n_estimators', 100, 1000),
-                "max_depth" : trial.suggest_int('max_depth', 3, 10),
-                "min_samples_split" : trial.suggest_int('min_samples_split', 2, 20),
-                "min_samples_leaf" : trial.suggest_int('min_samples_leaf', 1, 20),
-                "max_features" : trial.suggest_categorical('max_features', ['sqrt', 'log2', None])
+        # Fetch classifier-specific parameters
+        for param, settings in model_params.items():
+            if isinstance(settings, dict):
+                param_type = settings.get("type")
+                min_val = settings.get("min")
+                max_val = settings.get("max")
 
-            }
-        elif model_name == "KNeighborsClassifier":
-            params = {
-                "n_neighbors": trial.suggest_int('n_neighbors', 1, 50),
-                "weights": trial.suggest_categorical('weights', ['uniform', 'distance']),
-                "p": trial.suggest_int('p', 1, 2),  # 1: Manhattan, 2: Euclidean
-                "leaf_size": trial.suggest_int('leaf_size', 10, 100),
-                "metric": trial.suggest_categorical('metric', ['euclidean', 'manhattan', 'minkowski', 'chebyshev'])
-            }
-            return params
-        elif model_name == "AdaBoostClassifier":
-            return {
-                "n_estimators": trial.suggest_int('n_estimators', 50, 1000),  # Number of boosting stages
-                "learning_rate": trial.suggest_float('learning_rate', 0.01, 1.0, log=True),  # Learning rate for each stage
-                "algorithm": trial.suggest_categorical('algorithm', ["SAMME",])
-            }
-        else:
-            raise ValueError(f"Invalid classifier name: {model_name}")
+                # Generate parameter suggestions based on type
+                if param_type == "int":
+                    params[param] = trial.suggest_int(param, min_val, max_val)
+                elif param_type == "float":
+                    params[param] = trial.suggest_float(param, min_val, max_val, log=settings.get("log", False))
+                elif param_type == "categorical":
+                    params[param] = trial.suggest_categorical(param, settings["choices"])
+            else:
+                logging.info(f"model_name: {model_name} | param: {param} | settings: {settings}")
+                params[param] = settings  # Fixed parameters
+        logging.info(f"Exiting get_params, model_name: {model_name} | params: {params}")
+        return params
 
 
 class ModelFactory:
@@ -335,15 +270,7 @@ class ModelFactory:
             raise ValueError(f"Model {self.model_name} is not supported.")
 
         # Create a model instance with specific parameters
-        if self.model_name == "LGBMClassifier":
-            return model_dict[self.model_name](**self.model_hyperparams, random_state=42, verbose=-1)
-        elif self.model_name == "RandomForestClassifier":
-            return model_dict[self.model_name](**self.model_hyperparams, random_state=42, n_jobs=-1)
-        elif self.model_name == "SVC":
-            return model_dict[self.model_name](**self.model_hyperparams, random_state=42, probability=True)
-        elif self.model_name == "CatBoostClassifier":
-            return model_dict[self.model_name](**self.model_hyperparams, random_state=42, verbose=0)
-        elif self.model_name == "KNeighborsClassifier":
+        if self.model_name == "KNeighborsClassifier":
             return model_dict[self.model_name](**self.model_hyperparams)
         else:
             return model_dict[self.model_name](**self.model_hyperparams, random_state=42)
@@ -704,13 +631,19 @@ class ModelTrainer:
         self.model_trainer_config = model_trainer_config
 
 
-        mlflow.set_tracking_uri("http://localhost:5000")
+        #mlflow.set_tracking_uri("http://localhost:5000")
 
          # Get the model parameters from model config file
         self.model_config = self.model_trainer_config.UTILS.read_yaml_file(filename=MODEL_CONFIG_FILE)
 
-        self.classifiers = self.model_config['classifiers']
+        self.classifiers = [list(classifier.keys())[0] for classifier in self.model_config.get('classifiers', [])]
+
+        self.classifier_params = {classifier: params
+                                  for clf_config in self.model_config.get('classifiers', [])
+                                  for classifier, params in clf_config.items()
+                                  }
         logging.info(f"self.classifiers: {self.classifiers}")
+        logging.info(f"self.classifier_params: {self.classifier_params}")
 
         # Get the params from the params.yaml file
         self.param_constants = self.model_trainer_config.UTILS.read_yaml_file(filename=PARAM_FILE_PATH)
@@ -829,6 +762,10 @@ class ModelTrainer:
         Run Optuna study for hyperparameter tuning and model selection.
         """
         try:
+
+            classifier_params =self.classifier_params
+
+            logging.info(f"classifier_params: {classifier_params}")
             hyperparameter_tuner = HyperparameterTuner()
 
             all_trained_models = {}
@@ -853,14 +790,24 @@ class ModelTrainer:
             best_training_score = 0
             best_trained_model = None
 
-            for model_name in self.classifiers:
+            if self.param_constants["CLASSIFIER"] == "ALL":
+                self.model_available = self.classifiers
+            else:
+                self.model_available = self.param_constants["CLASSIFIER"]
+
+            for model_name in self.model_available:
                 logging.info(f"Starting tuning and training for {model_name}")
                 # Initialize scores list for the current model
                 model_short_name = classifier_short_names.get(model_name, model_name)
                 scores_dict[model_short_name] = []
                 # Define Optuna objective
                 def objective(trial):
-                    model_hyperparams = hyperparameter_tuner.get_params(trial=trial, model_name=model_name)
+                    model_hyperparams = hyperparameter_tuner.get_params(
+                        trial=trial,
+                        model_name=model_name,
+                        classifier_params=classifier_params
+                        )
+                    logging.info(f"model_hyperparams: {model_hyperparams}")
                     pipeline = self.get_pipeline_model_and_params(trial=trial, model_name=model_name, model_hyperparams=model_hyperparams)
                     # Cross-validation
                     scores = cross_val_score(pipeline, self.X_train, self.y_train,
@@ -879,7 +826,7 @@ class ModelTrainer:
                 # Train final pipeline with best parameters from Optuna
                 # Get hyperparameters for the classifier from HyperparameterTuner
                 logging.info(f'Training {model_name} with the best parameters obtained from Optuna tunning')
-                model_hyperparams = hyperparameter_tuner.get_params(trial=study.best_trial, model_name=model_name)
+                model_hyperparams = hyperparameter_tuner.get_params(trial=study.best_trial, model_name=model_name, classifier_params=classifier_params)
                 pipeline = self.get_pipeline_model_and_params(trial=study.best_trial, model_name=model_name, model_hyperparams=model_hyperparams)
 
                 trainer = CostModel(pipeline, self.X_train, self.y_train)
@@ -896,7 +843,7 @@ class ModelTrainer:
                     best_training_score = model_score
                     best_trained_model = model_name
 
-            logging.info(f"Overal Best Trained Model: {best_trained_model}, Best Trained Model Score: {best_training_score}")
+            logging.info(f"Overall Best Trained Model: {best_trained_model}, Best Trained Model Score: {best_training_score}")
 
             # Plotting boxplot for the training scores of each classifier
             sns.set(style="darkgrid")
@@ -949,7 +896,7 @@ class ModelTrainer:
             all_trained_models = self.run_optimization()
 
 
-            for model_name in self.classifiers:
+            for model_name in self.model_available:
                 trained_model_filename = f'{model_name}_pipeline{MODEL_SAVE_FORMAT}'
                 trained_model_saved_path = os.path.join(self.model_trainer_artefacts_dir, trained_model_filename)
                 trained_pipeline = all_trained_models[model_name]
@@ -961,7 +908,8 @@ class ModelTrainer:
             model_file_path = self.model_trainer_artefacts_dir
             model_trainer_artefacts = ModelTrainerArtefacts(
                 trained_model_file_path=model_file_path,
-                metric_artefacts_dir=metric_artefacts_dir
+                metric_artefacts_dir=metric_artefacts_dir,
+                trained_model_names=self.model_available
             )
 
 

@@ -49,7 +49,7 @@ class ModelEvaluation:
         # Get the model parameters from model config file
         self.model_config = self.model_evaluation_config.UTILS.read_yaml_file(filename=MODEL_CONFIG_FILE)
 
-        self.classifiers = self.model_config['classifiers']
+        #self.classifiers = self.model_config['classifiers']
         logging.info("ModelEvaluation initialised with configuration and artefacts.")
         # Get the params from the params.yaml file
         self.param_constants = self.model_evaluation_config.UTILS.read_yaml_file(filename=PARAM_FILE_PATH)
@@ -122,6 +122,7 @@ class ModelEvaluation:
 
             trained_model_dir_path = self.model_trainer_artefact.trained_model_file_path
             metric_artefacts_dir = self.model_trainer_artefact.metric_artefacts_dir
+            trained_model_names = self.model_trainer_artefact.trained_model_names
 
             best_model_pipeline = None
             best_model_name = None
@@ -131,7 +132,7 @@ class ModelEvaluation:
             #logging.info(f"Started MLflow experiment: insurance")
 
             logging.info("Find the best trained model based on the scoring metric")
-            for model_name in self.classifiers:
+            for model_name in trained_model_names:
                 logging.info(f"Starting evaluating model: {model_name}")
 
                 trained_model_filename = f'{model_name}_pipeline{MODEL_SAVE_FORMAT}'

@@ -1,7 +1,8 @@
 # General parameters
 N_SPLITS: 10  # Number of cross-validation folds
 SCORING: "f1"  # Default scoring metric for model evaluation
-N_TRIALS: 200  # Number of trials for hyperparameter optimization
+N_TRIALS: 10  # Number of trials for hyperparameter optimization
 VERBOSE: 0 # cross_validation
 N_JOBS: -1 # Number of jobs (-1 to use processors available)
 RANDOM_SEED: 42  # Seed for reproducibility
+CLASSIFIER: ["XGBClassifier"] # "ALL" = all classifiers in model.yaml or specified classifier

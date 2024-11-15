@@ -25,6 +25,7 @@ class DataTransformationArtefacts:
 class ModelTrainerArtefacts:
     trained_model_file_path: str
     metric_artefacts_dir: str
+    trained_model_names: list
 
 
 @dataclass
