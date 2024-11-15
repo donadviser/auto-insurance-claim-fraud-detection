@@ -129,6 +129,11 @@ git add .
 git commit -m "Updated"
 
 git push origin main
+
+# To restore a file from a previous commit
+git checkout <commit-hash> -- path/to/file
+# example
+git checkout a1b2c3d4 -- important_file.txt
 ```
 
 
