@@ -169,7 +169,6 @@ class CostModel:
             self._handle_exception(e)
 
 
-
     def __repr__(self) -> str:
         return f"{type(self.pipeline_model).__name__}()"
 
@@ -196,16 +195,51 @@ class HyperparameterTuner:
         Returns:
             dict: A dictionary of hyperparameters.
         """
-        logging.info(f"Entered get_params, model_name: {model_name}")
+
 
         # Fetch classifier-specific parameters
         model_params = classifier_params.get(model_name, {})
         params = {}
 
+        if model_name == "LogisticRegression":
+            # Suggest penalty from a unified set
+
+            # Basic hyperparameters
+            params = {
+                "solver": trial.suggest_categorical('solver', ['newton-cholesky', 'lbfgs', 'liblinear', 'sag', 'saga']),
+                "max_iter": trial.suggest_int('max_iter', 10000, 50000), # Increased max_iter to allow for better convergence
+                }
+
+            all_penalties = ['l1', 'l2', 'elasticnet', None] # Unified penalties
+            params['penalty'] = trial.suggest_categorical('penalty', all_penalties)
+            # Only suggest C if penalty is not None
+            if params['penalty'] is not None:
+                params["C"] = trial.suggest_float('C', 1e-10, 1000, log=True)
+
+            # Only suggest l1_ratio if penalty is 'elasticnet'
+
+            if params['penalty'] == 'elasticnet':
+                params['l1_ratio'] = trial.suggest_float('l1_ratio', 0, 1)
+
+
+            # Prune invalid combinations:
+            if (
+                (params['solver'] == 'lbfgs' and params['penalty'] not in ['l2', None]) or
+                (params['solver'] == 'liblinear' and params['penalty'] not in ['l1', 'l2']) or
+                (params['solver'] == 'sag' and params['penalty'] not in ['l2', None]) or
+                (params['solver'] == 'newton-cholesky' and params['penalty'] not in ['l2', None]) or
+                (params['solver'] == 'saga' and params['penalty'] not in ['elasticnet', 'l1', 'l2', None])
+                ):
+                raise optuna.TrialPruned() # Invalid combination of solver and penalty
+
+
+            return params
 
         # Fetch classifier-specific parameters
         for param, settings in model_params.items():
-            if isinstance(settings, dict):
+            if isinstance(settings, list):  # Categorical parameter
+                    params[param] = trial.suggest_categorical(param, settings)
+            elif isinstance(settings, dict):
                 param_type = settings.get("type")
                 min_val = settings.get("min")
                 max_val = settings.get("max")
@@ -215,14 +249,14 @@ class HyperparameterTuner:
                     params[param] = trial.suggest_int(param, min_val, max_val)
                 elif param_type == "float":
                     params[param] = trial.suggest_float(param, min_val, max_val, log=settings.get("log", False))
-                elif param_type == "categorical":
-                    params[param] = trial.suggest_categorical(param, settings["choices"])
             else:
-                logging.info(f"model_name: {model_name} | param: {param} | settings: {settings}")
+
                 params[param] = settings  # Fixed parameters
-        logging.info(f"Exiting get_params, model_name: {model_name} | params: {params}")
+
         return params
 
+        logging.info(f"params: {params}")
+        return params
 
 class ModelFactory:
     """
@@ -636,14 +670,14 @@ class ModelTrainer:
          # Get the model parameters from model config file
         self.model_config = self.model_trainer_config.UTILS.read_yaml_file(filename=MODEL_CONFIG_FILE)
 
-        self.classifiers = [list(classifier.keys())[0] for classifier in self.model_config.get('classifiers', [])]
+        """self.classifiers = [list(classifier.keys())[0] for classifier in self.model_config.get('classifiers', [])]
 
         self.classifier_params = {classifier: params
                                   for clf_config in self.model_config.get('classifiers', [])
-                                  for classifier, params in clf_config.items()
+                                  for classifier, params in clf_config['parameters'].items()
                                   }
         logging.info(f"self.classifiers: {self.classifiers}")
-        logging.info(f"self.classifier_params: {self.classifier_params}")
+        logging.info(f"self.classifier_params: {self.classifier_params}")"""
 
         # Get the params from the params.yaml file
         self.param_constants = self.model_trainer_config.UTILS.read_yaml_file(filename=PARAM_FILE_PATH)
@@ -656,8 +690,6 @@ class ModelTrainer:
         # Get the train test artefact directory path
         self.metric_artefacts_dir = self.model_trainer_config.METRIC_ARTEFACTS_DIR
         os.makedirs(self.metric_artefacts_dir, exist_ok=True)
-
-
 
         # Reading the Train and Test data from Data Ingestion Artefacts folder
         self.train_set = pd.read_csv(self.data_ingestion_artefacts.train_data_file_path)
@@ -697,6 +729,53 @@ class ModelTrainer:
             self.yes_no_map,
             )
         logging.info("Completed separating X and y into the X_train, y_train, X_test and y_test")
+
+        self.model_parameters = self._parse_classifier_parameters_yaml()
+        logging.info("classifier_long_name:", self.model_parameters["classifier_long_name"])
+        logging.info("classifier_short_name:", self.model_parameters["classifier_short_name"])
+        logging.info("classifier_params:", self.model_parameters["classifier_params"])
+
+    def _parse_classifier_parameters_yaml(self):
+        """
+        Reads a YAML file and extracts classifier information.
+
+        Args:
+            file_path (str): Path to the YAML file.
+
+        Returns:
+            dict: Contains classifiers, short names, and parameter details.
+        """
+
+        classifier_short_name = {}
+        classifier_params = {}
+        classifier_long_name = []
+
+        for classifier_dict in self.model_config['classifiers']:
+            # Ensure the current item is a dictionary
+            if not isinstance(classifier_dict, dict):
+                raise ValueError(f"Unexpected structure in classifiers list: {classifier_dict}")
+
+            # Extract classifier name (e.g., AdaBoostClassifier)
+            for classifier, details in classifier_dict.items():
+                short_name = details.get("short_name")
+                parameters = details.get("parameters")
+
+                # Validate presence of expected keys
+                if not short_name or not parameters:
+                    raise ValueError(f"Classifier {classifier} is missing 'short_name' or 'parameters'.")
+
+                classifier_short_name.update({classifier: short_name})
+                classifier_params.update({classifier: parameters})
+                classifier_long_name.append(classifier)
+
+        #logging.info(f"classifier_long_name: {classifier_long_name}" )
+        #logging.info(f"classifiers_short_name: {classifier_short_name}" )
+        #logging.info(f"classifier_params: {classifier_params}")
+        return {
+            "classifier_long_name": classifier_long_name,
+            "classifier_short_name": classifier_short_name,
+            "classifier_params": classifier_params
+        }
 
     @staticmethod
     def _handle_exception(e: Exception) -> None:
@@ -763,7 +842,7 @@ class ModelTrainer:
         """
         try:
 
-            classifier_params =self.classifier_params
+            classifier_params = self.model_parameters['classifier_params']
 
             logging.info(f"classifier_params: {classifier_params}")
             hyperparameter_tuner = HyperparameterTuner()
@@ -773,32 +852,20 @@ class ModelTrainer:
 
 
 
-            classifier_short_names = {
-            "KNeighborsClassifier": "KNeighbors",
-            "RandomForestClassifier": "RandomForest",
-            "GradientBoostingClassifier": "GradientBoosting",
-            "LogisticRegression": "LogisticRegression",
-            "SVC": "SVC",
-            "DecisionTreeClassifier": "DecisionTree",
-            "LGBMClassifier": "LightGBM",
-            "XGBClassifier": "XGB",
-            "CatBoostClassifier": "CatBoost",
-            "AdaBoostClassifier": "AdaBoost",
-            }
 
             scores_dict = {}
             best_training_score = 0
             best_trained_model = None
 
             if self.param_constants["CLASSIFIER"] == "ALL":
-                self.model_available = self.classifiers
+                self.model_available = self.model_parameters['classifier_long_name']
             else:
                 self.model_available = self.param_constants["CLASSIFIER"]
 
             for model_name in self.model_available:
                 logging.info(f"Starting tuning and training for {model_name}")
                 # Initialize scores list for the current model
-                model_short_name = classifier_short_names.get(model_name, model_name)
+                model_short_name = self.model_parameters['classifier_short_name'].get(model_name, model_name)
                 scores_dict[model_short_name] = []
                 # Define Optuna objective
                 def objective(trial):
@@ -807,7 +874,7 @@ class ModelTrainer:
                         model_name=model_name,
                         classifier_params=classifier_params
                         )
-                    logging.info(f"model_hyperparams: {model_hyperparams}")
+                    
                     pipeline = self.get_pipeline_model_and_params(trial=trial, model_name=model_name, model_hyperparams=model_hyperparams)
                     # Cross-validation
                     scores = cross_val_score(pipeline, self.X_train, self.y_train,

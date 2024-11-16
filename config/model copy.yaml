@@ -1,7 +1,7 @@
 classifiers:
 - AdaBoostClassifier:
-    short_name: AdaBoost
-    parameters:
+  short_name: "AdaBoost"
+  parameters:
       n_estimators:
         type: int
         min: 50
@@ -13,8 +13,9 @@ classifiers:
         log: true
       algorithm: SAMME
 - RandomForestClassifier:
-    short_name: RandomForest
-    parameters:
+  short_name: "RandomForest"
+  parameters:
+      n_jobs: -1
       n_estimators:
         type: int
         min: 50
@@ -32,8 +33,8 @@ classifiers:
         min: 1
         max: 20
 - DecisionTreeClassifier:
-    short_name: DecisionTree
-    parameters:
+  short_name: "DecisionTree"
+  parameters:
       max_depth:
         type: int
         min: 2
@@ -47,8 +48,8 @@ classifiers:
         min: 1
         max: 20
 - LGBMClassifier:
-    short_name: LightGBM
-    parameters:
+  short_name: "LightGBM"
+  parameters:
       objective: binary
       metric: binary_logloss
       verbosity: -1
@@ -84,23 +85,26 @@ classifiers:
         min: 5
         max: 100
 - XGBClassifier:
-    short_name: XGBoost
-    parameters:
+  short_name: "XGBoost"
+  parameters:
       verbosity: 0
-      objective: binary:logistic
-      eval_metric: auc
+      objective:
+        type: categorical
+        choices: ["binary:logistic"]
+      eval_metric:
+        type: categorical
+        choices: ["auc"]
       booster:
-        - gbtree
-        - gblinear
-        - dart
+        type: categorical
+        choices: ["gbtree", "gblinear", "dart"]
       lambda:
         type: float
-        min: 1.0e-08
+        min: 1.0e-8
         max: 1.0
         log: true
       alpha:
         type: float
-        min: 1.0e-08
+        min: 1.0e-8
         max: 1.0
         log: true
       subsample:
@@ -112,12 +116,12 @@ classifiers:
         min: 0.2
         max: 1.0
 - CatBoostClassifier:
-    short_name: CatBoost
-    parameters:
+  short_name: "CatBoost"
+  parameters:
       verbose: 0
       objective:
-        - Logloss
-        - CrossEntropy
+        type: categorical
+        choices: ["Logloss", "CrossEntropy"]
       colsample_bylevel:
         type: float
         min: 0.01
@@ -127,35 +131,34 @@ classifiers:
         min: 1
         max: 12
       boosting_type:
-        - Ordered
-        - Plain
+        type: categorical
+        choices: ["Ordered", "Plain"]
       bootstrap_type:
-        - Bayesian
-        - Bernoulli
-        - MVS
+        type: categorical
+        choices: ["Bayesian", "Bernoulli", "MVS"]
 - LogisticRegression:
-    short_name: LR
-    parameters:
+  short_name: "LR"
+  parameters:
       solver:
-      - newton-cholesky
-      - lbfgs
-      - liblinear
-      - sag
-      - saga
+        - "newton-cholesky"
+        - "lbfgs"
+        - "liblinear"
+        - "sag"
+        - "saga"
       max_iter:
         type: int
         min: 10000
         max: 50000
       penalty:
-      - l1
-      - l2
-      - elasticnet
-      - None
+        - "l1"
+        - "l2"
+        - "elasticnet"
+        - None
       C:
         type: float
         min: 1.0e-10
         max: 1000
-        log: true
+        log: True
         condition: penalty != None
       l1_ratio:
         type: float
@@ -163,15 +166,15 @@ classifiers:
         max: 1
         condition: penalty == "elasticnet"
 - KNeighborsClassifier:
-    short_name: KNeighbors
-    parameters:
+  short_name: "KNeighbors"
+  parameters:
       n_neighbors:
         type: int
         min: 1
         max: 50
       weights:
-        - uniform
-        - distance
+        type: categorical
+        choices: ["uniform", "distance"]
       p:
         type: int
         min: 1
@@ -181,18 +184,16 @@ classifiers:
         min: 10
         max: 100
       metric:
-        - euclidean
-        - manhattan
-        - minkowski
-        - chebyshev
+        type: categorical
+        choices: ["euclidean", "manhattan", "minkowski", "chebyshev"]
 - GradientBoostingClassifier:
-    short_name: GradientBoosting
-    parameters:
+  short_name: "GradientBoosting"
+  parameters:
       learning_rate:
         type: float
         min: 0.001
         max: 0.3
-        log: true
+        log: True
       n_estimators:
         type: int
         min: 100
@@ -210,8 +211,7 @@ classifiers:
         min: 1
         max: 20
       max_features:
-        - sqrt
-        - log2
-        - null
-base_model_name: AdaBoostClassifier
-base_model_score: '0.836328125'
+        type: categorical
+        choices: ["sqrt", "log2", null]
+base_model_name: LGBMClassifier
+base_model_score: '0.8326007770762507'
